@@ -4,7 +4,7 @@ Snapshot: 24 October 2026, Asia/Jakarta. This snapshot is the latest source acce
 
 ## Current status
 The user confirmed the latest sidebar/navigation fix with: "nah, sudah normal ini".
-The creation-modal update is committed on ui/modal-penambahan-pelatihan; it has not yet been confirmed on the deployed Apps Script version. Current work on feat/beranda-pelatihan adds Beranda as the default landing page and a read-only database overview. This new home page is locally validated and awaits deployment/user verification.
+The creation-modal update is committed on ui/modal-penambahan-pelatihan. Beranda is committed on feat/beranda-pelatihan as the default landing page and a read-only database overview. Current work on ui/absensi-komdigi restyles the participant QR page and resolves its session name. These updates are locally validated and await deployment/user verification.
 Continue from this source rather than rebuilding the project from scratch.
 
 ## Source of truth and files
@@ -74,6 +74,14 @@ DOM tests used all original inline scripts with a mocked Google bridge, desktop/
 - Sidebar setup and hover/collapse code are preserved on all pages; a Beranda link was added to each admin sidebar. Program context and dev/exec base resolution remain in place.
 - Install Beranda.html as a new Apps Script HTML file; replace Code.gs, Index.html, Pengelolaan.html, Peserta.html and Profil.html together. Absensi.html, AdminQR.html and the real deployed manifest are unchanged.
 - Node test command: node --test apps-script/absensi-dashboard/tests/beranda.test.mjs. Browser validation uses a mocked Google bridge and does not establish live database/deployment success.
+
+## Public QR attendance display
+- Absensi.html follows the user's second reference image: pale blue background, centered white card, title Absensi Peserta / Pelatihan Komdigi, institution masthead and blue confirmation button. It embeds the same official logo data URI already used by the admin header; no external image/font dependency.
+- muatTampilanAbsensiQR(token) calls the existing validasiTokenQR first and reads only the matching session ID/name after validation. Invalid tokens do not trigger a session lookup. The existing token validator and search/save backend functions remain unchanged.
+- The page shows nama_sesi plus Datang/Pulang. Missing names use Nama sesi belum diisi, never the raw session ID. Text is rendered with textContent rather than interpreted as HTML. Missing/duplicate session matches fail validation display rather than showing another session.
+- Participant search, stale-response protection, selected participant, save payload, single pending request, locked inputs, same-ID retry and final success/rejection behavior are preserved. Selection styling now uses aria-pressed.
+- For this update, replace only Absensi.html and Code.gs together; keep deployment URL, manifest/scopes and existing sheet data. Tests and preview images are not Apps Script application files.
+- Local backend tests (5 display cases plus 12 Beranda regression cases) and Chromium desktop/320/390/768 px checks passed using mocks. Actual Google deployment, writes and production QR scans have not been exercised from this environment.
 
 ## Remaining candidate work (not automatically authorized)
 - Real authentication and roles for the user account/settings/logout placeholders.

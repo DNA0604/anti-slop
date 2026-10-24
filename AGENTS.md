@@ -21,6 +21,7 @@ This repository also contains the upstream anti-slop project. Keep unrelated ups
 - Sidebar has expanded and icon-only states. Hover opens a compact sidebar and smoothly pushes page content. Preserve that animation.
 - Keep menu icons at fixed x/y positions across states. Footer contains Pengaturan and Log Out placeholders.
 - Login/account/settings/logout placeholders do not implement authentication; do not represent them as working security controls.
+- Public Absensi follows the user-provided blue design: pale blue background, white centered card, the same embedded Komdigi logo/agency identity as the header, and a blue confirmation button. Display the validated session name rather than its ID; preserve attendance selection, request-ID reuse and retry behavior.
 
 ## Navigation and known regression
 - Latest user confirmation: sidebar and Monitoring -> Pengelolaan/Peserta -> Monitoring navigation are normal after the latest fix.

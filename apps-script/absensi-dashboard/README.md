@@ -30,3 +30,13 @@ Ringkasan dimuat saat halaman dibuka atau saat Muat Ulang Ringkasan ditekan. Pro
 Dari root repository: `node --test apps-script/absensi-dashboard/tests/beranda.test.mjs` (Node bawaan, tanpa dependency tambahan).
 
 Lihat tests/BERANDA_VALIDATION.md untuk cakupan pemeriksaan lokal dan batasannya. Pemeriksaan produksi tetap perlu dilakukan menggunakan akun Google dan spreadsheet yang sebenarnya. Pratinjau Beranda yang baru memakai data simulasi dan bukan bukti deployment produksi.
+
+## Pembaruan tampilan Absensi QR
+
+Pada branch ui/absensi-komdigi, ganti seluruh isi **Absensi.html** dan **Code.gs** dari branch yang sama. File HTML memakai muatTampilanAbsensiQR untuk menampilkan nama sesi, sehingga kedua file perlu disimpan bersama. Tidak perlu mengubah sheet, ID sesi, token/tautan QR, manifest, atau file admin lainnya untuk pembaruan ini.
+
+Logo sudah tertanam dan sama dengan logo header aplikasi. Halaman menampilkan nama sesi sesuai data pada sheet Sesi setelah token dinyatakan valid. Jika nama belum diisi, halaman menyatakan Nama sesi belum diisi. Pencarian, pemilihan peserta, serta konfirmasi datang/pulang tetap mengikuti backend yang sudah ada.
+
+Simpan kedua file, lalu perbarui versi deployment yang sama agar URL QR tidak berubah. Periksa dengan QR datang dan pulang yang berlaku. Pratinjau pada preview/absensi-komdigi menggunakan data simulasi. Hasil lokal terdapat pada tests/ABSENSI_DISPLAY_VALIDATION.md.
+
+Jalankan seluruh pengujian backend dari root repository: `node --test apps-script/absensi-dashboard/tests/*.test.mjs`.

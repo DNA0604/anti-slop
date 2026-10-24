@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-10-24 — Komdigi public attendance page
+- Restyled Absensi.html to the user's blue reference: embedded institutional logo/name, pale blue background, centered white card, responsive fields, blue confirmation button and accessible participant selection.
+- Added muatTampilanAbsensiQR to resolve the validated token's session name. The page displays the name and Datang/Pulang instead of the session ID; blank names use a descriptive fallback.
+- Kept the original validator, participant lookup and save backend unchanged. Preserved request-ID reuse, response-order guards, disabled states and terminal/retry behavior.
+- Five backend display tests and the 12 existing Beranda tests passed. Chromium checks covered desktop/320/390/768 px, validation failures, blank/long/HTML session names, stale search responses, keyboard selection, retry with identical payload and final rejection/success states. No production writes or Google deployment performed.
+
 ## 2026-10-24 — Beranda as the default landing page
 - Added Beranda.html with whole-database program, unique-participant and session counts; upcoming/today agenda; category/status distribution; follow-up counters; program search, filters and pagination.
 - Added an owner-protected, read-only muatBerandaIndex endpoint. Counts distinguish unique participants from registrations, honor spreadsheet timezone, exclude future attendance from follow-up and surface invalid relationships/schedules.

@@ -4425,3 +4425,12 @@ function bukaPanelBeranda_() {
   wajibPemilikIndex_();
   SpreadsheetApp.getUi().showModalDialog(HtmlService.createHtmlOutputFromFile('Beranda').setWidth(1100).setHeight(780), 'Beranda Pelatihan');
 }
+
+
+function muatTampilanAbsensiQR(token) {
+  const hasil = validasiTokenQR(token);
+  if (!hasil || !hasil.valid) return hasil;
+  const sesi = tabelIndex_('Sesi', ['id_sesi', 'nama_sesi']).records.filter(s => String(s.id_sesi || '').trim() === String(hasil.id_sesi || '').trim());
+  if (sesi.length !== 1) throw Error('Data sesi tidak ditemukan atau duplikat. Hubungi petugas pelatihan.');
+  return Object.assign({}, hasil, {nama_sesi: String(sesi[0].nama_sesi || '').trim()});
+}
