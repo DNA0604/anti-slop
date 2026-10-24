@@ -1,0 +1,13 @@
+{
+  "snapshot_date": "2026-10-24",
+  "timezone": "Asia/Jakarta",
+  "files": {
+    "Absensi.html": "e34411c2442d437aeeee6197b61814f398c71e9eb9e020765405e904d5c62e0a",
+    "AdminQR.html": "d7d2624329bee14cc73eb3bbb5b447a9d39371ae73ae2083a94ae7774a726f43",
+    "Code.gs": "8d0d1ef2d2fe280612ca12dc4186326927ba02dcdc4708e7242dfd29483daf0c",
+    "Index.html": "832cfdbc3414790b49b01d028565876cb188310e44ef5a793f5f6a8eeb981f7f",
+    "Pengelolaan.html": "bf8d7ec5377fc7c88cb4bfa055647223fd0b18caac69e29b204d4f25858f3d5b",
+    "Peserta.html": "b12deb072ff1f87ab47f2aab08fdda36b09fa78ecce7bcc037f80f23d62d42b3",
+    "Profil.html": "b555726d012e4589818d89ef13aeb9b60a973f3cde35f7b44d46c4e5df34edaa"
+  }
+}
