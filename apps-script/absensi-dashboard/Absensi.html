@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+  <base target="_top">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6f9;
+      margin: 0;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 440px;
+      margin: 60px auto;
+      background: white;
+      padding: 28px;
+      border-radius: 14px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+      text-align: center;
+    }
+
+    h2 {
+      color: #243b53;
+    }
+
+    p {
+      color: #526477;
+      line-height: 1.6;
+    }
+
+    .status {
+      padding: 14px;
+      border-radius: 8px;
+      margin-top: 20px;
+      background: #edf2f7;
+    }
+
+    .success {
+      background: #e6f4ea;
+      color: #176b38;
+    }
+
+    .error {
+      background: #fdecea;
+      color: #b42318;
+    }
+  </style>
+<style id="flat-dashboard-theme">
+/* Shared flat dashboard skin. Embedded in every Apps Script HTML page. */
+:root { --ink:#1c3035; --muted:#607378; --line:#e0e8e7; --blue:#087f70; --bg:#f4f7f6; --nav-width:232px; --accent:#087f70; }
+html {scroll-behavior:smooth; scrollbar-gutter:stable}
+body.flat-dashboard {font:14px/1.6 'Segoe UI',Arial,sans-serif; background:var(--bg); color:var(--ink); margin:0; padding:0 0 0 var(--nav-width); transition:padding .18s ease}
+.flat-dashboard *, .flat-dashboard *::before, .flat-dashboard *::after {box-sizing:border-box}
+.flat-dashboard button,.flat-dashboard input,.flat-dashboard select,.flat-dashboard textarea {font:inherit}
+.flat-dashboard :is(button,a,input,select,textarea,summary):focus-visible {outline:3px solid #e2a72f; outline-offset:3px}
+.flat-dashboard a {color:#076f62}
+.flat-dashboard button {cursor:pointer}
+.flat-dashboard button:disabled {opacity:.48; cursor:not-allowed}
+.flat-dashboard .hidden {display:none!important}
+.flat-dashboard .dash-sidebar {position:fixed; inset:0 auto 0 0; width:var(--nav-width); background:#fff; border-right:1px solid var(--line); z-index:60; display:flex; flex-direction:column; padding:30px 18px 20px; transition:transform .18s ease; text-align:left}
+.dash-logo {display:flex; align-items:center; gap:11px; padding:0 10px 29px; border-bottom:1px solid var(--line)}
+.dash-logo-mark {display:grid; place-items:center; width:38px; height:38px; background:#087f70; color:white; border-radius:8px; flex-shrink:0}
+.dash-logo strong {font-size:19px; letter-spacing:-.7px; color:#183c38}
+.dash-logo small {display:block; font-size:10px; color:var(--muted); letter-spacing:1.15px; text-transform:uppercase}
+.dash-nav-label {font-size:10px; font-weight:700; color:#5d7468; letter-spacing:1.6px; margin:27px 12px 12px}
+.dash-nav {display:grid; gap:7px}
+.dash-nav a {display:flex; gap:12px; align-items:center; color:#536765; padding:12px; border-radius:6px; text-decoration:none; font-size:13px; font-weight:600; border:1px solid transparent}
+.dash-nav a:hover {background:#f1f6f4; color:#076f62}
+.dash-nav a[aria-current=page] {background:#e5f3ee; color:#076f62; border-color:#d0e9de}
+.dash-nav a svg {flex-shrink:0; width:19px; height:19px}
+.dash-nav a.dash-unavailable {opacity:.55}
+.dash-sidebar-bottom {margin-top:auto; padding:24px 10px 0; font-size:11px; color:var(--muted)}
+.dash-sidebar-bottom strong {display:block; color:#365b54; font-size:12px; margin-bottom:4px}
+.dash-sidebar-bottom p {margin:0 0 12px}
+.dash-shortcut {display:inline-block; border:1px solid var(--line); border-radius:4px; padding:0 6px; font-size:11px; background:white}
+.flat-dashboard .dash-toolbar {height:72px; padding:0 34px; display:flex; align-items:center; justify-content:space-between; gap:16px; border-bottom:1px solid var(--line); background:#fff}
+.dash-toolbar-start,.dash-toolbar-end {display:flex; align-items:center; gap:15px; min-width:0}
+.dash-breadcrumb {font-size:12px; color:var(--muted)}
+.dash-breadcrumb b {font-weight:600; color:#2a4741}
+.flat-dashboard .dash-icon-btn {display:grid; place-items:center; border:1px solid var(--line); color:#42635c; background:white; width:36px; height:36px; min-height:36px; padding:7px; border-radius:6px; margin:0; flex-shrink:0}
+.flat-dashboard .dash-icon-btn:hover {background:#edf5f0}
+.dash-icon-btn svg {width:19px; height:19px}
+.dash-date {font-size:12px; color:var(--muted)}
+.dash-avatar {width:34px; height:34px; border-radius:50%; background:#e5f3ee; color:#087164; display:grid; place-items:center}
+.flat-dashboard > header:not(.dash-toolbar) {margin:0; padding:30px 34px 6px; background:transparent; border:0}
+.flat-dashboard > header:not(.dash-toolbar) .top {max-width:none; align-items:center; margin:0}
+.flat-dashboard > header:not(.dash-toolbar) .mark {display:none}
+.flat-dashboard > header:not(.dash-toolbar) h1 {font-size:27px; font-weight:700; letter-spacing:-.8px; color:#193d35}
+.flat-dashboard > header:not(.dash-toolbar) .muted {margin-top:3px; font-size:13px}
+.flat-dashboard > #databaseHeader:empty {display:none}
+.flat-dashboard main {max-width:none; padding:22px 34px 40px; margin:0; min-width:0}
+.flat-dashboard h2 {font-size:16px; font-weight:650; letter-spacing:-.2px; color:#23443c}
+.flat-dashboard h3 {color:#294d44}
+.flat-dashboard .panel,.flat-dashboard .stat {background:#fff; border:1px solid var(--line); border-radius:8px; box-shadow:none}
+.flat-dashboard .panel {padding:22px}
+.flat-dashboard .panel .panel {border-color:#e7edeb}
+.flat-dashboard .notice {background:#edf4f1; border:1px solid #dbe8e1; color:#41645a; border-radius:6px; font-size:12px; padding:11px 15px; margin-bottom:20px}
+.flat-dashboard .notice.error,.flat-dashboard .status.error {background:#fff0ee; border-color:#f0d3ce; color:#a6342a}
+.flat-dashboard .notice.success,.flat-dashboard .status.success {background:#eaf5ef; border-color:#c9e3d4; color:#226446}
+.flat-dashboard .btn,.flat-dashboard .action {border:1px solid #d4dfda; color:#35584c; background:#fff; border-radius:5px; font-size:12px; font-weight:600; padding:10px 14px; min-height:40px; text-decoration:none; transition:background .15s,border-color .15s; margin-top:0}
+.flat-dashboard .btn:hover:not(:disabled),.flat-dashboard .action:hover:not(:disabled) {background:#edf6f1; border-color:#8db7a3}
+.flat-dashboard .primary,.flat-dashboard button#btnKonfirmasi {background:#087f70; border-color:#087f70; color:#fff}
+.flat-dashboard .primary:hover:not(:disabled),.flat-dashboard button#btnKonfirmasi:hover:not(:disabled) {background:#06675b; border-color:#06675b; color:white}
+.flat-dashboard .action {min-height:32px; padding:5px 10px; font-size:11px}
+.flat-dashboard input,.flat-dashboard select,.flat-dashboard textarea {border:1px solid #d3dfd9; border-radius:5px; padding:10px 12px; min-height:42px; color:#29473d; background:#fff; max-width:100%}
+.flat-dashboard input[type=checkbox],.flat-dashboard input[type=radio] {min-height:0; accent-color:#087f70}
+.flat-dashboard input[type=search] {padding-left:14px; background:#f8faf9}
+.flat-dashboard input::placeholder {color:#5d7468}
+.flat-dashboard label {font-size:11px; font-weight:650; letter-spacing:.25px; color:#52685e}
+.flat-dashboard .filters {gap:14px; background:#fff; border-top:3px solid #a5cdbc}
+.flat-dashboard .filters > * {min-width:0}
+.flat-dashboard .stats {gap:16px; margin:20px 0 24px}
+.flat-dashboard .stat {position:relative; padding:19px 20px 17px; min-height:118px; border-bottom:3px solid #b7cbdc; overflow:hidden}
+.flat-dashboard .stat:nth-child(2) {border-bottom-color:#60ad92}
+.flat-dashboard .stat:nth-child(3) {border-bottom-color:#e1b260}
+.flat-dashboard .stat:nth-child(4) {border-bottom-color:#cf958e}
+.flat-dashboard .stat span {font-size:12px; color:#5d7468}
+.flat-dashboard .stat strong {font-size:32px; color:#243e33; font-weight:650; letter-spacing:-1px; line-height:1.2; margin:12px 0 0; font-variant-numeric:tabular-nums}
+.flat-dashboard .stat small {margin-top:8px; font-size:11px; color:#64796c}
+.flat-dashboard .stat::after {content:''; position:absolute; right:20px; top:22px; width:8px; height:8px; background:#b7cbdc; border-radius:2px}
+.flat-dashboard .stat:nth-child(2)::after {background:#60ad92}
+.flat-dashboard .stat:nth-child(3)::after {background:#e1b260}
+.flat-dashboard .stat:nth-child(4)::after {background:#cf958e}
+.flat-dashboard .stat span {display:inline-block; max-width:88%}
+.flat-dashboard .accent {background:#f0f8f3}
+.flat-dashboard .layout {grid-template-columns:minmax(0,1fr) 274px; gap:20px}
+.flat-dashboard .sectionhead {gap:14px; margin-bottom:20px}
+.flat-dashboard .sectionhead > div {min-width:0}
+.flat-dashboard .sectionhead input[type=search] {max-width:245px}
+.flat-dashboard .sectionhead .muted {font-size:12px; margin-top:4px}
+.flat-dashboard .tablebox,.flat-dashboard .preview-wrap {border:1px solid #e5ece7; border-radius:5px; overflow:auto; max-width:100%; scrollbar-width:thin}
+.flat-dashboard table {width:100%; border-collapse:collapse; min-width:660px}
+.flat-dashboard th {padding:13px 14px; background:#f1f6f3; color:#5a7467; font-size:10px; font-weight:700; letter-spacing:.7px; white-space:nowrap; border-bottom:1px solid #dce7e0}
+.flat-dashboard td {padding:15px 14px; border-bottom:1px solid #edf1ee; font-size:12px; color:#355347; vertical-align:middle}
+.flat-dashboard tbody tr:last-child td {border-bottom:0}
+.flat-dashboard tbody tr:hover td {background:#f5faf7}
+.flat-dashboard td strong {color:#254637; font-weight:600}
+.flat-dashboard .sub {font-size:10px; color:#5d7468; margin-top:5px}
+.flat-dashboard .badge {padding:4px 8px; border-radius:4px; background:#edf1ef; color:#5d6d63; font-size:10px; font-weight:600; text-transform:capitalize; white-space:nowrap}
+.flat-dashboard .badge.ok,.flat-dashboard .ok {background:#e5f3ec; color:#267149}
+.flat-dashboard .badge.warn,.flat-dashboard .warn {background:#fff4dc; color:#8d6315}
+.flat-dashboard .foot,.flat-dashboard .help {font-size:11px; line-height:1.7; color:#5d7468}
+.flat-dashboard .empty {padding:40px 20px; text-align:center; color:#5d7468; font-size:13px; background:#fafcfb; border-radius:5px}
+.flat-dashboard .session-summary dt {font-size:10px; text-transform:uppercase; letter-spacing:.6px; color:#5d7468; margin-top:15px}
+.flat-dashboard .session-summary dd {font-size:12px; margin:4px 0 0; color:#365342; overflow-wrap:anywhere}
+.flat-dashboard .summary-counts {background:#f4f8f5; border:0; border-radius:5px; padding:12px; margin:18px 0}
+.flat-dashboard .summary-counts span {font-size:11px; color:#5d7468}
+.flat-dashboard .buttons:has(#tabSesi),.flat-dashboard .tabs {justify-content:flex-start; gap:0!important; border-bottom:1px solid #dbe5df; padding:8px 0 0; margin:16px 0!important; overflow-x:auto; flex-wrap:nowrap!important}
+.flat-dashboard :is(.buttons:has(#tabSesi),.tabs) .btn {white-space:nowrap; background:transparent; border:0; border-bottom:2px solid transparent; color:#5d7468; border-radius:0; padding:12px 16px; min-height:45px}
+.flat-dashboard :is(.buttons:has(#tabSesi),.tabs) .btn[aria-pressed=true] {color:#076f62; border-bottom-color:#087f70; font-weight:700}
+.flat-dashboard dialog {border:1px solid #cddbd3; border-radius:10px; box-shadow:0 24px 80px #102e2733; max-height:90dvh; color:var(--ink)}
+.flat-dashboard dialog::backdrop {background:#14372e66}
+.flat-dashboard details {border:1px solid #dce6df; border-radius:6px; padding:14px 16px; background:#fbfdfb}
+.flat-dashboard summary {font-size:12px; color:#087f70; cursor:pointer}
+.flat-dashboard .step {color:#087164; font-size:10px; letter-spacing:1.4px; font-weight:700}
+.dash-completion {margin:18px 0 22px; padding:0 0 18px; border-bottom:1px solid var(--line)}
+.dash-completion-label {display:flex; justify-content:space-between; font-size:11px; color:#5a7365; margin-bottom:8px}
+.dash-completion-label strong {color:#087164; font-size:12px}
+.dash-progress {height:6px; border-radius:3px; background:#e8efeb; overflow:hidden}
+.dash-progress-fill {height:100%; width:0; background:#239b7c; transition:width .3s ease}
+.dash-completion small {display:block; font-size:10px; color:#5d7468; margin-top:7px}
+.dash-density-label {display:none}
+.flat-dashboard.dash-compact td {padding-top:8px; padding-bottom:8px}
+.flat-dashboard .dash-skip {position:fixed; left:16px; top:-100px; z-index:100; background:#fff; padding:10px 18px; border:2px solid #087f70}
+.flat-dashboard .dash-skip:focus {top:10px}
+.flat-dashboard .dash-backdrop {display:none}
+.dash-toast {position:fixed; bottom:24px; left:50%; transform:translateX(-50%); background:#1b4337; color:#fff; border-radius:6px; padding:12px 20px; z-index:100; font-size:12px; max-width:90vw}
+.flat-dashboard.dash-nav-collapsed {padding-left:0}
+.dash-nav-collapsed .dash-sidebar {transform:translateX(-100%)}
+.flat-dashboard.public-page {padding:0; background:#f0f5f2}
+.public-page .public-brand {margin:36px auto 0; display:flex; justify-content:center; align-items:center; gap:10px; color:#1a4f40; font-size:17px; font-weight:700}
+.flat-dashboard.public-page .container {max-width:480px; width:calc(100% - 32px); margin:24px auto; border:1px solid var(--line); border-radius:8px; padding:30px; box-shadow:none; background:#fff}
+.public-page .container h2 {font-size:22px; color:#244e3d}
+.public-page .container .subtitle {font-size:13px; color:var(--muted)}
+.public-page .container button {min-height:44px; border-radius:5px; font-weight:600}
+.public-page .container select {width:100%}
+.public-page .public-foot {text-align:center; font-size:11px; color:#5d7468; padding:0 18px 28px}
+.public-page .qr-area {border:1px dashed #9ebdad; border-radius:6px; background:#f4faf6}
+.public-page #gambarQR img,.public-page #gambarQR canvas {margin:auto; max-width:100%}
+@media(min-width:1600px){.flat-dashboard main,.flat-dashboard > header:not(.dash-toolbar) {padding-left:48px; padding-right:48px}.flat-dashboard .layout{grid-template-columns:minmax(0,1fr) 300px}}
+@media(max-width:1200px){.flat-dashboard .filters {grid-template-columns:repeat(2,minmax(0,1fr))}.flat-dashboard .filters>div:last-child{grid-column:1/-1}.flat-dashboard .layout{grid-template-columns:minmax(0,1fr)}.flat-dashboard .stats{gap:12px}.flat-dashboard .stat{padding:16px}.flat-dashboard .sectionhead{flex-wrap:wrap}}
+@media(max-width:900px){body.flat-dashboard{padding-left:0}.flat-dashboard .dash-sidebar{transform:translateX(-100%); width:250px}.flat-dashboard.dash-nav-open .dash-sidebar{transform:translateX(0)}.flat-dashboard.dash-nav-open .dash-backdrop {display:block;position:fixed;inset:0;background:#14372e66;z-index:55;border:0;width:100%;height:100%;padding:0;margin:0;border-radius:0}.flat-dashboard.dash-nav-open{overflow:hidden}.flat-dashboard .dash-toolbar{padding:0 20px;height:64px}.flat-dashboard > header:not(.dash-toolbar){padding:24px 20px 4px}.flat-dashboard main{padding:18px 20px 30px}.flat-dashboard .identity{grid-template-columns:1fr}.dash-date{display:none}.flat-dashboard .stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:560px){.dash-breadcrumb{font-size:11px}.dash-breadcrumb span{display:none}.flat-dashboard .dash-toolbar{padding:0 16px}.dash-toolbar-start,.dash-toolbar-end{gap:10px}.flat-dashboard > header:not(.dash-toolbar){padding:22px 16px 0}.flat-dashboard > header:not(.dash-toolbar) .top{align-items:flex-start; flex-direction:column; gap:14px}.flat-dashboard > header:not(.dash-toolbar) h1{font-size:23px}.flat-dashboard main{padding:16px}.flat-dashboard .panel{padding:16px}.flat-dashboard .stats{gap:10px;margin:16px 0}.flat-dashboard .stat strong{font-size:28px}.flat-dashboard .stat span{font-size:11px}.flat-dashboard .stat{min-height:112px;padding:15px 12px}.flat-dashboard .stat::after{right:12px;top:18px;width:6px;height:6px}.flat-dashboard .filters,.flat-dashboard .formgrid,.flat-dashboard .dialog-fields{grid-template-columns:minmax(0,1fr)}.flat-dashboard .sectionhead{align-items:flex-start;flex-direction:column}.flat-dashboard .sectionhead input[type=search]{width:100%;max-width:none}.flat-dashboard .btn{padding:9px 11px}.flat-dashboard table{min-width:640px}.flat-dashboard dialog{width:calc(100% - 20px)!important;padding:16px}.flat-dashboard .dash-nav a{min-height:46px}.flat-dashboard .tabs .btn,.flat-dashboard .buttons:has(#tabSesi) .btn{padding:11px 12px;font-size:11px}.flat-dashboard.public-page .container{padding:24px 20px}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{transition:none!important;animation:none!important}}
+@media print{body.flat-dashboard{padding:0;background:white}.flat-dashboard .dash-sidebar,.flat-dashboard .dash-toolbar,.flat-dashboard .dash-backdrop,.flat-dashboard .dash-skip{display:none!important}.flat-dashboard main{padding:0}.flat-dashboard .tablebox{overflow:visible}.flat-dashboard table{min-width:0}.flat-dashboard .panel,.flat-dashboard .stat{break-inside:avoid}}
+.flat-dashboard.public-page #btnKonfirmasi,.flat-dashboard.public-page #btnUjiQR {background:#087f70!important;color:white!important}
+.flat-dashboard.public-page .container .status {font-size:13px;line-height:1.65;padding:14px;border-radius:5px;border:1px solid #dbe5df}
+@media(max-width:900px){body.flat-dashboard{transition:none}}
+.dash-status-filter {display:flex;align-items:center;justify-content:space-between;gap:12px;margin:-3px 0 16px;flex-wrap:wrap}
+.dash-status-filter>div {display:flex;gap:6px;flex-wrap:wrap}
+.flat-dashboard .dash-status-filter button {min-height:32px;border:1px solid #e2e9e5;border-radius:4px;padding:5px 10px;background:white;color:#687d70;font-size:11px}
+.flat-dashboard .dash-status-filter button:hover {background:#f0f7f3}
+.flat-dashboard .dash-status-filter button[aria-pressed=true] {color:#096e5d;background:#e9f5ee;border-color:#bddbc9;font-weight:650}
+.dash-status-filter>span {font-size:10px;color:#5d7468}
+.flat-dashboard tr[hidden],.flat-dashboard #dashStatusEmpty[hidden] {display:none!important}
+.flat-dashboard #tableBody td:first-child {min-width:170px}
+.flat-dashboard #tableBody td:nth-child(2),.flat-dashboard #tableBody td:nth-child(3) {min-width:105px}
+
+</style>
+<style>@media(min-width:901px){#dashCloseMenu{display:none!important}}</style></head>
+
+<body class="flat-dashboard public-page"><div class="public-brand"><span class="dash-logo-mark"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h6l2 3 2-3h6v14h-6l-2 2-2-2H4z"/><path d="M12 8v13M7 10h2M15 10h2"/></svg></span> Pelatihan<span style="font-weight:400;color:#678275"> / Absensi</span></div>
+  <div class="container">
+    <h2>Absensi Pelatihan</h2>
+
+    <p>
+      Sistem sedang memeriksa QR Code Anda.
+    </p>
+
+    <div id="status" class="status" role="status" aria-live="polite">
+      Memvalidasi token...
+    </div>
+
+    <div id="formIdentitas" style="display:none; margin-top:24px;">
+
+      <label for="inputNama" style="display:block; text-align:left; margin-bottom:8px;">
+        Nama Peserta
+      </label>
+
+      <input
+        type="text"
+        id="inputNama"
+        placeholder="Ketik nama Anda..."
+        autocomplete="off"
+        style="width:100%; padding:12px; box-sizing:border-box; border:1px solid #cbd5e1; border-radius:8px;">
+
+      <div id="hasilPencarian" aria-live="polite" style="margin-top:12px; text-align:left;">
+      </div>
+
+      <button
+        type="button"
+        id="btnKonfirmasi"
+        disabled
+        style="width:100%; margin-top:16px; padding:12px; background:#2563eb; color:white; border:none; border-radius:8px;">
+        Konfirmasi Kehadiran
+      </button>
+
+    </div>
+
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      document.getElementById("inputNama")
+        .addEventListener("input", cariNamaPeserta);
+
+      document.getElementById("btnKonfirmasi").addEventListener("click", konfirmasiKehadiran);
+      mulaiValidasi();
+    });
+
+    let permintaanAktif = null;
+    let sedangMenyimpan = false;
+    let absensiSelesai = false;
+
+    function konfirmasiKehadiran() {
+      if (sedangMenyimpan || absensiSelesai || !pesertaDipilih) return;
+      if (!permintaanAktif) {
+        const angka = new Uint32Array(4);
+        crypto.getRandomValues(angka);
+        permintaanAktif = {
+          token: tokenAbsensi,
+          id_peserta: pesertaDipilih.id_peserta,
+          id_permintaan: Array.from(angka, n => n.toString(16).padStart(8, "0")).join("")
+        };
+      }
+      sedangMenyimpan = true;
+      const tombol = document.getElementById("btnKonfirmasi");
+      tombol.disabled = true;
+      tombol.textContent = "Menyimpan...";
+      document.getElementById("inputNama").disabled = true;
+      document.querySelectorAll("#hasilPencarian button").forEach(b => b.disabled = true);
+      google.script.run
+        .withSuccessHandler(function(hasil) {
+          sedangMenyimpan = false;
+          if (!hasil || !hasil.sukses) {
+            tampilkanStatus(hasil && hasil.pesan || "Absensi belum berhasil dicatat.", false);
+            tombol.textContent = "Permintaan selesai — hubungi petugas";
+            return;
+          }
+          absensiSelesai = true;
+          tampilkanStatus(hasil.pesan + " Waktu: " + new Date(hasil.waktu_scan).toLocaleString("id-ID", {timeZone:"Asia/Jakarta"}) + " WIB. Status: " + hasil.status_kehadiran.replace(/_/g, " ") + ".", true);
+          tombol.textContent = "Absensi Tercatat";
+        })
+        .withFailureHandler(function(error) {
+          sedangMenyimpan = false;
+          tampilkanStatus("Penyimpanan belum terkonfirmasi. Klik Coba Lagi dengan data yang sama. Jika tetap gagal, hubungi petugas. " + (error && error.message || ""), false);
+          tombol.disabled = false;
+          tombol.textContent = "Coba Lagi";
+        })
+        .simpanAbsensiPeserta(permintaanAktif);
+    }
+
+    let tokenAbsensi = "";
+    let pesertaDipilih = null;
+    let urutanPencarian = 0;
+
+    function tampilkanStatus(pesan, berhasil) {
+      const elemen = document.getElementById("status");
+      elemen.textContent = pesan;
+      elemen.className = "status " + (berhasil ? "success" : "error");
+    }
+
+    function mulaiValidasi() {
+      google.script.url.getLocation(function(location) {
+        const token =
+          location &&
+          location.parameter &&
+          location.parameter.absen
+            ? String(location.parameter.absen).trim()
+            : "";
+        
+        tokenAbsensi = token;
+
+        if (!token) {
+          tampilkanStatus("Token QR tidak ditemukan.", false);
+          return;
+        }
+
+        google.script.run
+          .withSuccessHandler(function(hasil) {
+            if (!hasil || !hasil.valid) {
+              tampilkanStatus("QR Code tidak valid atau sudah kedaluwarsa.", false);
+              return;
+            }
+
+            tampilkanStatus(
+              "QR Code valid. Sesi: " +
+              hasil.id_sesi +
+              " | Jenis: " +
+              hasil.jenis_scan,
+              true
+            );
+
+            document.getElementById("formIdentitas").style.display = "block";
+          })
+          .withFailureHandler(function(error) {
+            tampilkanStatus("Terjadi kesalahan saat memvalidasi QR Code.", false);
+            console.error(error);
+          })
+          .validasiTokenQR(token);
+      });
+    }
+
+    function cariNamaPeserta() {
+      if (permintaanAktif || sedangMenyimpan || absensiSelesai) return;
+      const kataKunci = document.getElementById("inputNama").value.trim();
+      const hasil = document.getElementById("hasilPencarian");
+      const tombol = document.getElementById("btnKonfirmasi");
+
+      pesertaDipilih = null;
+      tombol.disabled = true;
+      hasil.replaceChildren();
+
+      const nomorPencarian = ++urutanPencarian;
+
+      if (kataKunci.length < 2) {
+        hasil.textContent = "Ketik minimal 2 karakter nama.";
+        return;
+      }
+
+      hasil.textContent = "Mencari peserta...";
+
+      google.script.run
+        .withSuccessHandler(function(response) {
+          if (nomorPencarian !== urutanPencarian || permintaanAktif) return;
+
+          hasil.replaceChildren();
+
+          if (!response || response.sukses !== true) {
+            hasil.textContent = "Pencarian gagal.";
+            return;
+          }
+
+          if (!response.peserta.length) {
+            hasil.textContent = "Nama peserta tidak ditemukan.";
+            return;
+          }
+
+          response.peserta.forEach(function(peserta) {
+            const pilihan = document.createElement("button");
+
+            pilihan.type = "button";
+            pilihan.textContent =
+              peserta.nama_pegawai +
+              " — " +
+              peserta.unit_kerja;
+
+            pilihan.style.cssText =
+              "display:block;width:100%;padding:12px;" +
+              "margin-bottom:6px;text-align:left;" +
+              "background:#f1f5f9;border:1px solid #cbd5e1;" +
+              "border-radius:8px;cursor:pointer;";
+
+            pilihan.addEventListener("click", function() {
+              pesertaDipilih = peserta;
+
+              hasil.querySelectorAll("button").forEach(btn => {
+                btn.style.background = "#f1f5f9";
+                btn.style.borderColor = "#cbd5e1";
+              });
+
+              pilihan.style.background = "#dbeafe";
+              pilihan.style.borderColor = "#2563eb";
+
+              tombol.disabled = false;
+            });
+
+            hasil.appendChild(pilihan);
+          });
+        })
+        .withFailureHandler(function(error) {
+          if (nomorPencarian !== urutanPencarian || permintaanAktif) return;
+          hasil.textContent = "Terjadi kesalahan saat mencari peserta.";
+          console.error(error);
+        })
+        .cariPesertaAbsensi(tokenAbsensi, kataKunci);
+    }
+  </script>
+<p class="public-foot">Rekapitulasi Absensi Pelatihan · Pastikan data Anda sesuai.</p></body>
+</html>

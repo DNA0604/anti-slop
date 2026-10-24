@@ -1,0 +1,1364 @@
+<!doctype html>
+<html lang="id">
+  <head>
+<meta charset="utf-8">
+    <base target="_top" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Profil Peserta</title>
+    <style>
+      :root {
+        --ink: #172e46;
+        --muted: #63788c;
+        --line: #dce5ed;
+        --blue: #2463df;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: #f3f6fa;
+        color: var(--ink);
+        font:
+          14px/1.5 Arial,
+          sans-serif;
+      }
+      header {
+        background: white;
+        border-bottom: 1px solid var(--line);
+        padding: 22px 30px;
+      }
+      .top,
+      main {
+        max-width: 1440px;
+        margin: auto;
+      }
+      .top,
+      .head,
+      .actions {
+        display: flex;
+        gap: 12px;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+      h1 {
+        font-size: 22px;
+        margin: 0;
+      }
+      h2 {
+        font-size: 18px;
+        margin: 0;
+      }
+      h3 {
+        font-size: 15px;
+      }
+      p {
+        margin: 7px 0 14px;
+      }
+      .muted,
+      small {
+        color: var(--muted);
+      }
+      main {
+        padding: 24px 30px;
+      }
+      .panel,
+      .stat {
+        background: white;
+        border: 1px solid var(--line);
+        border-radius: 13px;
+        padding: 20px;
+      }
+      .panel {
+        margin-bottom: 18px;
+      }
+      .notice {
+        padding: 13px 16px;
+        border-radius: 9px;
+        background: #edf4ff;
+        margin-bottom: 18px;
+        white-space: pre-line;
+      }
+      .error {
+        background: #fff0ef;
+        color: #a92c24;
+      }
+      .hidden {
+        display: none !important;
+      }
+      .btn {
+        display: inline-block;
+        border: 1px solid #cdd8e3;
+        border-radius: 8px;
+        padding: 10px 14px;
+        background: white;
+        color: var(--ink);
+        font: inherit;
+        font-weight: bold;
+        text-decoration: none;
+        cursor: pointer;
+      }
+      .primary {
+        background: var(--blue);
+        border-color: var(--blue);
+        color: white;
+      }
+      button:disabled {
+        opacity: 0.5;
+        cursor: wait;
+      }
+      .identity {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 18px;
+      }
+      .person-name {
+        font-size: 27px;
+        letter-spacing: -0.5px;
+        margin: 0 0 12px;
+      }
+      .info {
+        margin: 0;
+      }
+      .info dt {
+        color: var(--muted);
+        font-size: 12px;
+        margin-top: 10px;
+      }
+      .info dd {
+        margin: 3px 0 0;
+        font-weight: 600;
+        overflow-wrap: anywhere;
+      }
+      select {
+        font: inherit;
+        width: 100%;
+        border: 1px solid #cdd8e3;
+        border-radius: 8px;
+        padding: 11px;
+        background: white;
+        color: var(--ink);
+        margin: 8px 0;
+      }
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 14px;
+        margin-bottom: 18px;
+      }
+      .stat span {
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .stat strong {
+        display: block;
+        font-size: 27px;
+        margin: 6px 0;
+      }
+      .stat small {
+        display: block;
+      }
+      .accent {
+        background: #eff6ff;
+        border-color: #c9dcff;
+      }
+      .tabs {
+        display: flex;
+        gap: 9px;
+        flex-wrap: wrap;
+        margin-bottom: 18px;
+      }
+      .tablebox {
+        overflow: auto;
+      }
+      table {
+        border-collapse: collapse;
+        width: 100%;
+        min-width: 900px;
+      }
+      th,
+      td {
+        text-align: left;
+        padding: 12px 10px;
+        vertical-align: top;
+        border-bottom: 1px solid #edf1f5;
+      }
+      th {
+        background: #f6f8fb;
+        font-size: 11px;
+        color: var(--muted);
+      }
+      td {
+        font-size: 13px;
+      }
+      .sub {
+        display: block;
+        color: var(--muted);
+        font-size: 11px;
+        margin-top: 5px;
+      }
+      .badge {
+        display: inline-block;
+        background: #edf2f8;
+        padding: 4px 8px;
+        border-radius: 6px;
+        font-size: 12px;
+      }
+      .ok {
+        background: #e7f6ec;
+        color: #217442;
+      }
+      .warn {
+        background: #fff4dc;
+        color: #896118;
+      }
+      .foot {
+        font-size: 12px;
+        color: var(--muted);
+        margin-top: 15px;
+      }
+      .empty {
+        padding: 28px;
+        color: var(--muted);
+        text-align: center;
+      }
+      .link {
+        background: none;
+        border: 0;
+        padding: 5px 0;
+        color: var(--blue);
+        cursor: pointer;
+        font: inherit;
+      }
+      .changes {
+        min-width: 500px;
+        margin-top: 12px;
+      }
+      .changes th,
+      .changes td {
+        font-size: 12px;
+      }
+      .changes td {
+        overflow-wrap: anywhere;
+        max-width: 280px;
+      }
+      dialog {
+        width: min(1100px, 96vw);
+        max-height: 94vh;
+        border: 0;
+        border-radius: 14px;
+        padding: 24px;
+        color: var(--ink);
+      }
+      dialog::backdrop {
+        background: #172e4670;
+      }
+      iframe {
+        width: 100%;
+        height: 65vh;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+      }
+      a[aria-disabled="true"] {
+        opacity: 0.5;
+        pointer-events: none;
+      }
+      @media (max-width: 900px) {
+        .identity {
+          grid-template-columns: 1fr;
+        }
+        .stats {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+      @media (max-width: 550px) {
+        header {
+          padding: 18px 14px;
+        }
+        main {
+          padding: 18px 12px;
+        }
+        .stats {
+          grid-template-columns: 1fr 1fr;
+        }
+        .stat {
+          padding: 14px;
+        }
+        .stat strong {
+          font-size: 23px;
+        }
+        .person-name {
+          font-size: 23px;
+        }
+      }
+    </style>
+  <style id="flat-dashboard-theme">
+/* Shared flat dashboard skin. Embedded in every Apps Script HTML page. */
+:root { --ink:#1c3035; --muted:#607378; --line:#e0e8e7; --blue:#087f70; --bg:#f4f7f6; --nav-width:232px; --accent:#087f70; }
+html {scroll-behavior:smooth; scrollbar-gutter:stable}
+body.flat-dashboard {font:14px/1.6 'Segoe UI',Arial,sans-serif; background:var(--bg); color:var(--ink); margin:0; padding:0 0 0 var(--nav-width); transition:padding .18s ease}
+.flat-dashboard *, .flat-dashboard *::before, .flat-dashboard *::after {box-sizing:border-box}
+.flat-dashboard button,.flat-dashboard input,.flat-dashboard select,.flat-dashboard textarea {font:inherit}
+.flat-dashboard :is(button,a,input,select,textarea,summary):focus-visible {outline:3px solid #e2a72f; outline-offset:3px}
+.flat-dashboard a {color:#076f62}
+.flat-dashboard button {cursor:pointer}
+.flat-dashboard button:disabled {opacity:.48; cursor:not-allowed}
+.flat-dashboard .hidden {display:none!important}
+.flat-dashboard .dash-sidebar {position:fixed; inset:0 auto 0 0; width:var(--nav-width); background:#fff; border-right:1px solid var(--line); z-index:60; display:flex; flex-direction:column; padding:30px 18px 20px; transition:transform .18s ease; text-align:left}
+.dash-logo {display:flex; align-items:center; gap:11px; padding:0 10px 29px; border-bottom:1px solid var(--line)}
+.dash-logo-mark {display:grid; place-items:center; width:38px; height:38px; background:#087f70; color:white; border-radius:8px; flex-shrink:0}
+.dash-logo strong {font-size:19px; letter-spacing:-.7px; color:#183c38}
+.dash-logo small {display:block; font-size:10px; color:var(--muted); letter-spacing:1.15px; text-transform:uppercase}
+.dash-nav-label {font-size:10px; font-weight:700; color:#5d7468; letter-spacing:1.6px; margin:27px 12px 12px}
+.dash-nav {display:grid; gap:7px}
+.dash-nav a {display:flex; gap:12px; align-items:center; color:#536765; padding:12px; border-radius:6px; text-decoration:none; font-size:13px; font-weight:600; border:1px solid transparent}
+.dash-nav a:hover {background:#f1f6f4; color:#076f62}
+.dash-nav a[aria-current=page] {background:#e5f3ee; color:#076f62; border-color:#d0e9de}
+.dash-nav a svg {flex-shrink:0; width:19px; height:19px}
+.dash-nav a.dash-unavailable {opacity:.55}
+.dash-sidebar-bottom {margin-top:auto; padding:24px 10px 0; font-size:11px; color:var(--muted)}
+.dash-sidebar-bottom strong {display:block; color:#365b54; font-size:12px; margin-bottom:4px}
+.dash-sidebar-bottom p {margin:0 0 12px}
+.dash-shortcut {display:inline-block; border:1px solid var(--line); border-radius:4px; padding:0 6px; font-size:11px; background:white}
+.flat-dashboard .dash-toolbar {height:72px; padding:0 34px; display:flex; align-items:center; justify-content:space-between; gap:16px; border-bottom:1px solid var(--line); background:#fff}
+.dash-toolbar-start,.dash-toolbar-end {display:flex; align-items:center; gap:15px; min-width:0}
+.dash-breadcrumb {font-size:12px; color:var(--muted)}
+.dash-breadcrumb b {font-weight:600; color:#2a4741}
+.flat-dashboard .dash-icon-btn {display:grid; place-items:center; border:1px solid var(--line); color:#42635c; background:white; width:36px; height:36px; min-height:36px; padding:7px; border-radius:6px; margin:0; flex-shrink:0}
+.flat-dashboard .dash-icon-btn:hover {background:#edf5f0}
+.dash-icon-btn svg {width:19px; height:19px}
+.dash-date {font-size:12px; color:var(--muted)}
+.dash-avatar {width:34px; height:34px; border-radius:50%; background:#e5f3ee; color:#087164; display:grid; place-items:center}
+.flat-dashboard > header:not(.dash-toolbar) {margin:0; padding:30px 34px 6px; background:transparent; border:0}
+.flat-dashboard > header:not(.dash-toolbar) .top {max-width:none; align-items:center; margin:0}
+.flat-dashboard > header:not(.dash-toolbar) .mark {display:none}
+.flat-dashboard > header:not(.dash-toolbar) h1 {font-size:27px; font-weight:700; letter-spacing:-.8px; color:#193d35}
+.flat-dashboard > header:not(.dash-toolbar) .muted {margin-top:3px; font-size:13px}
+.flat-dashboard > #databaseHeader:empty {display:none}
+.flat-dashboard main {max-width:none; padding:22px 34px 40px; margin:0; min-width:0}
+.flat-dashboard h2 {font-size:16px; font-weight:650; letter-spacing:-.2px; color:#23443c}
+.flat-dashboard h3 {color:#294d44}
+.flat-dashboard .panel,.flat-dashboard .stat {background:#fff; border:1px solid var(--line); border-radius:8px; box-shadow:none}
+.flat-dashboard .panel {padding:22px}
+.flat-dashboard .panel .panel {border-color:#e7edeb}
+.flat-dashboard .notice {background:#edf4f1; border:1px solid #dbe8e1; color:#41645a; border-radius:6px; font-size:12px; padding:11px 15px; margin-bottom:20px}
+.flat-dashboard .notice.error,.flat-dashboard .status.error {background:#fff0ee; border-color:#f0d3ce; color:#a6342a}
+.flat-dashboard .notice.success,.flat-dashboard .status.success {background:#eaf5ef; border-color:#c9e3d4; color:#226446}
+.flat-dashboard .btn,.flat-dashboard .action {border:1px solid #d4dfda; color:#35584c; background:#fff; border-radius:5px; font-size:12px; font-weight:600; padding:10px 14px; min-height:40px; text-decoration:none; transition:background .15s,border-color .15s; margin-top:0}
+.flat-dashboard .btn:hover:not(:disabled),.flat-dashboard .action:hover:not(:disabled) {background:#edf6f1; border-color:#8db7a3}
+.flat-dashboard .primary,.flat-dashboard button#btnKonfirmasi {background:#087f70; border-color:#087f70; color:#fff}
+.flat-dashboard .primary:hover:not(:disabled),.flat-dashboard button#btnKonfirmasi:hover:not(:disabled) {background:#06675b; border-color:#06675b; color:white}
+.flat-dashboard .action {min-height:32px; padding:5px 10px; font-size:11px}
+.flat-dashboard input,.flat-dashboard select,.flat-dashboard textarea {border:1px solid #d3dfd9; border-radius:5px; padding:10px 12px; min-height:42px; color:#29473d; background:#fff; max-width:100%}
+.flat-dashboard input[type=checkbox],.flat-dashboard input[type=radio] {min-height:0; accent-color:#087f70}
+.flat-dashboard input[type=search] {padding-left:14px; background:#f8faf9}
+.flat-dashboard input::placeholder {color:#5d7468}
+.flat-dashboard label {font-size:11px; font-weight:650; letter-spacing:.25px; color:#52685e}
+.flat-dashboard .filters {gap:14px; background:#fff; border-top:3px solid #a5cdbc}
+.flat-dashboard .filters > * {min-width:0}
+.flat-dashboard .stats {gap:16px; margin:20px 0 24px}
+.flat-dashboard .stat {position:relative; padding:19px 20px 17px; min-height:118px; border-bottom:3px solid #b7cbdc; overflow:hidden}
+.flat-dashboard .stat:nth-child(2) {border-bottom-color:#60ad92}
+.flat-dashboard .stat:nth-child(3) {border-bottom-color:#e1b260}
+.flat-dashboard .stat:nth-child(4) {border-bottom-color:#cf958e}
+.flat-dashboard .stat span {font-size:12px; color:#5d7468}
+.flat-dashboard .stat strong {font-size:32px; color:#243e33; font-weight:650; letter-spacing:-1px; line-height:1.2; margin:12px 0 0; font-variant-numeric:tabular-nums}
+.flat-dashboard .stat small {margin-top:8px; font-size:11px; color:#64796c}
+.flat-dashboard .stat::after {content:''; position:absolute; right:20px; top:22px; width:8px; height:8px; background:#b7cbdc; border-radius:2px}
+.flat-dashboard .stat:nth-child(2)::after {background:#60ad92}
+.flat-dashboard .stat:nth-child(3)::after {background:#e1b260}
+.flat-dashboard .stat:nth-child(4)::after {background:#cf958e}
+.flat-dashboard .stat span {display:inline-block; max-width:88%}
+.flat-dashboard .accent {background:#f0f8f3}
+.flat-dashboard .layout {grid-template-columns:minmax(0,1fr) 274px; gap:20px}
+.flat-dashboard .sectionhead {gap:14px; margin-bottom:20px}
+.flat-dashboard .sectionhead > div {min-width:0}
+.flat-dashboard .sectionhead input[type=search] {max-width:245px}
+.flat-dashboard .sectionhead .muted {font-size:12px; margin-top:4px}
+.flat-dashboard .tablebox,.flat-dashboard .preview-wrap {border:1px solid #e5ece7; border-radius:5px; overflow:auto; max-width:100%; scrollbar-width:thin}
+.flat-dashboard table {width:100%; border-collapse:collapse; min-width:660px}
+.flat-dashboard th {padding:13px 14px; background:#f1f6f3; color:#5a7467; font-size:10px; font-weight:700; letter-spacing:.7px; white-space:nowrap; border-bottom:1px solid #dce7e0}
+.flat-dashboard td {padding:15px 14px; border-bottom:1px solid #edf1ee; font-size:12px; color:#355347; vertical-align:middle}
+.flat-dashboard tbody tr:last-child td {border-bottom:0}
+.flat-dashboard tbody tr:hover td {background:#f5faf7}
+.flat-dashboard td strong {color:#254637; font-weight:600}
+.flat-dashboard .sub {font-size:10px; color:#5d7468; margin-top:5px}
+.flat-dashboard .badge {padding:4px 8px; border-radius:4px; background:#edf1ef; color:#5d6d63; font-size:10px; font-weight:600; text-transform:capitalize; white-space:nowrap}
+.flat-dashboard .badge.ok,.flat-dashboard .ok {background:#e5f3ec; color:#267149}
+.flat-dashboard .badge.warn,.flat-dashboard .warn {background:#fff4dc; color:#8d6315}
+.flat-dashboard .foot,.flat-dashboard .help {font-size:11px; line-height:1.7; color:#5d7468}
+.flat-dashboard .empty {padding:40px 20px; text-align:center; color:#5d7468; font-size:13px; background:#fafcfb; border-radius:5px}
+.flat-dashboard .session-summary dt {font-size:10px; text-transform:uppercase; letter-spacing:.6px; color:#5d7468; margin-top:15px}
+.flat-dashboard .session-summary dd {font-size:12px; margin:4px 0 0; color:#365342; overflow-wrap:anywhere}
+.flat-dashboard .summary-counts {background:#f4f8f5; border:0; border-radius:5px; padding:12px; margin:18px 0}
+.flat-dashboard .summary-counts span {font-size:11px; color:#5d7468}
+.flat-dashboard .buttons:has(#tabSesi),.flat-dashboard .tabs {justify-content:flex-start; gap:0!important; border-bottom:1px solid #dbe5df; padding:8px 0 0; margin:16px 0!important; overflow-x:auto; flex-wrap:nowrap!important}
+.flat-dashboard :is(.buttons:has(#tabSesi),.tabs) .btn {white-space:nowrap; background:transparent; border:0; border-bottom:2px solid transparent; color:#5d7468; border-radius:0; padding:12px 16px; min-height:45px}
+.flat-dashboard :is(.buttons:has(#tabSesi),.tabs) .btn[aria-pressed=true] {color:#076f62; border-bottom-color:#087f70; font-weight:700}
+.flat-dashboard dialog {border:1px solid #cddbd3; border-radius:10px; box-shadow:0 24px 80px #102e2733; max-height:90dvh; color:var(--ink)}
+.flat-dashboard dialog::backdrop {background:#14372e66}
+.flat-dashboard details {border:1px solid #dce6df; border-radius:6px; padding:14px 16px; background:#fbfdfb}
+.flat-dashboard summary {font-size:12px; color:#087f70; cursor:pointer}
+.flat-dashboard .step {color:#087164; font-size:10px; letter-spacing:1.4px; font-weight:700}
+.dash-completion {margin:18px 0 22px; padding:0 0 18px; border-bottom:1px solid var(--line)}
+.dash-completion-label {display:flex; justify-content:space-between; font-size:11px; color:#5a7365; margin-bottom:8px}
+.dash-completion-label strong {color:#087164; font-size:12px}
+.dash-progress {height:6px; border-radius:3px; background:#e8efeb; overflow:hidden}
+.dash-progress-fill {height:100%; width:0; background:#239b7c; transition:width .3s ease}
+.dash-completion small {display:block; font-size:10px; color:#5d7468; margin-top:7px}
+.dash-density-label {display:none}
+.flat-dashboard.dash-compact td {padding-top:8px; padding-bottom:8px}
+.flat-dashboard .dash-skip {position:fixed; left:16px; top:-100px; z-index:100; background:#fff; padding:10px 18px; border:2px solid #087f70}
+.flat-dashboard .dash-skip:focus {top:10px}
+.flat-dashboard .dash-backdrop {display:none}
+.dash-toast {position:fixed; bottom:24px; left:50%; transform:translateX(-50%); background:#1b4337; color:#fff; border-radius:6px; padding:12px 20px; z-index:100; font-size:12px; max-width:90vw}
+.flat-dashboard.dash-nav-collapsed {padding-left:0}
+.dash-nav-collapsed .dash-sidebar {transform:translateX(-100%)}
+.flat-dashboard.public-page {padding:0; background:#f0f5f2}
+.public-page .public-brand {margin:36px auto 0; display:flex; justify-content:center; align-items:center; gap:10px; color:#1a4f40; font-size:17px; font-weight:700}
+.flat-dashboard.public-page .container {max-width:480px; width:calc(100% - 32px); margin:24px auto; border:1px solid var(--line); border-radius:8px; padding:30px; box-shadow:none; background:#fff}
+.public-page .container h2 {font-size:22px; color:#244e3d}
+.public-page .container .subtitle {font-size:13px; color:var(--muted)}
+.public-page .container button {min-height:44px; border-radius:5px; font-weight:600}
+.public-page .container select {width:100%}
+.public-page .public-foot {text-align:center; font-size:11px; color:#5d7468; padding:0 18px 28px}
+.public-page .qr-area {border:1px dashed #9ebdad; border-radius:6px; background:#f4faf6}
+.public-page #gambarQR img,.public-page #gambarQR canvas {margin:auto; max-width:100%}
+@media(min-width:1600px){.flat-dashboard main,.flat-dashboard > header:not(.dash-toolbar) {padding-left:48px; padding-right:48px}.flat-dashboard .layout{grid-template-columns:minmax(0,1fr) 300px}}
+@media(max-width:1200px){.flat-dashboard .filters {grid-template-columns:repeat(2,minmax(0,1fr))}.flat-dashboard .filters>div:last-child{grid-column:1/-1}.flat-dashboard .layout{grid-template-columns:minmax(0,1fr)}.flat-dashboard .stats{gap:12px}.flat-dashboard .stat{padding:16px}.flat-dashboard .sectionhead{flex-wrap:wrap}}
+@media(max-width:900px){body.flat-dashboard{padding-left:0}.flat-dashboard .dash-sidebar{transform:translateX(-100%); width:250px}.flat-dashboard.dash-nav-open .dash-sidebar{transform:translateX(0)}.flat-dashboard.dash-nav-open .dash-backdrop {display:block;position:fixed;inset:0;background:#14372e66;z-index:55;border:0;width:100%;height:100%;padding:0;margin:0;border-radius:0}.flat-dashboard.dash-nav-open{overflow:hidden}.flat-dashboard .dash-toolbar{padding:0 20px;height:64px}.flat-dashboard > header:not(.dash-toolbar){padding:24px 20px 4px}.flat-dashboard main{padding:18px 20px 30px}.flat-dashboard .identity{grid-template-columns:1fr}.dash-date{display:none}.flat-dashboard .stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:560px){.dash-breadcrumb{font-size:11px}.dash-breadcrumb span{display:none}.flat-dashboard .dash-toolbar{padding:0 16px}.dash-toolbar-start,.dash-toolbar-end{gap:10px}.flat-dashboard > header:not(.dash-toolbar){padding:22px 16px 0}.flat-dashboard > header:not(.dash-toolbar) .top{align-items:flex-start; flex-direction:column; gap:14px}.flat-dashboard > header:not(.dash-toolbar) h1{font-size:23px}.flat-dashboard main{padding:16px}.flat-dashboard .panel{padding:16px}.flat-dashboard .stats{gap:10px;margin:16px 0}.flat-dashboard .stat strong{font-size:28px}.flat-dashboard .stat span{font-size:11px}.flat-dashboard .stat{min-height:112px;padding:15px 12px}.flat-dashboard .stat::after{right:12px;top:18px;width:6px;height:6px}.flat-dashboard .filters,.flat-dashboard .formgrid,.flat-dashboard .dialog-fields{grid-template-columns:minmax(0,1fr)}.flat-dashboard .sectionhead{align-items:flex-start;flex-direction:column}.flat-dashboard .sectionhead input[type=search]{width:100%;max-width:none}.flat-dashboard .btn{padding:9px 11px}.flat-dashboard table{min-width:640px}.flat-dashboard dialog{width:calc(100% - 20px)!important;padding:16px}.flat-dashboard .dash-nav a{min-height:46px}.flat-dashboard .tabs .btn,.flat-dashboard .buttons:has(#tabSesi) .btn{padding:11px 12px;font-size:11px}.flat-dashboard.public-page .container{padding:24px 20px}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{transition:none!important;animation:none!important}}
+@media print{body.flat-dashboard{padding:0;background:white}.flat-dashboard .dash-sidebar,.flat-dashboard .dash-toolbar,.flat-dashboard .dash-backdrop,.flat-dashboard .dash-skip{display:none!important}.flat-dashboard main{padding:0}.flat-dashboard .tablebox{overflow:visible}.flat-dashboard table{min-width:0}.flat-dashboard .panel,.flat-dashboard .stat{break-inside:avoid}}
+.flat-dashboard.public-page #btnKonfirmasi,.flat-dashboard.public-page #btnUjiQR {background:#087f70!important;color:white!important}
+.flat-dashboard.public-page .container .status {font-size:13px;line-height:1.65;padding:14px;border-radius:5px;border:1px solid #dbe5df}
+@media(max-width:900px){body.flat-dashboard{transition:none}}
+.dash-status-filter {display:flex;align-items:center;justify-content:space-between;gap:12px;margin:-3px 0 16px;flex-wrap:wrap}
+.dash-status-filter>div {display:flex;gap:6px;flex-wrap:wrap}
+.flat-dashboard .dash-status-filter button {min-height:32px;border:1px solid #e2e9e5;border-radius:4px;padding:5px 10px;background:white;color:#687d70;font-size:11px}
+.flat-dashboard .dash-status-filter button:hover {background:#f0f7f3}
+.flat-dashboard .dash-status-filter button[aria-pressed=true] {color:#096e5d;background:#e9f5ee;border-color:#bddbc9;font-weight:650}
+.dash-status-filter>span {font-size:10px;color:#5d7468}
+.flat-dashboard tr[hidden],.flat-dashboard #dashStatusEmpty[hidden] {display:none!important}
+.flat-dashboard #tableBody td:first-child {min-width:170px}
+.flat-dashboard #tableBody td:nth-child(2),.flat-dashboard #tableBody td:nth-child(3) {min-width:105px}
+
+</style>
+<style>@media(min-width:901px){#dashCloseMenu{display:none!important}}</style></head>
+  <body class="flat-dashboard"><a class="dash-skip" href="#dashContent">Lewati ke konten utama</a>
+  <aside id="dashSidebar" class="dash-sidebar" aria-label="Menu utama">
+    <div class="dash-logo"><span class="dash-logo-mark"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h6l2 3 2-3h6v14h-6l-2 2-2-2H4z"/><path d="M12 8v13M7 10h2M15 10h2"/></svg></span><div><strong>Pelatihan<span style="color:#087f70">.</span></strong><small>Manajemen absensi</small></div></div>
+    <button type="button" id="dashCloseMenu" class="dash-icon-btn" aria-label="Tutup menu" style="align-self:flex-end;margin-top:12px"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 6 12 12M6 18 18 6"/></svg></button>
+    <div class="dash-nav-label">RUANG KERJA</div><nav class="dash-nav" aria-label="Navigasi dashboard"><a href="#" data-dash-page="monitoring"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Monitoring</a><a href="#" data-dash-page="pengelolaan"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 11h18M7 15h3M14 15h3"/></svg>Pengelolaan</a><a href="#" data-dash-page="peserta"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3"/><path d="M3 21v-3a6 6 0 0 1 12 0v3M16 5a3 3 0 0 1 0 6M21 21v-3a6 6 0 0 0-3-5"/></svg>Peserta Program</a><a href="#dashContent" aria-current="page"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a8 8 0 0 1 16 0v1"/></svg>Profil Peserta</a></nav>
+    <div class="dash-sidebar-bottom"><strong>Setiap kehadiran berarti.</strong><p>Kelola pelatihan dan pantau partisipasi dalam satu tempat.</p><span class="dash-shortcut">/</span> untuk mencari pada tabel</div>
+  </aside>
+  <button type="button" id="dashBackdrop" class="dash-backdrop" aria-label="Tutup menu navigasi" tabindex="-1"></button>
+  <header class="dash-toolbar"><div class="dash-toolbar-start"><button type="button" class="dash-icon-btn" id="dashMenu" aria-label="Buka atau tutup navigasi" aria-controls="dashSidebar" aria-expanded="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button><div class="dash-breadcrumb"><span>Ruang kerja &nbsp; / &nbsp; </span><b>Profil Peserta</b></div></div><div class="dash-toolbar-end"><time class="dash-date" id="dashDate"></time><button type="button" class="dash-icon-btn" id="dashDensity" aria-label="Gunakan tabel ringkas" aria-pressed="false" title="Gunakan tabel ringkas"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 5h14M5 10h14M5 15h14M5 20h14"/></svg></button><span class="dash-avatar" aria-label="Manajemen pelatihan"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h6l2 3 2-3h6v14h-6l-2 2-2-2H4z"/><path d="M12 8v13M7 10h2M15 10h2"/></svg></span></div></header>
+  <div id="dashToast" class="dash-toast" role="status" aria-live="polite" hidden></div>
+    <header id="databaseHeader" style="min-height: 64px"></header>
+    <main id="dashContent" tabindex="-1">
+      <section class="panel">
+        <div class="head">
+          <h1>Profil Peserta</h1>
+          <div class="actions">
+            <a id="backParticipants" class="btn">Kembali ke Daftar Peserta</a
+            ><a id="backMonitoring" class="btn">Buka Monitoring</a>
+          </div>
+        </div>
+      </section>
+      <p id="message" class="notice" role="status">Memuat profil…</p>
+      <div id="content" class="hidden">
+        <section class="panel identity">
+          <div>
+            <p class="muted">IDENTITAS PESERTA</p>
+            <h2 id="personName" class="person-name"></h2>
+            <dl class="info">
+              <dt>NIP</dt>
+              <dd id="personNip"></dd>
+              <dt>Unit kerja induk</dt>
+              <dd id="personUnit"></dd>
+            </dl>
+          </div>
+          <div>
+            <label for="program"><strong>Program pelatihan</strong></label
+            ><select id="program"></select>
+            <p id="programMeta" class="muted"></p>
+            <dl class="info">
+              <dt>Unit saat mengikuti pelatihan</dt>
+              <dd id="programUnit"></dd>
+              <dt>Status keikutsertaan</dt>
+              <dd id="programStatus"></dd>
+            </dl>
+            <button class="btn" id="refresh" style="margin-top: 15px">
+              Muat Ulang Profil
+            </button>
+          </div>
+        </section>
+        <div id="programContent">
+          <div class="stats">
+            <div class="stat accent">
+              <span>Kehadiran sesi selesai</span
+              ><strong id="attendancePercent">—</strong
+              ><small id="attendanceCount"></small>
+            </div>
+            <div class="stat">
+              <span>Terlambat</span><strong id="lateCount">—</strong
+              ><small>Melewati toleransi 10 menit</small>
+            </div>
+            <div class="stat">
+              <span>Izin tercatat</span><strong id="leaveCount">—</strong
+              ><small>Jumlah sesi dengan izin yang tidak ditolak</small>
+            </div>
+            <div class="stat">
+              <span>Perlu dilengkapi / diperiksa</span
+              ><strong id="pendingCount">—</strong
+              ><small id="upcomingCount"></small>
+            </div>
+          </div>
+          <div class="stats">
+            <div class="stat">
+              <span>JP diperoleh</span><strong id="jpObtained">—</strong
+              ><small id="jpTarget"></small>
+            </div>
+            <div class="stat">
+              <span>Pemenuhan JP</span><strong id="jpPercent">—</strong
+              ><small id="jpStatus"></small>
+            </div>
+            <div class="stat">
+              <span>Nilai perilaku</span><strong id="behaviorScore">—</strong
+              ><small id="scoreStatus"></small>
+            </div>
+            <div class="stat">
+              <span>Kontribusi perilaku berbobot</span
+              ><strong id="behaviorContribution">—</strong
+              ><small id="scoreRule"></small>
+            </div>
+          </div>
+          <p class="foot" id="attendanceBasis"></p>
+          <p class="foot">
+            Nilai keseluruhan pelatihan belum dihitung karena komponen dan bobot
+            penilaian belum lengkap.
+          </p>
+          <div class="tabs" aria-label="Rincian profil">
+            <button id="tabAttendance" class="btn primary" aria-pressed="true">
+              Kehadiran</button
+            ><button id="tabBehavior" class="btn" aria-pressed="false">
+              Sikap &amp; Perilaku</button
+            ><button id="tabLeave" class="btn" aria-pressed="false">
+              Riwayat Izin</button
+            ><button id="tabHistory" class="btn" aria-pressed="false">
+              Riwayat Koreksi
+            </button>
+          </div>
+          <section id="attendancePanel" class="panel">
+            <h2>Riwayat Kehadiran per Sesi</h2>
+            <div class="tablebox" style="margin-top: 16px">
+              <table>
+                <thead>
+                  <tr>
+                    <th>TANGGAL / SESI</th>
+                    <th>JADWAL</th>
+                    <th>DATANG EFEKTIF</th>
+                    <th>PULANG EFEKTIF</th>
+                    <th>STATUS</th>
+                    <th>JP</th>
+                    <th>KETERANGAN</th>
+                  </tr>
+                </thead>
+                <tbody id="attendanceBody"></tbody>
+              </table>
+            </div>
+            <p id="attendanceEmpty" class="empty hidden">
+              Program belum memiliki sesi.
+            </p>
+            <p class="foot">
+              Waktu efektif menggunakan waktu terverifikasi bila tersedia. JP
+              mengikuti hasil perhitungan terbaru yang sesuai data. Sesi tanpa
+              JP tetap ditampilkan dalam riwayat kehadiran.
+            </p>
+          </section>
+          <section id="behaviorPanel" class="panel hidden">
+            <div class="head">
+              <h2>Catatan Sikap &amp; Perilaku</h2>
+              <label
+                >Jenis catatan
+                <select id="noteKind">
+                  <option value="positif">Positif</option>
+                  <option value="negatif">Negatif</option>
+                  <option value="lain">Belum dikategorikan</option>
+                </select></label
+              >
+            </div>
+            <p id="noteSummary" class="muted"></p>
+            <div class="tablebox">
+              <table>
+                <thead>
+                  <tr>
+                    <th>WAKTU / SESI</th>
+                    <th>INDIKATOR</th>
+                    <th>KETERANGAN</th>
+                    <th>BUKTI</th>
+                    <th>VALIDASI</th>
+                  </tr>
+                </thead>
+                <tbody id="behaviorBody"></tbody>
+              </table>
+            </div>
+            <p id="behaviorEmpty" class="empty hidden">
+              Tidak ada catatan pada jenis ini.
+            </p>
+            <p class="foot">
+              Termasuk catatan yang belum divalidasi dan ditolak. Hanya catatan
+              yang disetujui serta sesuai aturan yang memengaruhi nilai.
+            </p>
+          </section>
+          <section id="leavePanel" class="panel hidden">
+            <h2>Riwayat Izin Peserta</h2>
+            <p id="leaveSummary" class="muted"></p>
+            <div class="tablebox">
+              <table>
+                <thead>
+                  <tr>
+                    <th>SESI</th>
+                    <th>MULAI IZIN</th>
+                    <th>KEMBALI</th>
+                    <th>DURASI</th>
+                    <th>ALASAN</th>
+                    <th>BUKTI</th>
+                    <th>VALIDASI / JP</th>
+                  </tr>
+                </thead>
+                <tbody id="leaveBody"></tbody>
+              </table>
+            </div>
+            <p id="leaveEmpty" class="empty hidden">
+              Peserta belum memiliki catatan izin pada program ini.
+            </p>
+            <p class="foot">
+              Satu baris adalah satu kejadian izin. Izin tercatat mencakup
+              catatan yang tidak ditolak, termasuk yang menunggu validasi.
+              Status pengurangan JP mengikuti pengaturan pada catatan, terpisah
+              dari validasi perilaku.
+            </p>
+          </section>
+          <section id="historyPanel" class="panel hidden">
+            <h2>Riwayat Koreksi dan Validasi</h2>
+            <p id="historySummary" class="muted"></p>
+            <div class="tablebox">
+              <table>
+                <thead>
+                  <tr>
+                    <th>WAKTU</th>
+                    <th>DATA / TINDAKAN</th>
+                    <th>DIUBAH OLEH</th>
+                    <th>ALASAN / PERUBAHAN</th>
+                    <th>STATUS TRANSAKSI</th>
+                  </tr>
+                </thead>
+                <tbody id="historyBody"></tbody>
+              </table>
+            </div>
+            <p id="historyEmpty" class="empty hidden">
+              Belum ada riwayat koreksi atau validasi.
+            </p>
+            <p class="foot">
+              Riwayat kehadiran dan catatan dibatasi pada program terpilih.
+              Perubahan identitas peserta berlaku lintas program. Penyesuaian
+              jadwal berada pada riwayat sesi.
+            </p>
+          </section>
+        </div>
+      </div>
+    </main>
+    <dialog id="proofDialog">
+      <div class="head">
+        <h2>Pratinjau Bukti Pendukung</h2>
+        <button class="btn" id="closeProof">Tutup</button>
+      </div>
+      <p class="muted">
+        Gunakan akun Google yang memiliki akses ke file jika pratinjau meminta
+        izin.
+      </p>
+      <iframe
+        id="proofFrame"
+        title="Pratinjau bukti pendukung"
+        allow="fullscreen"
+      ></iframe>
+    </dialog>
+    <script>
+      "use strict";
+      const $ = (id) => document.getElementById(id);
+      let profile = null,
+        personId = "",
+        sequence = 0,
+        navigationBase = "",
+        loading = false;
+      function rpc(name, ...args) {
+        return new Promise((resolve, reject) =>
+          google.script.run
+            .withSuccessHandler(resolve)
+            .withFailureHandler(reject)
+            [name](...args),
+        );
+      }
+      function fmt(n, suffix = "") {
+        return Number.isFinite(n)
+          ? n.toLocaleString("id-ID", {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            }) + suffix
+          : "—";
+      }
+      function textStatus(s) {
+        return String(s || "—").replace(/_/g, " ");
+      }
+      function cell(value) {
+        const td = document.createElement("td");
+        td.textContent = value == null ? "—" : value;
+        return td;
+      }
+      function sub(parent, text) {
+        if (!text) return;
+        const e = document.createElement("span");
+        e.className = "sub";
+        e.textContent = text;
+        parent.append(e);
+      }
+      function message(text, error = false) {
+        $("message").textContent = text;
+        $("message").className = "notice" + (error ? " error" : "");
+      }
+      function nav() {
+        [
+          ["backParticipants", "peserta"],
+          ["backMonitoring", "monitoring"],
+        ].forEach(([id, page]) => {
+          const a = $(id);
+          if (navigationBase && !loading) {
+            a.href =
+              navigationBase +
+              "?page=" +
+              page +
+              (profile && profile.program
+                ? "&program=" + encodeURIComponent(profile.program.id)
+                : "");
+            a.setAttribute("aria-disabled", "false");
+          } else {
+            a.removeAttribute("href");
+            a.setAttribute("aria-disabled", "true");
+          }
+        });
+      }
+      function chooseTab(tab) {
+        [
+          ["tabAttendance", "attendancePanel", "attendance"],
+          ["tabBehavior", "behaviorPanel", "behavior"],
+          ["tabLeave", "leavePanel", "leave"],
+          ["tabHistory", "historyPanel", "history"],
+        ].forEach(([b, p, t]) => {
+          $(p).classList.toggle("hidden", t !== tab);
+          $(b).className = "btn" + (t === tab ? " primary" : "");
+          $(b).setAttribute("aria-pressed", String(t === tab));
+        });
+      }
+      function proofLinks(container, text) {
+        const urls =
+          String(text || "").match(
+            /https:\/\/drive\.google\.com\/file\/d\/[A-Za-z0-9_-]{10,150}\/view/g,
+          ) || [];
+        Array.from(new Set(urls)).forEach((url) => {
+          const id = url.match(/\/d\/([A-Za-z0-9_-]+)\/view$/)[1],
+            b = document.createElement("button");
+          b.type = "button";
+          b.className = "link";
+          b.textContent = "Lihat bukti";
+          b.addEventListener("click", () => {
+            $("proofFrame").src =
+              "https://drive.google.com/file/d/" + id + "/preview";
+            $("proofDialog").showModal();
+          });
+          container.append(b);
+        });
+      }
+      function renderLeaveHistory() {
+        const rows = (profile.catatan || []).filter(
+            (r) => r.kode === "IZIN_SESI",
+          ),
+          valid = rows.filter((r) => r.status !== "ditolak"),
+          approved = rows.filter((r) => r.status === "disetujui").length,
+          denied = rows.filter((r) => r.status === "ditolak").length,
+          pending = rows.length - approved - denied;
+        $("leaveSummary").textContent =
+          rows.length +
+          " total kejadian · " +
+          valid.length +
+          " izin tercatat pada " +
+          new Set(valid.map((r) => r.id_sesi)).size +
+          " sesi · " +
+          approved +
+          " disetujui · " +
+          pending +
+          " menunggu validasi · " +
+          denied +
+          " ditolak.";
+        const body = $("leaveBody");
+        body.replaceChildren();
+        rows.forEach((r) => {
+          const tr = document.createElement("tr"),
+            session = cell(r.nama_sesi || r.id_sesi);
+          sub(session, r.id_sesi);
+          const proof = cell(
+            String(r.bukti || "")
+              .replace(
+                /(?:Lampiran:\s*)?https:\/\/drive\.google\.com\/file\/d\/[A-Za-z0-9_-]{10,150}\/view/g,
+                "",
+              )
+              .trim() || (r.bukti ? "Terlampir" : "Tidak dilampirkan"),
+          );
+          proofLinks(proof, r.bukti);
+          const status = cell(textStatus(r.status));
+          sub(status, r.alasan_validasi);
+          sub(status, "JP: " + textStatus(r.status_pengurangan_jp));
+          tr.append(
+            session,
+            cell(r.mulai_izin || "—"),
+            cell(r.selesai_izin || "—"),
+            cell(fmt(r.durasi_izin_menit, " menit")),
+            cell(r.keterangan),
+            proof,
+            status,
+          );
+          body.append(tr);
+        });
+        $("leaveEmpty").classList.toggle("hidden", rows.length > 0);
+      }
+      function renderNotes() {
+        const rows = profile.catatan || [],
+          kind = $("noteKind").value,
+          category = (r) =>
+            ["positif", "negatif"].includes(r.jenis) ? r.jenis : "lain",
+          list = rows.filter((r) => category(r) === kind);
+        $("noteSummary").textContent =
+          rows.length +
+          " total catatan · " +
+          rows.filter((r) => r.jenis === "positif").length +
+          " positif · " +
+          rows.filter((r) => r.jenis === "negatif").length +
+          " negatif · Menampilkan " +
+          list.length +
+          " catatan.";
+        const body = $("behaviorBody");
+        body.replaceChildren();
+        list.forEach((r) => {
+          const tr = document.createElement("tr"),
+            time = cell(r.waktu);
+          sub(time, r.id_sesi);
+          const ind = cell(r.kode);
+          sub(ind, r.definisi);
+          const proof = cell(
+            String(r.bukti || "")
+              .replace(
+                /(?:Lampiran:\s*)?https:\/\/drive\.google\.com\/file\/d\/[A-Za-z0-9_-]{10,150}\/view/g,
+                "",
+              )
+              .trim() || (r.bukti ? "Terlampir" : "Tidak dilampirkan"),
+          );
+          proofLinks(proof, r.bukti);
+          const status = cell(textStatus(r.status));
+          sub(status, r.alasan_validasi);
+          tr.append(time, ind, cell(r.keterangan), proof, status);
+          body.append(tr);
+        });
+        $("behaviorEmpty").classList.toggle("hidden", list.length > 0);
+      }
+      const changeLabels = {
+        nama_pegawai: "Nama peserta",
+        nip: "NIP",
+        unit_kerja: "Unit kerja induk",
+        waktu_datang_terverifikasi: "Datang terverifikasi",
+        waktu_pulang_terverifikasi: "Pulang terverifikasi",
+        status_kehadiran: "Status kehadiran",
+        status_validasi: "Status validasi",
+        alasan_koreksi: "Alasan koreksi",
+        dasar_verifikasi: "Dasar verifikasi",
+        alasan_validasi: "Alasan validasi",
+        waktu_mulai_izin: "Mulai izin",
+        waktu_selesai_izin: "Selesai izin",
+        status_pengurangan_jp: "Pengurangan JP",
+        status_perhitungan_ulang: "Status perhitungan JP",
+      };
+      function extractChanges(e) {
+        let a, b;
+        try {
+          a = JSON.parse(e.sebelum);
+          b = JSON.parse(e.sesudah);
+        } catch (ignored) {
+          return [];
+        }
+        if (Array.isArray(a)) {
+          const root = a.find(
+            (w) => w.sheet === e.jenis && String(w.id) === e.referensi,
+          );
+          a = root && root.record;
+        }
+        if (b && Array.isArray(b.writes)) {
+          const root = b.writes.find(
+            (w) => w.sheet === e.jenis && String(w.id) === e.referensi,
+          );
+          b = root && root.after;
+        }
+        if (a && a.kehadiran) a = a.kehadiran;
+        if (b && b.kehadiran)
+          b = Object.assign(
+            {},
+            b.kehadiran,
+            b.catatan
+              ? {
+                  waktu_mulai_izin: b.catatan.waktu_mulai_izin,
+                  waktu_selesai_izin: b.catatan.waktu_selesai_izin,
+                }
+              : {},
+          );
+        a = a || {};
+        b = b || {};
+        return Object.entries(changeLabels)
+          .filter(
+            ([k]) =>
+              Object.prototype.hasOwnProperty.call(b, k) &&
+              JSON.stringify(a[k]) !== JSON.stringify(b[k]),
+          )
+          .map(([k, title]) => ({ title, before: a[k], after: b[k] }));
+      }
+      function humanValue(v) {
+        if (v == null || v === "") return "—";
+        if (typeof v === "string" && /^\d{4}-\d{2}-\d{2}T.*Z$/.test(v))
+          return new Date(v).toLocaleString("id-ID", {
+            timeZone: profile.zona,
+          });
+        return textStatus(v);
+      }
+      function renderHistory() {
+        const body = $("historyBody");
+        body.replaceChildren();
+        (profile.riwayat || []).forEach((r) => {
+          const tr = document.createElement("tr"),
+            data = cell(r.jenis);
+          sub(data, textStatus(r.tindakan) + " · " + r.referensi);
+          const detail = cell(r.alasan),
+            changes = extractChanges(r);
+          if (changes.length) {
+            const box = document.createElement("details"),
+              summary = document.createElement("summary");
+            summary.textContent = "Lihat " + changes.length + " perubahan";
+            const table = document.createElement("table");
+            table.className = "changes";
+            const header = document.createElement("tr");
+            header.append(cell("Kolom"), cell("Sebelum"), cell("Sesudah"));
+            table.append(header);
+            changes.forEach((x) => {
+              const row = document.createElement("tr");
+              row.append(
+                cell(x.title),
+                cell(humanValue(x.before)),
+                cell(humanValue(x.after)),
+              );
+              table.append(row);
+            });
+            box.append(summary, table);
+            detail.append(box);
+          }
+          tr.append(
+            cell(r.waktu),
+            data,
+            cell(r.oleh),
+            detail,
+            cell(textStatus(r.status)),
+          );
+          body.append(tr);
+        });
+        $("historyEmpty").classList.toggle(
+          "hidden",
+          profile.riwayat.length > 0,
+        );
+        $("historySummary").textContent =
+          "Menampilkan " +
+          profile.riwayat.length +
+          " dari " +
+          profile.jumlah_riwayat +
+          " transaksi terbaru.";
+      }
+      function render() {
+        const r = profile;
+        $("personName").textContent = r.peserta.nama;
+        $("personNip").textContent = r.peserta.nip || "—";
+        $("personUnit").textContent = r.peserta.unit || "—";
+        const select = $("program");
+        select.replaceChildren();
+        r.programs.forEach((p) => {
+          const o = document.createElement("option");
+          o.value = p.id;
+          o.textContent = p.nama + " · " + p.id;
+          select.append(o);
+        });
+        select.value = r.program ? r.program.id : "";
+        $("programContent").classList.toggle("hidden", !r.program);
+        if (!r.program) {
+          $("programMeta").textContent =
+            "Peserta belum memiliki keikutsertaan program.";
+          $("programUnit").textContent = "—";
+          $("programStatus").textContent = "—";
+          return;
+        }
+        $("programMeta").textContent =
+          r.program.kategori +
+          " · " +
+          (r.program.jenjang || "Tanpa jenjang") +
+          " · " +
+          r.program.id_keikutsertaan;
+        $("programUnit").textContent = r.program.unit || "—";
+        $("programStatus").textContent = textStatus(r.program.status);
+        const stat = r.ringkasan;
+        $("attendancePercent").textContent = fmt(stat.persentase, "%");
+        $("attendanceCount").textContent =
+          stat.hadir_lengkap +
+          " dari " +
+          stat.sesi_selesai +
+          " sesi selesai · " +
+          textStatus(stat.status);
+        $("lateCount").textContent = stat.terlambat + " sesi";
+        $("leaveCount").textContent = stat.izin + " sesi";
+        $("pendingCount").textContent =
+          stat.belum_lengkap + stat.belum_tercatat + stat.perlu_verifikasi;
+        $("upcomingCount").textContent =
+          stat.belum_berlangsung +
+          " sesi mendatang · " +
+          stat.berlangsung +
+          " sedang berlangsung";
+        $("attendanceBasis").textContent =
+          "Kehadiran sesi = sesi selesai dengan waktu datang dan pulang lengkap ÷ seluruh sesi yang sudah selesai, termasuk sesi tanpa JP. " +
+          stat.belum_tercatat +
+          " sesi belum tercatat hadir, " +
+          stat.belum_lengkap +
+          " absensi belum lengkap, " +
+          stat.perlu_verifikasi +
+          " perlu verifikasi. Hasil masih sementara jika data belum lengkap/diverifikasi.";
+        const jp = r.jp,
+          n = r.nilai;
+        $("jpObtained").textContent = jp ? fmt(jp.jp_diperoleh) : "—";
+        $("jpTarget").textContent = jp
+          ? "Acuan " + fmt(jp.jp_acuan) + " JP"
+          : "Rekap JP belum tersedia";
+        $("jpPercent").textContent = jp ? fmt(jp.persentase, "%") : "—";
+        $("jpStatus").textContent = jp
+          ? textStatus(jp.status)
+          : "Belum tersedia";
+        $("behaviorScore").textContent = n ? fmt(n.nilai) : "—";
+        $("scoreStatus").textContent = n
+          ? textStatus(n.status) + " · " + n.jumlah_catatan + " catatan"
+          : "Aturan/nilai belum tersedia";
+        $("behaviorContribution").textContent = n ? fmt(n.kontribusi) : "—";
+        $("scoreRule").textContent = r.aturan
+          ? "Bobot " +
+            fmt(r.aturan.bobot * 100, "%") +
+            " · aturan versi " +
+            r.aturan.versi
+          : "Aturan belum tersedia";
+        const jm = new Map(
+          ((jp && jp.rincian) || []).map((x) => [x.id_sesi, x]),
+        );
+        $("attendanceBody").replaceChildren();
+        r.kehadiran.forEach((x) => {
+          const tr = document.createElement("tr"),
+            name = cell(x.tanggal);
+          sub(name, x.nama + " · " + x.id);
+          const datang = cell(x.datang || "—"),
+            pulang = cell(x.pulang || "—");
+          sub(datang, "Scan asli: " + (x.datang_asli || "—"));
+          sub(pulang, "Scan asli: " + (x.pulang_asli || "—"));
+          const status = cell(textStatus(x.status));
+          sub(
+            status,
+            Number.isFinite(x.terlambat)
+              ? x.terlambat > 10
+                ? "Terlambat " + fmt(x.terlambat) + " menit"
+                : "Tepat waktu"
+              : "",
+          );
+          sub(status, "Validasi: " + textStatus(x.validasi));
+          const v = jm.get(x.id),
+            jpCell = cell(v ? fmt(v.jp) : "—");
+          sub(jpCell, v ? textStatus(v.status) : "");
+          tr.append(
+            name,
+            cell(x.mulai + "–" + x.selesai),
+            datang,
+            pulang,
+            status,
+            jpCell,
+            cell(x.keterangan),
+          );
+          $("attendanceBody").append(tr);
+        });
+        $("attendanceEmpty").classList.toggle("hidden", r.kehadiran.length > 0);
+        renderNotes();
+        renderLeaveHistory();
+        renderHistory();
+      }
+      async function loadProfile(payload) {
+        const seq = ++sequence;
+        loading = true;
+        $("content").classList.add("hidden");
+        $("refresh").disabled = true;
+        nav();
+        message("Memuat profil dan rincian program…");
+        try {
+          const r = await rpc("muatProfilPesertaIndex", payload);
+          if (seq !== sequence) return;
+          if (!r || !r.sukses) throw Error("Profil tidak tersedia.");
+          profile = r;
+          personId = r.peserta.id;
+          navigationBase = (r.navigasi && r.navigasi.url) || "";
+          render();
+          $("content").classList.remove("hidden");
+          message(
+            "Diperbarui " +
+              r.waktu +
+              " (" +
+              r.zona +
+              ")." +
+              (r.peringatan.length ? "\n" + r.peringatan.join("\n") : ""),
+            r.peringatan.length > 0,
+          );
+        } catch (e) {
+          if (seq === sequence)
+            message(e.message || "Profil gagal dimuat.", true);
+        } finally {
+          if (seq === sequence) {
+            loading = false;
+            $("refresh").disabled = false;
+            nav();
+          }
+        }
+      }
+      $("program").addEventListener("change", () =>
+        loadProfile({ id_peserta: personId, id_program: $("program").value }),
+      );
+      $("refresh").addEventListener("click", () =>
+        loadProfile({ id_peserta: personId, id_program: $("program").value }),
+      );
+      $("tabAttendance").addEventListener("click", () =>
+        chooseTab("attendance"),
+      );
+      $("tabBehavior").addEventListener("click", () => chooseTab("behavior"));
+      $("tabLeave").addEventListener("click", () => chooseTab("leave"));
+      $("tabHistory").addEventListener("click", () => chooseTab("history"));
+      $("noteKind").addEventListener("change", renderNotes);
+      $("closeProof").addEventListener("click", () => $("proofDialog").close());
+      $("proofDialog").addEventListener("close", () =>
+        $("proofFrame").removeAttribute("src"),
+      );
+      async function init() {
+        let p = {};
+        try {
+          p = await new Promise((resolve) => {
+            google.script.url.getLocation((loc) =>
+              resolve((loc && loc.parameter) || {}),
+            );
+            setTimeout(() => resolve({}), 1200);
+          });
+        } catch (e) {}
+        if (!p.peserta && !p.keikutsertaan) {
+          message(
+            "Buka profil dengan mengeklik nama pada daftar peserta atau Rekap Program.",
+            true,
+          );
+          return;
+        }
+        await loadProfile({
+          id_peserta: p.peserta || "",
+          id_keikutsertaan: p.keikutsertaan || "",
+          id_program: p.program || "",
+        });
+      }
+      init();
+    </script>
+  <script id="flat-dashboard-interactions">
+/* Dashboard interactions are isolated from existing Apps Script handlers. */
+(() => {
+  'use strict';
+  document.addEventListener('DOMContentLoaded', () => {
+    const body = document.body;
+    const menu = document.getElementById('dashMenu');
+    if (!menu) return;
+    const sidebar = document.getElementById('dashSidebar');
+    const backdrop = document.getElementById('dashBackdrop');
+    const mobile = window.matchMedia('(max-width: 900px)');
+    const density = document.getElementById('dashDensity');
+    const date = document.getElementById('dashDate');
+    let toastTimer;
+    function toast(text) {
+      const el = document.getElementById('dashToast');
+      el.textContent = text;
+      el.hidden = false;
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => { el.hidden = true; }, 4500);
+    }
+    date.textContent = new Intl.DateTimeFormat('id-ID', {day:'numeric', month:'long', year:'numeric', timeZone:'Asia/Jakarta'}).format(new Date());
+    const inertBefore = new Map();
+    function closeMobile() {
+      body.classList.remove('dash-nav-open');
+      for (const [el, wasInert] of inertBefore) el.inert = wasInert;
+      inertBefore.clear();
+      sidebar.removeAttribute('role');
+      sidebar.removeAttribute('aria-modal');
+      sidebar.inert = mobile.matches;
+      menu.setAttribute('aria-expanded', String(!mobile.matches && !body.classList.contains('dash-nav-collapsed')));
+    }
+    function openMobile() {
+      body.classList.add('dash-nav-open');
+      sidebar.inert = false;
+      sidebar.setAttribute('role', 'dialog');
+      sidebar.setAttribute('aria-modal', 'true');
+      for (const el of body.children) {
+        if (el !== sidebar && el !== backdrop && !['SCRIPT','STYLE'].includes(el.tagName)) {
+          inertBefore.set(el, el.inert);
+          el.inert = true;
+        }
+      }
+      menu.setAttribute('aria-expanded', 'true');
+      sidebar.querySelector('button,a').focus();
+    }
+    menu.addEventListener('click', () => {
+      if (mobile.matches) {
+        if (body.classList.contains('dash-nav-open')) closeMobile(); else openMobile();
+      } else {
+        const collapsed = body.classList.toggle('dash-nav-collapsed');
+        sidebar.inert = collapsed;
+        menu.setAttribute('aria-expanded', String(!collapsed));
+      }
+    });
+    function closeAndFocus() { closeMobile(); menu.focus(); }
+    backdrop.addEventListener('click', closeAndFocus);
+    document.getElementById('dashCloseMenu').addEventListener('click', closeAndFocus);
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape' && body.classList.contains('dash-nav-open')) { e.preventDefault(); closeAndFocus(); }
+      if (e.key === 'Tab' && body.classList.contains('dash-nav-open')) {
+        const items = [...sidebar.querySelectorAll('a[href],button:not(:disabled)')].filter(el => el.getClientRects().length);
+        const first = items[0], last = items[items.length - 1];
+        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+      }
+      if (e.key === '/' && !e.ctrlKey && !e.metaKey && !e.altKey && !e.target.closest('input,select,textarea,[contenteditable=true]') && !document.querySelector('dialog[open]') && !body.classList.contains('dash-nav-open')) {
+        const input = [...document.querySelectorAll('main input[type=search]')].find(el => !el.disabled && el.getClientRects().length);
+        if (input) { e.preventDefault(); input.focus(); }
+      }
+    });
+    mobile.addEventListener('change', () => {
+      closeMobile();
+      if (!mobile.matches) sidebar.inert = body.classList.contains('dash-nav-collapsed');
+    });
+    closeMobile();
+    function applyDensity(compact) {
+      body.classList.toggle('dash-compact', compact);
+      density.setAttribute('aria-pressed', String(compact));
+      density.title = compact ? 'Gunakan tabel renggang' : 'Gunakan tabel ringkas';
+      density.setAttribute('aria-label', density.title);
+    }
+    try { applyDensity(localStorage.getItem('pelatihan-density') === 'compact'); } catch (_) {}
+    density.addEventListener('click', () => {
+      const compact = !body.classList.contains('dash-compact');
+      applyDensity(compact);
+      try { localStorage.setItem('pelatihan-density', compact ? 'compact' : 'comfortable'); } catch (_) {}
+      toast(compact ? 'Tampilan tabel ringkas diaktifkan.' : 'Tampilan tabel renggang diaktifkan.');
+    });
+    function navigationURL(page) {
+      const base = typeof navigationBase === 'string' ? navigationBase : '';
+      if (!base) return '';
+      const selected = document.getElementById('program');
+      return base + '?page=' + encodeURIComponent(page) + (selected && selected.value ? '&program=' + encodeURIComponent(selected.value) : '');
+    }
+    function syncNavigation() {
+      document.querySelectorAll('[data-dash-page]').forEach(link => {
+        const url = navigationURL(link.dataset.dashPage);
+        if (url) {
+          if (link.getAttribute('href') !== url) link.setAttribute('href', url);
+          link.removeAttribute('aria-disabled');
+          link.classList.remove('dash-unavailable');
+        } else {
+          link.setAttribute('aria-disabled','true');
+          link.classList.add('dash-unavailable');
+        }
+      });
+    }
+    document.querySelectorAll('[data-dash-page]').forEach(link => link.addEventListener('click', e => {
+      syncNavigation();
+      if (!navigationURL(link.dataset.dashPage)) {
+        e.preventDefault();
+        if (mobile.matches) closeMobile();
+        toast('Navigasi belum tersedia. Tunggu data dimuat atau buka halaman melalui menu Manajemen Pelatihan di Google Sheets.');
+      }
+    }));
+    document.getElementById('program')?.addEventListener('change', syncNavigation);
+    for (const id of ['openPengelolaan','openMonitoring','backParticipants','backMonitoring']) {
+      const link = document.getElementById(id);
+      if (link) new MutationObserver(syncNavigation).observe(link, {attributes:true, attributeFilter:['href']});
+    }
+    syncNavigation();
+    const progress = document.getElementById('dashCompletion');
+    if (progress) {
+      const total = document.getElementById('total'), complete = document.getElementById('complete');
+      function updateProgress() {
+        const n = Number(total.textContent), c = Number(complete.textContent);
+        const ready = total.textContent.trim() !== '—' && complete.textContent.trim() !== '—' && Number.isFinite(n) && Number.isFinite(c);
+        const percent = ready && n > 0 ? Math.max(0, Math.min(100, Math.round(c / n * 100))) : 0;
+        document.getElementById('dashCompletionValue').textContent = ready ? percent + '%' : '—';
+        document.getElementById('dashCompletionFill').style.width = percent + '%';
+        const meter = document.getElementById('dashProgress');
+        if (ready) meter.setAttribute('aria-valuenow', String(percent)); else meter.removeAttribute('aria-valuenow');
+        meter.setAttribute('aria-valuetext', ready ? c + ' dari ' + n + ' peserta memiliki absensi lengkap' : 'Pilih sesi untuk melihat kelengkapan absensi');
+        document.getElementById('dashCompletionNote').textContent = ready ? c + ' dari ' + n + ' peserta · datang dan pulang lengkap' : 'Pilih sesi untuk melihat ringkasan.';
+      }
+      const observer = new MutationObserver(updateProgress);
+      observer.observe(total, {childList:true, subtree:true, characterData:true});
+      observer.observe(complete, {childList:true, subtree:true, characterData:true});
+      updateProgress();
+    }
+    const attendanceBody = document.getElementById('tableBody');
+    if (attendanceBody) {
+      let activeFilter = 'all';
+      function applyAttendanceFilter() {
+        const tableRows = [...attendanceBody.querySelectorAll('tr')];
+        let visible = 0;
+        for (const row of tableRows) {
+          const status = (row.cells[3]?.querySelector('.badge')?.textContent || '').trim().toLowerCase();
+          const complete = status === 'lengkap';
+          const absent = status === 'belum absen';
+          const show = activeFilter === 'all' || (activeFilter === 'complete' && complete) || (activeFilter === 'absent' && absent) || (activeFilter === 'review' && !complete && !absent);
+          row.hidden = !show;
+          if (show) visible++;
+        }
+        document.getElementById('dashFilteredCount').textContent = tableRows.length ? visible + ' ditampilkan' : '';
+        document.getElementById('dashStatusEmpty').hidden = !(tableRows.length > 0 && visible === 0);
+      }
+      document.querySelectorAll('[data-attendance-filter]').forEach(button => button.addEventListener('click', () => {
+        activeFilter = button.dataset.attendanceFilter;
+        document.querySelectorAll('[data-attendance-filter]').forEach(el => el.setAttribute('aria-pressed', String(el === button)));
+        applyAttendanceFilter();
+      }));
+      new MutationObserver(applyAttendanceFilter).observe(attendanceBody, {childList:true});
+      applyAttendanceFilter();
+    }
+    document.querySelectorAll('.tablebox,.preview-wrap').forEach((wrap, index) => {
+      wrap.setAttribute('tabindex','0');
+      wrap.setAttribute('role','region');
+      const section = wrap.closest('section,.panel');
+      const heading = section?.querySelector('h2');
+      wrap.setAttribute('aria-label',(heading?.textContent.trim() || 'Tabel data') + '. Geser ke samping untuk kolom lainnya.');
+    });
+  });
+})();
+
+</script>
+</body>
+</html>

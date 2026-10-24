@@ -1,0 +1,16 @@
+Pengujian lokal Chromium dengan data simulasi; bukan koneksi spreadsheet produksi.
+
+PASS · Monitoring: kategori/jenjang/program/sesi, 8 baris dan indikator 5/8 = 63%.
+PASS · Filter lengkap/perlu diperiksa/belum absen dan kombinasinya dengan pencarian berfungsi.
+PASS · Pencarian nama, hasil kosong, dan pintasan / berfungsi.
+PASS · Kepadatan tabel tersimpan; dialog QR dapat dibuka/ditutup.
+PASS · 390 px: tidak ada overflow halaman; sidebar modal, Escape, dan pengembalian fokus berfungsi.
+PASS · Pengelolaan: halaman dimuat pada desktop dan 390 px tanpa overflow halaman.
+PASS · Peserta: halaman dimuat pada desktop dan 390 px tanpa overflow halaman.
+PASS · Profil: halaman dimuat pada desktop dan 390 px tanpa overflow halaman.
+PASS · Absensi: halaman dimuat pada desktop dan 390 px tanpa overflow halaman.
+PASS · AdminQR: halaman dimuat pada desktop dan 390 px tanpa overflow halaman.
+PASS · Tidak ada JavaScript pageerror selama pengujian browser dengan mock Google Apps Script.
+PASS · Code.gs identik; seluruh script asli dan ID HTML dipertahankan.
+PASS · Sintaks 13 script inline pada 7 HTML (termasuk pratinjau), tanpa duplikasi ID.
+PASS · Pratinjau mandiri diuji melalui HTTP: UTF-8, data simulasi, filter status, tanpa pageerror.

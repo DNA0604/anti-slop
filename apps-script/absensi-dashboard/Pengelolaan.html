@@ -1,0 +1,2110 @@
+<!doctype html>
+<html lang="id">
+  <head>
+<meta charset="utf-8">
+    <base target="_top" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Pengelolaan Pelatihan</title>
+    <style>
+      :root {
+        --ink: #172e46;
+        --muted: #62758a;
+        --line: #dce5ed;
+        --blue: #2463df;
+        --bg: #f3f6fa;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font:
+          14px/1.5 Arial,
+          sans-serif;
+      }
+      button,
+      input,
+      select,
+      textarea {
+        font: inherit;
+      }
+      button {
+        cursor: pointer;
+      }
+      button:disabled {
+        cursor: not-allowed;
+        opacity: 0.5;
+      }
+      header {
+        background: #fff;
+        border-bottom: 1px solid var(--line);
+        padding: 22px 32px;
+      }
+      .top {
+        max-width: 1400px;
+        margin: auto;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 13px;
+      }
+      .mark {
+        background: var(--blue);
+        color: white;
+        width: 42px;
+        height: 42px;
+        display: grid;
+        place-items: center;
+        border-radius: 12px;
+        font-weight: bold;
+        font-size: 20px;
+      }
+      h1 {
+        margin: 0;
+        font-size: 21px;
+        letter-spacing: -0.5px;
+      }
+      .muted,
+      small {
+        color: var(--muted);
+      }
+      .tag {
+        border: 1px solid #cbdcf9;
+        border-radius: 20px;
+        background: #eef4ff;
+        padding: 5px 12px;
+        color: #2455a3;
+        font-size: 12px;
+      }
+      main {
+        max-width: 1464px;
+        padding: 26px 32px;
+        margin: auto;
+      }
+      .notice {
+        padding: 12px 16px;
+        border: 1px solid #dce5ed;
+        background: #fff;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        white-space: pre-line;
+      }
+      .notice.error {
+        background: #fff0ef;
+        color: #a92c24;
+        border-color: #f3c7c2;
+      }
+      .notice.success {
+        background: #edf9f1;
+        color: #236741;
+        border-color: #c4e6d1;
+      }
+      .hidden {
+        display: none !important;
+      }
+      .panel {
+        background: #fff;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: 22px;
+      }
+      .filters {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr)) auto;
+        gap: 14px;
+        align-items: end;
+      }
+      .field {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        flex: 1;
+      }
+      label {
+        font-size: 12px;
+        font-weight: bold;
+        color: #4a6077;
+      }
+      select,
+      input,
+      textarea {
+        width: 100%;
+        padding: 10px 12px;
+        background: #fff;
+        border: 1px solid #cdd8e3;
+        border-radius: 8px;
+        color: var(--ink);
+        min-height: 42px;
+      }
+      input:focus,
+      select:focus,
+      textarea:focus {
+        outline: 2px solid #acc7ff;
+        outline-offset: 1px;
+      }
+      .btn {
+        border: 1px solid #cdd8e3;
+        border-radius: 8px;
+        padding: 10px 15px;
+        background: white;
+        color: var(--ink);
+        font-weight: bold;
+        min-height: 42px;
+      }
+      .primary {
+        background: var(--blue);
+        color: white;
+        border-color: var(--blue);
+      }
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 14px;
+        margin: 18px 0;
+      }
+      .stat {
+        background: white;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 16px 20px;
+      }
+      .stat strong {
+        display: block;
+        font-size: 26px;
+        margin-top: 5px;
+      }
+      .layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 310px;
+        gap: 18px;
+        align-items: start;
+      }
+      .sectionhead {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 16px;
+      }
+      h2 {
+        margin: 0;
+        font-size: 17px;
+      }
+      p {
+        margin: 5px 0 14px;
+      }
+      .tablebox {
+        overflow: auto;
+      }
+      table {
+        border-collapse: collapse;
+        width: 100%;
+        min-width: 740px;
+      }
+      th {
+        text-align: left;
+        font-size: 11px;
+        color: #6d7d91;
+        letter-spacing: 0.4px;
+        background: #f6f8fb;
+        padding: 12px 10px;
+      }
+      td {
+        padding: 14px 10px;
+        border-bottom: 1px solid #edf1f5;
+        font-size: 13px;
+        vertical-align: top;
+      }
+      td strong {
+        font-size: 13px;
+      }
+      .sub {
+        font-size: 11px;
+        color: var(--muted);
+        display: block;
+        margin-top: 3px;
+      }
+      .badge {
+        display: inline-block;
+        padding: 3px 8px;
+        border-radius: 6px;
+        background: #eff3f8;
+        color: #596b80;
+        font-size: 11px;
+      }
+      .badge.ok {
+        background: #e7f6ec;
+        color: #217442;
+      }
+      .badge.late {
+        background: #fff0ef;
+        color: #a92c24;
+      }
+      .arrival-note {
+        display: block;
+        margin-top: 6px;
+        max-width: 210px;
+      }
+      .badge.warn {
+        background: #fff4dc;
+        color: #896118;
+      }
+      .action {
+        border: 0;
+        background: none;
+        color: var(--blue);
+        padding: 3px 5px;
+        font-size: 12px;
+        white-space: nowrap;
+      }
+      .qr-controls {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+      .qrbox {
+        margin-top: 18px;
+        border: 1px dashed #c6d3e1;
+        border-radius: 10px;
+        min-height: 230px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        padding: 16px;
+        gap: 12px;
+        text-align: center;
+        background: #fafcff;
+      }
+      #qrImage {
+        background: white;
+        padding: 8px;
+        max-width: 100%;
+        overflow: auto;
+      }
+      #qrImage img,
+      #qrImage canvas {
+        max-width: 100%;
+        height: auto;
+      }
+      .full {
+        width: 100%;
+        margin-top: 14px;
+      }
+      .foot {
+        color: var(--muted);
+        font-size: 12px;
+        margin-top: 18px;
+      }
+      .empty {
+        text-align: center;
+        padding: 40px 15px;
+        color: var(--muted);
+      }
+      dialog {
+        border: 0;
+        border-radius: 15px;
+        padding: 0;
+        width: min(560px, 94vw);
+        color: var(--ink);
+        box-shadow: 0 18px 80px #172e4640;
+      }
+      dialog::backdrop {
+        background: #172e4670;
+      }
+      .dialog-body {
+        padding: 25px;
+      }
+      .dialog-fields {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+      }
+      .dialog-fields .wide {
+        grid-column: 1/-1;
+      }
+      .buttons {
+        display: flex;
+        justify-content: end;
+        gap: 10px;
+        margin-top: 20px;
+      }
+      .help {
+        font-size: 12px;
+        background: #f4f7fb;
+        padding: 12px;
+        border-radius: 8px;
+        white-space: pre-line;
+      }
+      .fatal-title {
+        font-weight: bold;
+      }
+      #search {
+        max-width: 240px;
+      }
+      #qrStatus {
+        white-space: pre-line;
+        font-size: 12px;
+      }
+      a {
+        color: var(--blue);
+      }
+      @media (max-width: 1000px) {
+        .filters {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+        .filters > .btn {
+          grid-column: 1/-1;
+        }
+        .layout {
+          grid-template-columns: 1fr;
+        }
+        .qr-controls {
+          max-width: 400px;
+        }
+        .stats {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+      @media (max-width: 600px) {
+        main {
+          padding: 18px 12px;
+        }
+        header {
+          padding: 18px 14px;
+        }
+        .filters {
+          grid-template-columns: 1fr;
+          align-items: stretch;
+        }
+        .top {
+          align-items: start;
+        }
+        .tag {
+          display: none;
+        }
+        .dialog-fields {
+          grid-template-columns: 1fr;
+        }
+        .sectionhead {
+          align-items: start;
+          flex-direction: column;
+        }
+        #search {
+          max-width: none;
+        }
+        .panel {
+          padding: 16px;
+        }
+        h1 {
+          font-size: 18px;
+        }
+      }
+      .formgrid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 18px;
+        margin: 18px 0;
+      }
+      .import-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin: 12px 0;
+      }
+      .preview-wrap {
+        max-height: 440px;
+        overflow: auto;
+      }
+      .preview-wrap th {
+        position: sticky;
+        top: 0;
+      }
+      .step {
+        font-size: 12px;
+        color: #2463df;
+        font-weight: bold;
+        letter-spacing: 0.5px;
+      }
+      .mono {
+        font-variant-numeric: tabular-nums;
+      }
+      @media (max-width: 900px) {
+        .formgrid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  <style id="flat-dashboard-theme">
+/* Shared flat dashboard skin. Embedded in every Apps Script HTML page. */
+:root { --ink:#1c3035; --muted:#607378; --line:#e0e8e7; --blue:#087f70; --bg:#f4f7f6; --nav-width:232px; --accent:#087f70; }
+html {scroll-behavior:smooth; scrollbar-gutter:stable}
+body.flat-dashboard {font:14px/1.6 'Segoe UI',Arial,sans-serif; background:var(--bg); color:var(--ink); margin:0; padding:0 0 0 var(--nav-width); transition:padding .18s ease}
+.flat-dashboard *, .flat-dashboard *::before, .flat-dashboard *::after {box-sizing:border-box}
+.flat-dashboard button,.flat-dashboard input,.flat-dashboard select,.flat-dashboard textarea {font:inherit}
+.flat-dashboard :is(button,a,input,select,textarea,summary):focus-visible {outline:3px solid #e2a72f; outline-offset:3px}
+.flat-dashboard a {color:#076f62}
+.flat-dashboard button {cursor:pointer}
+.flat-dashboard button:disabled {opacity:.48; cursor:not-allowed}
+.flat-dashboard .hidden {display:none!important}
+.flat-dashboard .dash-sidebar {position:fixed; inset:0 auto 0 0; width:var(--nav-width); background:#fff; border-right:1px solid var(--line); z-index:60; display:flex; flex-direction:column; padding:30px 18px 20px; transition:transform .18s ease; text-align:left}
+.dash-logo {display:flex; align-items:center; gap:11px; padding:0 10px 29px; border-bottom:1px solid var(--line)}
+.dash-logo-mark {display:grid; place-items:center; width:38px; height:38px; background:#087f70; color:white; border-radius:8px; flex-shrink:0}
+.dash-logo strong {font-size:19px; letter-spacing:-.7px; color:#183c38}
+.dash-logo small {display:block; font-size:10px; color:var(--muted); letter-spacing:1.15px; text-transform:uppercase}
+.dash-nav-label {font-size:10px; font-weight:700; color:#5d7468; letter-spacing:1.6px; margin:27px 12px 12px}
+.dash-nav {display:grid; gap:7px}
+.dash-nav a {display:flex; gap:12px; align-items:center; color:#536765; padding:12px; border-radius:6px; text-decoration:none; font-size:13px; font-weight:600; border:1px solid transparent}
+.dash-nav a:hover {background:#f1f6f4; color:#076f62}
+.dash-nav a[aria-current=page] {background:#e5f3ee; color:#076f62; border-color:#d0e9de}
+.dash-nav a svg {flex-shrink:0; width:19px; height:19px}
+.dash-nav a.dash-unavailable {opacity:.55}
+.dash-sidebar-bottom {margin-top:auto; padding:24px 10px 0; font-size:11px; color:var(--muted)}
+.dash-sidebar-bottom strong {display:block; color:#365b54; font-size:12px; margin-bottom:4px}
+.dash-sidebar-bottom p {margin:0 0 12px}
+.dash-shortcut {display:inline-block; border:1px solid var(--line); border-radius:4px; padding:0 6px; font-size:11px; background:white}
+.flat-dashboard .dash-toolbar {height:72px; padding:0 34px; display:flex; align-items:center; justify-content:space-between; gap:16px; border-bottom:1px solid var(--line); background:#fff}
+.dash-toolbar-start,.dash-toolbar-end {display:flex; align-items:center; gap:15px; min-width:0}
+.dash-breadcrumb {font-size:12px; color:var(--muted)}
+.dash-breadcrumb b {font-weight:600; color:#2a4741}
+.flat-dashboard .dash-icon-btn {display:grid; place-items:center; border:1px solid var(--line); color:#42635c; background:white; width:36px; height:36px; min-height:36px; padding:7px; border-radius:6px; margin:0; flex-shrink:0}
+.flat-dashboard .dash-icon-btn:hover {background:#edf5f0}
+.dash-icon-btn svg {width:19px; height:19px}
+.dash-date {font-size:12px; color:var(--muted)}
+.dash-avatar {width:34px; height:34px; border-radius:50%; background:#e5f3ee; color:#087164; display:grid; place-items:center}
+.flat-dashboard > header:not(.dash-toolbar) {margin:0; padding:30px 34px 6px; background:transparent; border:0}
+.flat-dashboard > header:not(.dash-toolbar) .top {max-width:none; align-items:center; margin:0}
+.flat-dashboard > header:not(.dash-toolbar) .mark {display:none}
+.flat-dashboard > header:not(.dash-toolbar) h1 {font-size:27px; font-weight:700; letter-spacing:-.8px; color:#193d35}
+.flat-dashboard > header:not(.dash-toolbar) .muted {margin-top:3px; font-size:13px}
+.flat-dashboard > #databaseHeader:empty {display:none}
+.flat-dashboard main {max-width:none; padding:22px 34px 40px; margin:0; min-width:0}
+.flat-dashboard h2 {font-size:16px; font-weight:650; letter-spacing:-.2px; color:#23443c}
+.flat-dashboard h3 {color:#294d44}
+.flat-dashboard .panel,.flat-dashboard .stat {background:#fff; border:1px solid var(--line); border-radius:8px; box-shadow:none}
+.flat-dashboard .panel {padding:22px}
+.flat-dashboard .panel .panel {border-color:#e7edeb}
+.flat-dashboard .notice {background:#edf4f1; border:1px solid #dbe8e1; color:#41645a; border-radius:6px; font-size:12px; padding:11px 15px; margin-bottom:20px}
+.flat-dashboard .notice.error,.flat-dashboard .status.error {background:#fff0ee; border-color:#f0d3ce; color:#a6342a}
+.flat-dashboard .notice.success,.flat-dashboard .status.success {background:#eaf5ef; border-color:#c9e3d4; color:#226446}
+.flat-dashboard .btn,.flat-dashboard .action {border:1px solid #d4dfda; color:#35584c; background:#fff; border-radius:5px; font-size:12px; font-weight:600; padding:10px 14px; min-height:40px; text-decoration:none; transition:background .15s,border-color .15s; margin-top:0}
+.flat-dashboard .btn:hover:not(:disabled),.flat-dashboard .action:hover:not(:disabled) {background:#edf6f1; border-color:#8db7a3}
+.flat-dashboard .primary,.flat-dashboard button#btnKonfirmasi {background:#087f70; border-color:#087f70; color:#fff}
+.flat-dashboard .primary:hover:not(:disabled),.flat-dashboard button#btnKonfirmasi:hover:not(:disabled) {background:#06675b; border-color:#06675b; color:white}
+.flat-dashboard .action {min-height:32px; padding:5px 10px; font-size:11px}
+.flat-dashboard input,.flat-dashboard select,.flat-dashboard textarea {border:1px solid #d3dfd9; border-radius:5px; padding:10px 12px; min-height:42px; color:#29473d; background:#fff; max-width:100%}
+.flat-dashboard input[type=checkbox],.flat-dashboard input[type=radio] {min-height:0; accent-color:#087f70}
+.flat-dashboard input[type=search] {padding-left:14px; background:#f8faf9}
+.flat-dashboard input::placeholder {color:#5d7468}
+.flat-dashboard label {font-size:11px; font-weight:650; letter-spacing:.25px; color:#52685e}
+.flat-dashboard .filters {gap:14px; background:#fff; border-top:3px solid #a5cdbc}
+.flat-dashboard .filters > * {min-width:0}
+.flat-dashboard .stats {gap:16px; margin:20px 0 24px}
+.flat-dashboard .stat {position:relative; padding:19px 20px 17px; min-height:118px; border-bottom:3px solid #b7cbdc; overflow:hidden}
+.flat-dashboard .stat:nth-child(2) {border-bottom-color:#60ad92}
+.flat-dashboard .stat:nth-child(3) {border-bottom-color:#e1b260}
+.flat-dashboard .stat:nth-child(4) {border-bottom-color:#cf958e}
+.flat-dashboard .stat span {font-size:12px; color:#5d7468}
+.flat-dashboard .stat strong {font-size:32px; color:#243e33; font-weight:650; letter-spacing:-1px; line-height:1.2; margin:12px 0 0; font-variant-numeric:tabular-nums}
+.flat-dashboard .stat small {margin-top:8px; font-size:11px; color:#64796c}
+.flat-dashboard .stat::after {content:''; position:absolute; right:20px; top:22px; width:8px; height:8px; background:#b7cbdc; border-radius:2px}
+.flat-dashboard .stat:nth-child(2)::after {background:#60ad92}
+.flat-dashboard .stat:nth-child(3)::after {background:#e1b260}
+.flat-dashboard .stat:nth-child(4)::after {background:#cf958e}
+.flat-dashboard .stat span {display:inline-block; max-width:88%}
+.flat-dashboard .accent {background:#f0f8f3}
+.flat-dashboard .layout {grid-template-columns:minmax(0,1fr) 274px; gap:20px}
+.flat-dashboard .sectionhead {gap:14px; margin-bottom:20px}
+.flat-dashboard .sectionhead > div {min-width:0}
+.flat-dashboard .sectionhead input[type=search] {max-width:245px}
+.flat-dashboard .sectionhead .muted {font-size:12px; margin-top:4px}
+.flat-dashboard .tablebox,.flat-dashboard .preview-wrap {border:1px solid #e5ece7; border-radius:5px; overflow:auto; max-width:100%; scrollbar-width:thin}
+.flat-dashboard table {width:100%; border-collapse:collapse; min-width:660px}
+.flat-dashboard th {padding:13px 14px; background:#f1f6f3; color:#5a7467; font-size:10px; font-weight:700; letter-spacing:.7px; white-space:nowrap; border-bottom:1px solid #dce7e0}
+.flat-dashboard td {padding:15px 14px; border-bottom:1px solid #edf1ee; font-size:12px; color:#355347; vertical-align:middle}
+.flat-dashboard tbody tr:last-child td {border-bottom:0}
+.flat-dashboard tbody tr:hover td {background:#f5faf7}
+.flat-dashboard td strong {color:#254637; font-weight:600}
+.flat-dashboard .sub {font-size:10px; color:#5d7468; margin-top:5px}
+.flat-dashboard .badge {padding:4px 8px; border-radius:4px; background:#edf1ef; color:#5d6d63; font-size:10px; font-weight:600; text-transform:capitalize; white-space:nowrap}
+.flat-dashboard .badge.ok,.flat-dashboard .ok {background:#e5f3ec; color:#267149}
+.flat-dashboard .badge.warn,.flat-dashboard .warn {background:#fff4dc; color:#8d6315}
+.flat-dashboard .foot,.flat-dashboard .help {font-size:11px; line-height:1.7; color:#5d7468}
+.flat-dashboard .empty {padding:40px 20px; text-align:center; color:#5d7468; font-size:13px; background:#fafcfb; border-radius:5px}
+.flat-dashboard .session-summary dt {font-size:10px; text-transform:uppercase; letter-spacing:.6px; color:#5d7468; margin-top:15px}
+.flat-dashboard .session-summary dd {font-size:12px; margin:4px 0 0; color:#365342; overflow-wrap:anywhere}
+.flat-dashboard .summary-counts {background:#f4f8f5; border:0; border-radius:5px; padding:12px; margin:18px 0}
+.flat-dashboard .summary-counts span {font-size:11px; color:#5d7468}
+.flat-dashboard .buttons:has(#tabSesi),.flat-dashboard .tabs {justify-content:flex-start; gap:0!important; border-bottom:1px solid #dbe5df; padding:8px 0 0; margin:16px 0!important; overflow-x:auto; flex-wrap:nowrap!important}
+.flat-dashboard :is(.buttons:has(#tabSesi),.tabs) .btn {white-space:nowrap; background:transparent; border:0; border-bottom:2px solid transparent; color:#5d7468; border-radius:0; padding:12px 16px; min-height:45px}
+.flat-dashboard :is(.buttons:has(#tabSesi),.tabs) .btn[aria-pressed=true] {color:#076f62; border-bottom-color:#087f70; font-weight:700}
+.flat-dashboard dialog {border:1px solid #cddbd3; border-radius:10px; box-shadow:0 24px 80px #102e2733; max-height:90dvh; color:var(--ink)}
+.flat-dashboard dialog::backdrop {background:#14372e66}
+.flat-dashboard details {border:1px solid #dce6df; border-radius:6px; padding:14px 16px; background:#fbfdfb}
+.flat-dashboard summary {font-size:12px; color:#087f70; cursor:pointer}
+.flat-dashboard .step {color:#087164; font-size:10px; letter-spacing:1.4px; font-weight:700}
+.dash-completion {margin:18px 0 22px; padding:0 0 18px; border-bottom:1px solid var(--line)}
+.dash-completion-label {display:flex; justify-content:space-between; font-size:11px; color:#5a7365; margin-bottom:8px}
+.dash-completion-label strong {color:#087164; font-size:12px}
+.dash-progress {height:6px; border-radius:3px; background:#e8efeb; overflow:hidden}
+.dash-progress-fill {height:100%; width:0; background:#239b7c; transition:width .3s ease}
+.dash-completion small {display:block; font-size:10px; color:#5d7468; margin-top:7px}
+.dash-density-label {display:none}
+.flat-dashboard.dash-compact td {padding-top:8px; padding-bottom:8px}
+.flat-dashboard .dash-skip {position:fixed; left:16px; top:-100px; z-index:100; background:#fff; padding:10px 18px; border:2px solid #087f70}
+.flat-dashboard .dash-skip:focus {top:10px}
+.flat-dashboard .dash-backdrop {display:none}
+.dash-toast {position:fixed; bottom:24px; left:50%; transform:translateX(-50%); background:#1b4337; color:#fff; border-radius:6px; padding:12px 20px; z-index:100; font-size:12px; max-width:90vw}
+.flat-dashboard.dash-nav-collapsed {padding-left:0}
+.dash-nav-collapsed .dash-sidebar {transform:translateX(-100%)}
+.flat-dashboard.public-page {padding:0; background:#f0f5f2}
+.public-page .public-brand {margin:36px auto 0; display:flex; justify-content:center; align-items:center; gap:10px; color:#1a4f40; font-size:17px; font-weight:700}
+.flat-dashboard.public-page .container {max-width:480px; width:calc(100% - 32px); margin:24px auto; border:1px solid var(--line); border-radius:8px; padding:30px; box-shadow:none; background:#fff}
+.public-page .container h2 {font-size:22px; color:#244e3d}
+.public-page .container .subtitle {font-size:13px; color:var(--muted)}
+.public-page .container button {min-height:44px; border-radius:5px; font-weight:600}
+.public-page .container select {width:100%}
+.public-page .public-foot {text-align:center; font-size:11px; color:#5d7468; padding:0 18px 28px}
+.public-page .qr-area {border:1px dashed #9ebdad; border-radius:6px; background:#f4faf6}
+.public-page #gambarQR img,.public-page #gambarQR canvas {margin:auto; max-width:100%}
+@media(min-width:1600px){.flat-dashboard main,.flat-dashboard > header:not(.dash-toolbar) {padding-left:48px; padding-right:48px}.flat-dashboard .layout{grid-template-columns:minmax(0,1fr) 300px}}
+@media(max-width:1200px){.flat-dashboard .filters {grid-template-columns:repeat(2,minmax(0,1fr))}.flat-dashboard .filters>div:last-child{grid-column:1/-1}.flat-dashboard .layout{grid-template-columns:minmax(0,1fr)}.flat-dashboard .stats{gap:12px}.flat-dashboard .stat{padding:16px}.flat-dashboard .sectionhead{flex-wrap:wrap}}
+@media(max-width:900px){body.flat-dashboard{padding-left:0}.flat-dashboard .dash-sidebar{transform:translateX(-100%); width:250px}.flat-dashboard.dash-nav-open .dash-sidebar{transform:translateX(0)}.flat-dashboard.dash-nav-open .dash-backdrop {display:block;position:fixed;inset:0;background:#14372e66;z-index:55;border:0;width:100%;height:100%;padding:0;margin:0;border-radius:0}.flat-dashboard.dash-nav-open{overflow:hidden}.flat-dashboard .dash-toolbar{padding:0 20px;height:64px}.flat-dashboard > header:not(.dash-toolbar){padding:24px 20px 4px}.flat-dashboard main{padding:18px 20px 30px}.flat-dashboard .identity{grid-template-columns:1fr}.dash-date{display:none}.flat-dashboard .stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:560px){.dash-breadcrumb{font-size:11px}.dash-breadcrumb span{display:none}.flat-dashboard .dash-toolbar{padding:0 16px}.dash-toolbar-start,.dash-toolbar-end{gap:10px}.flat-dashboard > header:not(.dash-toolbar){padding:22px 16px 0}.flat-dashboard > header:not(.dash-toolbar) .top{align-items:flex-start; flex-direction:column; gap:14px}.flat-dashboard > header:not(.dash-toolbar) h1{font-size:23px}.flat-dashboard main{padding:16px}.flat-dashboard .panel{padding:16px}.flat-dashboard .stats{gap:10px;margin:16px 0}.flat-dashboard .stat strong{font-size:28px}.flat-dashboard .stat span{font-size:11px}.flat-dashboard .stat{min-height:112px;padding:15px 12px}.flat-dashboard .stat::after{right:12px;top:18px;width:6px;height:6px}.flat-dashboard .filters,.flat-dashboard .formgrid,.flat-dashboard .dialog-fields{grid-template-columns:minmax(0,1fr)}.flat-dashboard .sectionhead{align-items:flex-start;flex-direction:column}.flat-dashboard .sectionhead input[type=search]{width:100%;max-width:none}.flat-dashboard .btn{padding:9px 11px}.flat-dashboard table{min-width:640px}.flat-dashboard dialog{width:calc(100% - 20px)!important;padding:16px}.flat-dashboard .dash-nav a{min-height:46px}.flat-dashboard .tabs .btn,.flat-dashboard .buttons:has(#tabSesi) .btn{padding:11px 12px;font-size:11px}.flat-dashboard.public-page .container{padding:24px 20px}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{transition:none!important;animation:none!important}}
+@media print{body.flat-dashboard{padding:0;background:white}.flat-dashboard .dash-sidebar,.flat-dashboard .dash-toolbar,.flat-dashboard .dash-backdrop,.flat-dashboard .dash-skip{display:none!important}.flat-dashboard main{padding:0}.flat-dashboard .tablebox{overflow:visible}.flat-dashboard table{min-width:0}.flat-dashboard .panel,.flat-dashboard .stat{break-inside:avoid}}
+.flat-dashboard.public-page #btnKonfirmasi,.flat-dashboard.public-page #btnUjiQR {background:#087f70!important;color:white!important}
+.flat-dashboard.public-page .container .status {font-size:13px;line-height:1.65;padding:14px;border-radius:5px;border:1px solid #dbe5df}
+@media(max-width:900px){body.flat-dashboard{transition:none}}
+.dash-status-filter {display:flex;align-items:center;justify-content:space-between;gap:12px;margin:-3px 0 16px;flex-wrap:wrap}
+.dash-status-filter>div {display:flex;gap:6px;flex-wrap:wrap}
+.flat-dashboard .dash-status-filter button {min-height:32px;border:1px solid #e2e9e5;border-radius:4px;padding:5px 10px;background:white;color:#687d70;font-size:11px}
+.flat-dashboard .dash-status-filter button:hover {background:#f0f7f3}
+.flat-dashboard .dash-status-filter button[aria-pressed=true] {color:#096e5d;background:#e9f5ee;border-color:#bddbc9;font-weight:650}
+.dash-status-filter>span {font-size:10px;color:#5d7468}
+.flat-dashboard tr[hidden],.flat-dashboard #dashStatusEmpty[hidden] {display:none!important}
+.flat-dashboard #tableBody td:first-child {min-width:170px}
+.flat-dashboard #tableBody td:nth-child(2),.flat-dashboard #tableBody td:nth-child(3) {min-width:105px}
+
+</style>
+<style>@media(min-width:901px){#dashCloseMenu{display:none!important}}</style></head>
+  <body class="flat-dashboard"><a class="dash-skip" href="#dashContent">Lewati ke konten utama</a>
+  <aside id="dashSidebar" class="dash-sidebar" aria-label="Menu utama">
+    <div class="dash-logo"><span class="dash-logo-mark"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h6l2 3 2-3h6v14h-6l-2 2-2-2H4z"/><path d="M12 8v13M7 10h2M15 10h2"/></svg></span><div><strong>Pelatihan<span style="color:#087f70">.</span></strong><small>Manajemen absensi</small></div></div>
+    <button type="button" id="dashCloseMenu" class="dash-icon-btn" aria-label="Tutup menu" style="align-self:flex-end;margin-top:12px"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 6 12 12M6 18 18 6"/></svg></button>
+    <div class="dash-nav-label">RUANG KERJA</div><nav class="dash-nav" aria-label="Navigasi dashboard"><a href="#" data-dash-page="monitoring"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Monitoring</a><a href="#" data-dash-page="pengelolaan" aria-current="page"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 11h18M7 15h3M14 15h3"/></svg>Pengelolaan</a><a href="#" data-dash-page="peserta"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3"/><path d="M3 21v-3a6 6 0 0 1 12 0v3M16 5a3 3 0 0 1 0 6M21 21v-3a6 6 0 0 0-3-5"/></svg>Peserta Program</a></nav>
+    <div class="dash-sidebar-bottom"><strong>Setiap kehadiran berarti.</strong><p>Kelola pelatihan dan pantau partisipasi dalam satu tempat.</p><span class="dash-shortcut">/</span> untuk mencari pada tabel</div>
+  </aside>
+  <button type="button" id="dashBackdrop" class="dash-backdrop" aria-label="Tutup menu navigasi" tabindex="-1"></button>
+  <header class="dash-toolbar"><div class="dash-toolbar-start"><button type="button" class="dash-icon-btn" id="dashMenu" aria-label="Buka atau tutup navigasi" aria-controls="dashSidebar" aria-expanded="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button><div class="dash-breadcrumb"><span>Ruang kerja &nbsp; / &nbsp; </span><b>Pengelolaan</b></div></div><div class="dash-toolbar-end"><time class="dash-date" id="dashDate"></time><button type="button" class="dash-icon-btn" id="dashDensity" aria-label="Gunakan tabel ringkas" aria-pressed="false" title="Gunakan tabel ringkas"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 5h14M5 10h14M5 15h14M5 20h14"/></svg></button><span class="dash-avatar" aria-label="Manajemen pelatihan"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h6l2 3 2-3h6v14h-6l-2 2-2-2H4z"/><path d="M12 8v13M7 10h2M15 10h2"/></svg></span></div></header>
+  <div id="dashToast" class="dash-toast" role="status" aria-live="polite" hidden></div>
+    <header>
+      <div class="top">
+        <div class="brand">
+          <div class="mark">P</div>
+          <div>
+            <h1>Pengelolaan Pelatihan</h1>
+            <div class="muted">Program, sesi &amp; pemeriksaan data</div>
+          </div>
+        </div>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap">
+          <a id="openMonitoring" class="btn" style="text-decoration: none"
+            >Buka Monitoring</a
+          ><a id="openPeserta" class="btn" style="text-decoration: none"
+            >Peserta Program</a
+          >
+        </div>
+      </div>
+    </header>
+    <main id="dashContent" tabindex="-1">
+      <div id="message" class="notice" role="status" aria-live="polite">
+        Memuat program…
+      </div>
+      <div id="blocked" class="panel hidden">
+        <h2>Pengelolaan belum dapat dibuka</h2>
+        <p>
+          Gunakan akun pemilik spreadsheet. Jika identitas akun tidak tersedia
+          melalui Web App, buka menu
+          <strong>Manajemen Pelatihan → Buka Panel Pengelolaan</strong> di
+          spreadsheet.
+        </p>
+        <button id="retryAccess" class="btn">Coba Lagi</button>
+      </div>
+      <div id="app" class="hidden">
+        <section class="panel">
+          <label for="program">PROGRAM TUJUAN</label
+          ><select id="program">
+            <option value="">Pilih program</option>
+          </select>
+          <p class="foot">
+            Pilihan ini menentukan jadwal sesi dan ringkasan peserta yang
+            ditampilkan.
+          </p>
+        </section>
+        <section id="managePanel">
+          <div class="panel">
+            <div class="sectionhead">
+              <div>
+                <h2>Program &amp; Sesi</h2>
+                <p class="muted">
+                  Buat program, lalu tambahkan sesi dan jedanya. Pilihan di
+                  bagian atas digunakan untuk melihat sesi program.
+                </p>
+              </div>
+              <div style="display: flex; gap: 8px; flex-wrap: wrap">
+                <button class="btn" id="refreshManage">Muat Ulang Daftar</button
+                ><button class="btn" id="recoverSessions" disabled>
+                  Periksa / Pulihkan Sesi
+                </button>
+              </div>
+            </div>
+            <details id="newProgramDetails">
+              <summary
+                style="cursor: pointer; font-weight: bold; color: var(--blue)"
+              >
+                Tambah Program Pelatihan
+              </summary>
+              <form id="programForm" style="margin-top: 16px">
+                <div class="dialog-fields">
+                  <div class="field wide">
+                    <label for="programName">Nama program</label
+                    ><input
+                      id="programName"
+                      required
+                      maxlength="200"
+                      placeholder="Contoh: Pelatihan Sosial Kultural Angkatan I"
+                    />
+                  </div>
+                  <div class="field">
+                    <label for="programCategory">Kategori pelatihan</label
+                    ><input
+                      id="programCategory"
+                      list="categoryList"
+                      required
+                      maxlength="100"
+                      placeholder="Pilih atau ketik kategori"
+                    /><datalist id="categoryList"></datalist>
+                  </div>
+                  <div class="field">
+                    <label for="programLevel">Jenjang (jika ada)</label
+                    ><input
+                      id="programLevel"
+                      list="levelList"
+                      maxlength="100"
+                      placeholder="Contoh: Jenjang 1"
+                    /><datalist id="levelList"></datalist>
+                  </div>
+                  <div class="field">
+                    <label for="programStart">Tanggal mulai</label
+                    ><input id="programStart" type="date" required />
+                  </div>
+                  <div class="field">
+                    <label for="programEnd">Tanggal selesai</label
+                    ><input id="programEnd" type="date" required />
+                  </div>
+                  <div class="field">
+                    <label for="programStatus">Status program</label
+                    ><select id="programStatus">
+                      <option value="draft">Draft</option>
+                      <option value="aktif">Aktif</option>
+                      <option value="selesai">Selesai</option>
+                    </select>
+                  </div>
+                </div>
+                <button class="btn primary full" id="saveProgram" type="submit">
+                  Simpan Program
+                </button>
+                <p id="programFormMessage" class="foot" role="status"></p>
+              </form>
+            </details>
+            <div class="tablebox" style="margin-top: 20px">
+              <table>
+                <thead>
+                  <tr>
+                    <th>PROGRAM</th>
+                    <th>KATEGORI / JENJANG</th>
+                    <th>RENTANG TANGGAL</th>
+                    <th>STATUS</th>
+                    <th>TINDAKAN</th>
+                  </tr>
+                </thead>
+                <tbody id="managePrograms"></tbody>
+              </table>
+            </div>
+            <p id="manageProgramEmpty" class="empty">
+              Daftar program akan tampil di sini.
+            </p>
+          </div>
+          <div class="panel" style="margin-top: 18px">
+            <div class="sectionhead">
+              <div>
+                <h2>Sesi Program</h2>
+                <p id="manageSelectedProgram" class="muted">
+                  Pilih program di atas atau dari daftar program.
+                </p>
+              </div>
+            </div>
+            <details id="newSessionDetails">
+              <summary
+                style="cursor: pointer; font-weight: bold; color: var(--blue)"
+              >
+                Tambah Sesi dan Jeda
+              </summary>
+              <form id="sessionForm" style="margin-top: 16px">
+                <div class="dialog-fields">
+                  <div class="field wide">
+                    <label for="sessionName">Nama sesi</label
+                    ><input id="sessionName" required maxlength="200" />
+                  </div>
+                  <div class="field">
+                    <label for="sessionDate">Tanggal sesi</label
+                    ><input id="sessionDate" type="date" required />
+                  </div>
+                  <div class="field">
+                    <label for="sessionJP">Perhitungan JP</label
+                    ><select id="sessionJP">
+                      <option value="dihitung">Dihitung sebagai JP</option>
+                      <option value="tidak_dihitung">
+                        Tidak dihitung sebagai JP
+                      </option>
+                    </select>
+                  </div>
+                  <div class="field">
+                    <label for="sessionStart">Jam mulai</label
+                    ><input id="sessionStart" type="time" required />
+                  </div>
+                  <div class="field">
+                    <label for="sessionEnd">Jam selesai</label
+                    ><input id="sessionEnd" type="time" required />
+                  </div>
+                </div>
+                <div style="margin-top: 18px">
+                  <strong>Jeda / istirahat</strong>
+                  <p class="foot">
+                    Opsional. Seluruh jeda harus berada dalam sesi dan tidak
+                    saling bertumpang tindih.
+                  </p>
+                  <div id="sessionBreaks"></div>
+                  <button class="btn" id="addBreak" type="button">
+                    Tambah Jeda
+                  </button>
+                </div>
+                <p class="help" id="sessionPreview" style="margin-top: 14px">
+                  Isi jam sesi untuk melihat durasi dan usulan JP.
+                </p>
+                <button
+                  class="btn primary full"
+                  id="saveSession"
+                  type="submit"
+                  disabled
+                >
+                  Simpan Sesi &amp; Jeda
+                </button>
+                <p id="sessionFormMessage" class="foot" role="status"></p>
+              </form>
+            </details>
+            <div class="tablebox" style="margin-top: 20px">
+              <table>
+                <thead>
+                  <tr>
+                    <th>SESI</th>
+                    <th>TANGGAL / JAM</th>
+                    <th>JEDA</th>
+                    <th>DURASI EFEKTIF</th>
+                    <th>USULAN JP</th>
+                    <th>PERHITUNGAN JP</th>
+                    <th>TINDAKAN</th>
+                  </tr>
+                </thead>
+                <tbody id="manageSessions"></tbody>
+              </table>
+            </div>
+            <p id="manageSessionEmpty" class="empty">
+              Pilih program untuk melihat sesinya.
+            </p>
+            <p class="foot">
+              Usulan JP = durasi efektif ÷ 45. Nilai ini belum merupakan
+              konfirmasi JP rencana. Peserta perlu didaftarkan ke program
+              sebelum mencoba absensi.
+            </p>
+          </div>
+        </section>
+        <section class="panel" style="margin-top: 18px">
+          <div class="sectionhead">
+            <div>
+              <h2>Ringkasan Peserta Program</h2>
+              <p id="summaryParticipantCount" class="muted">
+                Pilih program untuk melihat peserta.
+              </p>
+            </div>
+            <button class="btn" id="refreshSummary" type="button">
+              Muat Ulang Ringkasan
+            </button>
+          </div>
+          <div class="tablebox">
+            <table>
+              <thead>
+                <tr>
+                  <th>NAMA</th>
+                  <th>UNIT SAAT PELATIHAN</th>
+                  <th>STATUS</th>
+                </tr>
+              </thead>
+              <tbody id="summaryParticipantBody"></tbody>
+            </table>
+          </div>
+          <p class="foot">
+            Menampilkan maksimal 10 peserta pertama menurut nama. Impor, tambah,
+            pencarian lengkap, dan edit peserta tersedia pada halaman Peserta
+            Program.
+          </p>
+          <div class="buttons">
+            <a
+              id="openPesertaSummary"
+              class="btn primary"
+              style="text-decoration: none"
+              >Lihat Semua Peserta</a
+            >
+          </div>
+        </section>
+        <section class="panel" style="margin-top: 20px">
+          <div class="sectionhead">
+            <div>
+              <h2>Periksa Data</h2>
+              <button class="btn" id="recoverEdits" type="button">
+                Pulihkan Edit Tertunda
+              </button>
+              <p class="muted">
+                Pilih cakupan pemeriksaan pada tujuh sheet inti. Tidak mengubah
+                data. NIP dummy 12 digit ditandai sebagai informasi.
+              </p>
+            </div>
+            <button class="btn" id="checkData">Periksa Data Sekarang</button>
+          </div>
+          <div class="field" style="max-width: 300px; margin-bottom: 14px">
+            <label for="checkScope">Cakupan pemeriksaan</label
+            ><select id="checkScope">
+              <option value="program">Program terpilih</option>
+              <option value="semua">Seluruh database</option>
+            </select>
+          </div>
+          <p id="checkSummary" role="status">Belum diperiksa.</p>
+          <div class="tablebox">
+            <table>
+              <thead>
+                <tr>
+                  <th>TINGKAT</th>
+                  <th>SHEET</th>
+                  <th>BARIS</th>
+                  <th>ID</th>
+                  <th>TEMUAN</th>
+                  <th>SARAN</th>
+                </tr>
+              </thead>
+              <tbody id="checkBody"></tbody>
+            </table>
+          </div>
+          <p class="foot">
+            Pemeriksaan mencakup header wajib, ID unik, data wajib, NIP, relasi,
+            kesesuaian program, duplikasi keikutsertaan/kehadiran, dan
+            kelengkapan waktu kehadiran. Belum mencakup seluruh aturan JP,
+            jadwal jeda, log QR, atau audit transaksi. Untuk program terpilih,
+            hanya record terkait yang diperiksa; masalah struktur sheet tetap
+            ditampilkan karena dapat membatasi hasil. Data tanpa hubungan
+            program dapat diperiksa melalui Seluruh database. Hasil mengikuti
+            data saat pemeriksaan; maksimal 1.000 temuan ditampilkan.
+          </p>
+        </section>
+      </div>
+    </main>
+    <dialog id="dataEditDialog" style="width: min(780px, 96vw)">
+      <form id="dataEditForm" class="dialog-body">
+        <h2 id="dataEditTitle">Edit Data</h2>
+        <p class="help">
+          ID dipertahankan. Setiap perubahan menyimpan alasan serta data
+          sebelum–sesudah. Periksa seluruh isian sebelum menyimpan.
+        </p>
+        <div id="dataEditFields" class="formgrid"></div>
+        <div id="dataEditBreakPanel" class="hidden">
+          <h3>Jeda sesi</h3>
+          <div id="dataEditBreaks"></div>
+          <button class="btn" type="button" id="dataEditAddBreak">
+            Tambah Jeda
+          </button>
+        </div>
+        <div class="field">
+          <label for="dataEditReason">Alasan perubahan</label
+          ><textarea
+            id="dataEditReason"
+            required
+            maxlength="2000"
+            rows="2"
+          ></textarea>
+        </div>
+        <p id="dataEditMessage" class="help" role="status"></p>
+        <div class="buttons">
+          <button class="btn" type="button" id="dataEditCancel">Tutup</button
+          ><button class="btn primary" type="submit" id="dataEditSave">
+            Simpan Perubahan
+          </button>
+        </div>
+      </form>
+    </dialog>
+    <script>
+      "use strict";
+      const $ = (id) => document.getElementById(id);
+      function rpc(name, ...args) {
+        return new Promise((resolve, reject) =>
+          google.script.run
+            .withSuccessHandler(resolve)
+            .withFailureHandler(reject)
+            [name](...args),
+        );
+      }
+      function message(text, type = "") {
+        $("message").textContent = text;
+        $("message").className = "notice " + type;
+      }
+      function formatRekap(n, suffix = "") {
+        return Number.isFinite(n)
+          ? n.toLocaleString("id-ID", {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            }) + suffix
+          : "—";
+      }
+      function cell(text) {
+        const td = document.createElement("td");
+        td.textContent = text;
+        return td;
+      }
+      function options(el, label, data) {
+        el.replaceChildren();
+        const blank = document.createElement("option");
+        blank.value = "";
+        blank.textContent = label;
+        el.append(blank);
+        data.forEach((x) => {
+          const o = document.createElement("option");
+          o.value = x.id;
+          o.textContent = x.label;
+          el.append(o);
+        });
+      }
+      async function reloadPrograms(id = "") {
+        const r = await rpc("muatAwalIndex");
+        if (!r || !r.sukses) throw Error("Data program tidak tersedia.");
+        navigationBase = (r.navigasi && r.navigasi.url) || "";
+        allPrograms = r.data.program;
+        allSessions = r.data.sesi;
+        options(
+          $("program"),
+          "Pilih program",
+          allPrograms.map((p) => ({
+            id: p.id_program,
+            label:
+              p.nama_program +
+              " · " +
+              p.kategori_pelatihan +
+              " · " +
+              (p.jenjang || "tanpa jenjang") +
+              " · " +
+              p.id_program,
+          })),
+        );
+        $("program").value = allPrograms.some((p) => p.id_program === id)
+          ? id
+          : "";
+        controls();
+      }
+      function requestIdKelola() {
+        const a = new Uint32Array(4);
+        crypto.getRandomValues(a);
+        return Array.from(a, (n) => n.toString(16).padStart(8, "0")).join("");
+      }
+      let saving = false,
+        importRun = null,
+        navigationBase = "",
+        allPrograms = [],
+        allSessions = [],
+        manageSeq = 0,
+        manageLoading = false,
+        managePrograms = [],
+        manageSesi = [],
+        programPayload = null,
+        sessionPayload = null,
+        breakRows = [],
+        summarySeq = 0,
+        summaryLoading = false;
+      function updateNavigation() {
+        const id = $("program").value;
+        [
+          ["openMonitoring", "monitoring"],
+          ["openPengelolaan", "pengelolaan"],
+          ["openPeserta", "peserta"],
+          ["openPesertaSummary", "peserta"],
+        ].forEach(([name, page]) => {
+          const el = document.getElementById(name);
+          if (!el) return;
+          if (navigationBase) {
+            el.href =
+              navigationBase +
+              "?page=" +
+              page +
+              (id ? "&program=" + encodeURIComponent(id) : "");
+            el.setAttribute("aria-disabled", "false");
+          } else {
+            el.removeAttribute("href");
+            el.setAttribute("aria-disabled", "true");
+          }
+        });
+      }
+      function controls() {
+        document
+          .querySelectorAll(
+            "#dataEditForm input,#dataEditForm select,#dataEditForm textarea,#dataEditAddBreak",
+          )
+          .forEach((el) => (el.disabled = saving));
+        $("recoverEdits").disabled = saving || Boolean(importRun);
+        $("checkData").disabled =
+          checkingData ||
+          saving ||
+          ($("checkScope").value === "program" && !$("program").value);
+        const selected = Boolean($("program").value);
+        $("program").disabled = saving;
+        $("refreshManage").disabled = manageLoading || saving;
+        $("saveProgram").disabled = saving;
+        $("saveSession").disabled = !selected || manageLoading || saving;
+        $("addBreak").disabled = saving;
+        $("recoverSessions").disabled = !selected || manageLoading || saving;
+        $("refreshSummary").disabled = !selected || summaryLoading || saving;
+        updateNavigation();
+      }
+      async function loadParticipantSummary() {
+        const id = $("program").value,
+          seq = ++summarySeq;
+        summaryLoading = false;
+        $("summaryParticipantBody").replaceChildren();
+        $("summaryParticipantCount").textContent = id
+          ? "Memuat ringkasan peserta…"
+          : "Pilih program untuk melihat peserta.";
+        if (!id) {
+          controls();
+          return;
+        }
+        summaryLoading = true;
+        controls();
+        try {
+          const r = await rpc("muatRingkasanPesertaIndex", id);
+          if (seq !== summarySeq) return;
+          if (!r || !r.sukses) throw Error("Ringkasan tidak tersedia.");
+          r.peserta.slice(0, 10).forEach((p) => {
+            const tr = document.createElement("tr");
+            const name = cell(""),
+              link = document.createElement("a");
+            link.textContent = p.nama;
+            if (navigationBase)
+              link.href =
+                navigationBase +
+                "?page=profil&peserta=" +
+                encodeURIComponent(p.id_peserta) +
+                "&program=" +
+                encodeURIComponent(id);
+            name.append(link);
+            tr.append(name, cell(p.unit), cell(p.status));
+            $("summaryParticipantBody").append(tr);
+          });
+          $("summaryParticipantCount").textContent =
+            r.total +
+            " peserta program · Menampilkan " +
+            Math.min(10, r.peserta.length) +
+            " peserta.";
+        } catch (e) {
+          if (seq === summarySeq)
+            $("summaryParticipantCount").textContent =
+              e.message || "Ringkasan gagal dimuat.";
+        } finally {
+          if (seq === summarySeq) {
+            summaryLoading = false;
+            controls();
+          }
+        }
+      }
+      async function changeProgram() {
+        resetCheckData();
+        sessionPayload = null;
+        controls();
+        await Promise.allSettled([loadManage(), loadParticipantSummary()]);
+      }
+      async function refreshAfterEdit() {
+        resetCheckData();
+        await Promise.allSettled([loadManage(), loadParticipantSummary()]);
+      }
+      async function init() {
+        message("Memeriksa akses dan memuat program…");
+        try {
+          await reloadPrograms();
+          $("app").classList.remove("hidden");
+          $("blocked").classList.add("hidden");
+          let para = {};
+          try {
+            para = await new Promise((resolve) => {
+              try {
+                google.script.url.getLocation((loc) =>
+                  resolve((loc && loc.parameter) || {}),
+                );
+              } catch (ignored) {
+                resolve({});
+              }
+              setTimeout(() => resolve({}), 700);
+            });
+          } catch (ignored) {}
+          if (
+            para.program &&
+            allPrograms.some((r) => r.id_program === para.program)
+          )
+            $("program").value = para.program;
+          message(
+            "Kelola program dan sesi di sini. Pendaftaran peserta tersedia pada halaman Peserta Program.",
+          );
+          await changeProgram();
+        } catch (e) {
+          message(e.message || "Halaman gagal dimuat.", "error");
+          $("blocked").classList.remove("hidden");
+        }
+      }
+      let checkingData = false,
+        checkDataSeq = 0;
+      function resetCheckData() {
+        ++checkDataSeq;
+        checkingData = false;
+        $("checkBody").replaceChildren();
+        $("checkSummary").textContent =
+          $("checkScope").value === "program" && !$("program").value
+            ? "Pilih program untuk memeriksa data."
+            : "Program atau cakupan berubah. Klik Periksa Data untuk memperbarui hasil.";
+        controls();
+      }
+      $("checkScope").addEventListener("change", resetCheckData);
+      async function checkData() {
+        if (checkingData || saving || importRun) return;
+        const cakupan = $("checkScope").value,
+          id = $("program").value;
+        if (cakupan === "program" && !id) return;
+        const seq = ++checkDataSeq;
+        checkingData = true;
+        $("checkData").disabled = true;
+        $("checkBody").replaceChildren();
+        $("checkSummary").textContent =
+          cakupan === "program"
+            ? "Memeriksa program " + id + "…"
+            : "Memeriksa seluruh database…";
+        try {
+          const r = await rpc("periksaDataIndex", {
+            cakupan: cakupan,
+            id_program: id,
+          });
+          if (seq !== checkDataSeq) return;
+          if (!r || !r.sukses) throw Error("Hasil pemeriksaan tidak tersedia.");
+          $("checkSummary").textContent =
+            (r.cakupan === "program"
+              ? "Program " + r.id_program
+              : "Seluruh database") +
+            " · " +
+            r.jumlah.masalah +
+            " masalah · " +
+            r.jumlah.peringatan +
+            " peringatan · " +
+            r.jumlah.informasi +
+            " informasi · " +
+            r.waktu +
+            " (" +
+            r.zona +
+            ") · " +
+            r.ringkasan
+              .map((x) => x.sheet + ": " + x.jumlah + " baris")
+              .join("; ") +
+            (r.total > r.temuan.length
+              ? " · Menampilkan " +
+                r.temuan.length +
+                " dari " +
+                r.total +
+                " temuan."
+              : "") +
+            (r.total === 0
+              ? " · Tidak ditemukan masalah dalam cakupan pemeriksaan."
+              : "");
+          r.temuan.forEach((x) => {
+            const tr = document.createElement("tr");
+            tr.append(
+              cell(x.tingkat),
+              cell(x.sheet),
+              cell(x.baris),
+              cell(x.id),
+              cell(x.masalah),
+              cell(x.saran),
+            );
+            $("checkBody").append(tr);
+          });
+        } catch (e) {
+          if (seq === checkDataSeq)
+            $("checkSummary").textContent =
+              e.message || "Pemeriksaan gagal. Coba ulangi.";
+        } finally {
+          if (seq === checkDataSeq) {
+            checkingData = false;
+            controls();
+          }
+        }
+      }
+      $("checkData").addEventListener("click", checkData);
+      let editContext = null,
+        editRequest = null,
+        editOpenSeq = 0,
+        editBreaks = [];
+      function tutupFormEdit() {
+        const dialog = $("dataEditDialog");
+        if (dialog.open) dialog.close();
+        dialog.classList.add("hidden");
+        ++editOpenSeq;
+        editContext = null;
+        editRequest = null;
+        editBreaks = [];
+        $("dataEditFields").replaceChildren();
+        $("dataEditBreaks").replaceChildren();
+        $("dataEditReason").value = "";
+      }
+      const editLabels = {
+        nama_program: "Nama program",
+        kategori_pelatihan: "Kategori pelatihan",
+        jenjang: "Jenjang",
+        tanggal_mulai: "Tanggal mulai",
+        tanggal_selesai: "Tanggal selesai",
+        status_program: "Status program",
+        nama_sesi: "Nama sesi",
+        tanggal_sesi: "Tanggal sesi",
+        jam_mulai: "Jam mulai",
+        jam_selesai: "Jam selesai",
+        status_jp: "Perhitungan JP",
+        nama_pegawai: "Nama pegawai",
+        nip: "NIP",
+        unit_kerja: "Unit kerja induk",
+      };
+      function editButton(jenis, id) {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.className = "action";
+        b.textContent = "Edit";
+        b.addEventListener("click", () => openDataEdit(jenis, id));
+        return b;
+      }
+      async function openDataEdit(jenis, id) {
+        if (saving || importRun) return;
+        const seq = ++editOpenSeq;
+        editContext = null;
+        editRequest = null;
+        editBreaks = [];
+        $("dataEditFields").replaceChildren();
+        $("dataEditBreaks").replaceChildren();
+        $("dataEditReason").value = "";
+        $("dataEditMessage").textContent = "Memuat data…";
+        $("dataEditSave").disabled = true;
+        $("dataEditTitle").textContent = "Edit " + jenis + " · " + id;
+        $("dataEditDialog").classList.remove("hidden");
+        if (!$("dataEditDialog").open) $("dataEditDialog").showModal();
+        try {
+          const r = await rpc("muatEditDataIndex", jenis, id);
+          if (seq !== editOpenSeq) return;
+          if (!r || !r.sukses) throw Error("Data edit tidak tersedia.");
+          editContext = r;
+          Object.entries(r.values).forEach(([key, value]) => {
+            const f = document.createElement("div");
+            f.className = "field";
+            const label = document.createElement("label");
+            label.htmlFor = "dataEdit_" + key;
+            label.textContent = editLabels[key] || key;
+            let input;
+            const choices =
+              key === "status_program"
+                ? ["draft", "aktif", "selesai"]
+                : key === "status_jp"
+                  ? ["dihitung", "tidak_dihitung"]
+                  : null;
+            if (choices) {
+              input = document.createElement("select");
+              choices.forEach((v) => {
+                const o = document.createElement("option");
+                o.value = v;
+                o.textContent = v.replace(/_/g, " ");
+                input.append(o);
+              });
+            } else {
+              input = document.createElement("input");
+              input.type = key.startsWith("tanggal_")
+                ? "date"
+                : key.startsWith("jam_")
+                  ? "time"
+                  : "text";
+              if (input.type === "time") input.step = "1";
+              input.maxLength = 200;
+            }
+            input.id = "dataEdit_" + key;
+            input.required = key !== "jenjang";
+            input.value = value;
+            f.append(label, input);
+            $("dataEditFields").append(f);
+          });
+          $("dataEditBreakPanel").classList.toggle("hidden", jenis !== "Sesi");
+          r.jeda.forEach(addEditBreak);
+          $("dataEditMessage").textContent =
+            "Zona waktu: " +
+            r.zona +
+            ". " +
+            (jenis === "Peserta"
+              ? "Perubahan unit induk tidak mengubah unit pada keikutsertaan sebelumnya."
+              : jenis === "Sesi"
+                ? "Perubahan jadwal/jeda memerlukan hitung ulang JP dan konfirmasi JP rencana."
+                : "Rentang tanggal harus tetap mencakup seluruh sesi.");
+          $("dataEditSave").disabled = false;
+        } catch (e) {
+          if (seq === editOpenSeq)
+            $("dataEditMessage").textContent =
+              e.message || "Gagal memuat data.";
+        }
+      }
+      function addEditBreak(value = {}) {
+        if (saving || editBreaks.length >= 20) return;
+        const row = document.createElement("div");
+        row.className = "formgrid";
+        const group = { row };
+        [
+          ["mulai", "Mulai jeda"],
+          ["selesai", "Selesai jeda"],
+          ["keterangan", "Keterangan"],
+        ].forEach(([key, title]) => {
+          const f = document.createElement("div");
+          f.className = "field";
+          const label = document.createElement("label");
+          label.textContent = title;
+          const input = document.createElement("input");
+          input.type = key === "keterangan" ? "text" : "time";
+          input.required = key !== "keterangan";
+          if (input.type === "time") input.step = "1";
+          input.maxLength = 200;
+          input.value = value[key] || "";
+          group[key] = input;
+          f.append(label, input);
+          row.append(f);
+        });
+        const remove = document.createElement("button");
+        remove.type = "button";
+        remove.className = "btn";
+        remove.textContent = "Hapus jeda";
+        remove.addEventListener("click", () => {
+          if (saving) return;
+          row.remove();
+          editBreaks = editBreaks.filter((x) => x !== group);
+        });
+        row.append(remove);
+        editBreaks.push(group);
+        $("dataEditBreaks").append(row);
+      }
+      async function saveDataEdit(e) {
+        e.preventDefault();
+        if (saving || !editContext) return;
+        if (!editRequest) {
+          const values = {};
+          Object.keys(editContext.values).forEach(
+            (k) => (values[k] = $("dataEdit_" + k).value),
+          );
+          editRequest = {
+            jenis: editContext.jenis,
+            id: editContext.id,
+            versi: editContext.versi,
+            id_permintaan: requestIdKelola(),
+            values,
+            alasan: $("dataEditReason").value.trim(),
+            jeda: editBreaks.map((x) => ({
+              mulai: x.mulai.value,
+              selesai: x.selesai.value,
+              keterangan: x.keterangan.value.trim(),
+            })),
+          };
+        }
+        saving = true;
+        controls();
+        $("dataEditSave").disabled = true;
+        $("dataEditCancel").disabled = true;
+        $("dataEditMessage").textContent = "Menyimpan dan memeriksa hasil…";
+        try {
+          const r = await rpc("simpanEditDataIndex", editRequest);
+          if (!r || !r.sukses) throw Error("Penyimpanan belum terkonfirmasi.");
+          tutupFormEdit();
+          message(r.pesan, "success");
+          $("message").scrollIntoView({ block: "nearest", behavior: "smooth" });
+          const selected = $("program").value;
+          try {
+            await reloadPrograms(selected);
+            await refreshAfterEdit();
+          } catch (refreshError) {
+            message(
+              r.pesan +
+                " Daftar belum berhasil dimuat ulang. Muat ulang halaman.",
+              "success",
+            );
+          }
+        } catch (err) {
+          $("dataEditMessage").textContent =
+            (err.message || "Simpan belum terkonfirmasi.") +
+            " Jika transaksi sudah mulai, gunakan Pulihkan Edit Tertunda. Untuk memperbaiki isian, tutup lalu buka Edit kembali.";
+        } finally {
+          saving = false;
+          controls();
+          $("dataEditSave").disabled = !editContext;
+          $("dataEditCancel").disabled = false;
+        }
+      }
+      $("dataEditForm").addEventListener("submit", saveDataEdit);
+      $("dataEditAddBreak").addEventListener("click", () => addEditBreak());
+      $("dataEditCancel").addEventListener("click", () => {
+        if (!saving) tutupFormEdit();
+      });
+      $("dataEditDialog").addEventListener("cancel", (e) => {
+        if (saving) e.preventDefault();
+        else {
+          ++editOpenSeq;
+          editContext = null;
+          editRequest = null;
+        }
+      });
+      $("recoverEdits").addEventListener("click", async () => {
+        if (saving || importRun) return;
+        saving = true;
+        controls();
+        try {
+          const r = await rpc("pulihkanEditDataIndex");
+          message(r.pesan, "success");
+          await reloadPrograms($("program").value);
+          await refreshAfterEdit();
+        } catch (e) {
+          message(e.message || "Pemulihan gagal; periksa riwayat.", "error");
+        } finally {
+          saving = false;
+          controls();
+        }
+      });
+
+      function resetManage() {
+        ++manageSeq;
+        manageLoading = false;
+        manageSesi = [];
+        $("manageSessions").replaceChildren();
+        $("manageSelectedProgram").textContent =
+          "Pilih program untuk membuat atau melihat sesi.";
+        $("manageSessionEmpty").classList.remove("hidden");
+        sessionPayload = null;
+        controls();
+      }
+      function fillSuggestion(id, values) {
+        const box = $(id);
+        box.replaceChildren();
+        Array.from(new Set(values.filter(Boolean))).forEach((v) => {
+          const o = document.createElement("option");
+          o.value = v;
+          box.append(o);
+        });
+      }
+      function renderManage() {
+        const body = $("managePrograms");
+        body.replaceChildren();
+        $("manageProgramEmpty").classList.toggle(
+          "hidden",
+          managePrograms.length > 0,
+        );
+        managePrograms.forEach((p) => {
+          const tr = document.createElement("tr"),
+            name = cell(p.nama),
+            id = document.createElement("span");
+          id.className = "sub";
+          id.textContent = p.id;
+          name.append(id);
+          const actions = cell(""),
+            b = document.createElement("button");
+          b.type = "button";
+          b.className = "action";
+          b.textContent = "Pilih program";
+          b.disabled = saving;
+          b.addEventListener("click", () => selectManageProgram(p.id));
+          actions.append(b, editButton("Program", p.id));
+          tr.append(
+            name,
+            cell(p.kategori + " / " + (p.jenjang || "Belum diisi")),
+            cell(p.mulai + " – " + p.selesai),
+            cell(p.status),
+            actions,
+          );
+          body.append(tr);
+        });
+        const sesi = $("manageSessions");
+        sesi.replaceChildren();
+        $("manageSessionEmpty").classList.toggle(
+          "hidden",
+          manageSesi.length > 0,
+        );
+        manageSesi.forEach((s) => {
+          const tr = document.createElement("tr"),
+            name = cell(s.nama),
+            sub = document.createElement("span");
+          sub.className = "sub";
+          sub.textContent = s.id;
+          name.append(sub);
+          const actions = cell(""),
+            b = document.createElement("button");
+          b.type = "button";
+          b.className = "action";
+          b.textContent = "Buka kehadiran";
+          b.disabled = saving;
+          b.addEventListener("click", () =>
+            selectManageProgram($("program").value, s.id),
+          );
+          actions.append(b, editButton("Sesi", s.id));
+          tr.append(
+            name,
+            cell(s.tanggal + " · " + s.mulai + "–" + s.selesai),
+            cell(s.jeda || "Tanpa jeda"),
+            cell(formatRekap(s.durasi_efektif, " menit")),
+            cell(formatRekap(s.usulan_jp)),
+            cell(s.masalah || s.status_jp.replace(/_/g, " ")),
+            actions,
+          );
+          sesi.append(tr);
+        });
+      }
+      async function loadManage() {
+        const id = $("program").value,
+          seq = ++manageSeq;
+        manageLoading = true;
+        controls();
+        try {
+          const r = await rpc("muatKelolaProgramIndex", id);
+          if (seq !== manageSeq) return;
+          if (!r || !r.sukses) throw Error("Daftar tidak tersedia.");
+          managePrograms = r.program;
+          manageSesi = r.sesi;
+          const p = managePrograms.find((p) => p.id === id);
+          $("manageSelectedProgram").textContent = p
+            ? p.nama +
+              " · " +
+              p.id +
+              " · " +
+              p.mulai +
+              " – " +
+              p.selesai +
+              " · " +
+              r.zona_waktu
+            : "Pilih program di bagian atas atau melalui daftar program.";
+          if (p) {
+            $("sessionDate").min = p.mulai;
+            $("sessionDate").max = p.selesai;
+            if (
+              !$("sessionDate").value ||
+              $("sessionDate").value < p.mulai ||
+              $("sessionDate").value > p.selesai
+            )
+              $("sessionDate").value = p.mulai;
+          } else {
+            $("sessionDate").removeAttribute("min");
+            $("sessionDate").removeAttribute("max");
+          }
+          fillSuggestion("categoryList", [
+            "Manajerial",
+            "Sosial Kultural",
+            "Teknis",
+            ...managePrograms.map((p) => p.kategori),
+          ]);
+          fillSuggestion("levelList", [
+            "Jenjang 1",
+            "Jenjang 2",
+            ...managePrograms.map((p) => p.jenjang),
+          ]);
+          renderManage();
+        } catch (e) {
+          if (seq === manageSeq)
+            message(e.message || "Daftar gagal dimuat.", "error");
+        } finally {
+          if (seq === manageSeq) {
+            manageLoading = false;
+            controls();
+          }
+        }
+      }
+      async function selectManageProgram(id, idSesi = "") {
+        if (saving) return;
+        if (importRun) {
+          message(
+            "Lanjutkan impor atau gunakan Pulihkan Impor Tertunda sebelum mengganti program.",
+            "error",
+          );
+          return;
+        }
+        if (idSesi) {
+          if (navigationBase)
+            window.open(
+              navigationBase +
+                "?page=monitoring&program=" +
+                encodeURIComponent(id) +
+                "&sesi=" +
+                encodeURIComponent(idSesi),
+              "_top",
+            );
+          else message("Buka Monitoring melalui menu spreadsheet.", "error");
+          return;
+        }
+        try {
+          await refreshChoicesKelola(id);
+          $("newSessionDetails").open = true;
+          $("sessionName").focus();
+        } catch (e) {
+          message(e.message || "Pilihan gagal diperbarui.", "error");
+        }
+      }
+      function addBreakKelola() {
+        if (saving) return;
+        if (breakRows.length >= 20) {
+          message("Maksimal 20 jeda dalam satu sesi.", "error");
+          return;
+        }
+        const row = document.createElement("div");
+        row.style.cssText =
+          "display:flex;flex-wrap:wrap;gap:10px;margin-top:10px;align-items:end";
+        const a = document.createElement("input"),
+          b = document.createElement("input"),
+          note = document.createElement("input");
+        a.type = b.type = "time";
+        a.required = b.required = true;
+        note.placeholder = "Keterangan, misalnya istirahat";
+        note.maxLength = 200;
+        const group = { row: row, mulai: a, selesai: b, keterangan: note };
+        [
+          ["Mulai jeda", a],
+          ["Selesai jeda", b],
+          ["Keterangan", note],
+        ].forEach(([text, input]) => {
+          const f = document.createElement("div");
+          f.className = "field";
+          const label = document.createElement("label");
+          label.textContent = text;
+          f.append(label, input);
+          row.append(f);
+        });
+        const remove = document.createElement("button");
+        remove.type = "button";
+        remove.className = "btn";
+        remove.textContent = "Hapus";
+        remove.addEventListener("click", () => {
+          if (saving) return;
+          row.remove();
+          breakRows = breakRows.filter((r) => r !== group);
+          sessionPayload = null;
+          previewSesiKelola();
+        });
+        row.append(remove);
+        [a, b, note].forEach((el) =>
+          el.addEventListener("input", () => {
+            sessionPayload = null;
+            previewSesiKelola();
+          }),
+        );
+        breakRows.push(group);
+        $("sessionBreaks").append(row);
+        previewSesiKelola();
+      }
+      function previewSesiKelola() {
+        const minutes = (t) => {
+          if (!/^\d{2}:\d{2}$/.test(t)) return NaN;
+          const [h, m] = t.split(":").map(Number);
+          return h * 60 + m;
+        };
+        const a = minutes($("sessionStart").value),
+          b = minutes($("sessionEnd").value);
+        if (!Number.isFinite(a) || !Number.isFinite(b) || b <= a) {
+          $("sessionPreview").textContent =
+            "Isi jam mulai dan selesai yang valid.";
+          return;
+        }
+        const ranges = breakRows
+          .map((r) => [minutes(r.mulai.value), minutes(r.selesai.value)])
+          .sort((x, y) => x[0] - y[0]);
+        if (
+          ranges.some(
+            (r, i) =>
+              !Number.isFinite(r[0]) ||
+              !Number.isFinite(r[1]) ||
+              r[1] <= r[0] ||
+              r[0] < a ||
+              r[1] > b ||
+              (i && r[0] < ranges[i - 1][1]),
+          )
+        ) {
+          $("sessionPreview").textContent =
+            "Lengkapi jeda. Jeda harus berada dalam sesi dan tidak bertumpang tindih.";
+          return;
+        }
+        const jeda = ranges.reduce((n, r) => n + r[1] - r[0], 0),
+          efektif = b - a - jeda;
+        $("sessionPreview").textContent =
+          "Durasi sesi: " +
+          (b - a) +
+          " menit · Jeda: " +
+          jeda +
+          " menit · Efektif: " +
+          efektif +
+          " menit · Usulan: " +
+          formatRekap($("sessionJP").value === "dihitung" ? efektif / 45 : 0) +
+          " JP";
+      }
+      function lockManageForms(disabled) {
+        document
+          .querySelectorAll(
+            "#programForm input,#programForm select,#sessionForm input,#sessionForm select,#sessionBreaks button",
+          )
+          .forEach((el) => (el.disabled = disabled));
+      }
+      async function saveProgramKelola(e) {
+        e.preventDefault();
+        if (saving) return;
+        if (!programPayload)
+          programPayload = {
+            nama: $("programName").value.trim(),
+            kategori: $("programCategory").value.trim(),
+            jenjang: $("programLevel").value.trim(),
+            mulai: $("programStart").value,
+            selesai: $("programEnd").value,
+            status: $("programStatus").value,
+            id_permintaan: requestIdKelola(),
+          };
+        saving = true;
+        controls();
+        lockManageForms(true);
+        $("programFormMessage").textContent = "Menyimpan program…";
+        try {
+          const r = await rpc("tambahProgramIndex", programPayload);
+          if (!r || !r.sukses) throw Error("Hasil penyimpanan belum tersedia.");
+          programPayload = null;
+          $("programForm").reset();
+          $("programFormMessage").textContent = r.pesan;
+          saving = false;
+          await refreshChoicesKelola(r.id_program);
+          $("newProgramDetails").open = false;
+          $("newSessionDetails").open = true;
+          message(r.pesan + " Tambahkan sesi untuk melanjutkan.", "success");
+        } catch (err) {
+          $("programFormMessage").textContent =
+            (err.message || "Penyimpanan belum terkonfirmasi.") +
+            " Periksa daftar sebelum mengulang. Kirim ulang tanpa perubahan memakai ID permintaan yang sama.";
+        } finally {
+          saving = false;
+          lockManageForms(false);
+          controls();
+        }
+      }
+      async function saveSessionKelola(e) {
+        e.preventDefault();
+        if (saving || !$("program").value) return;
+        if (!sessionPayload)
+          sessionPayload = {
+            id_program: $("program").value,
+            nama: $("sessionName").value.trim(),
+            tanggal: $("sessionDate").value,
+            mulai: $("sessionStart").value,
+            selesai: $("sessionEnd").value,
+            status_jp: $("sessionJP").value,
+            jeda: breakRows.map((r) => ({
+              mulai: r.mulai.value,
+              selesai: r.selesai.value,
+              keterangan: r.keterangan.value.trim(),
+            })),
+            id_permintaan: requestIdKelola(),
+          };
+        saving = true;
+        controls();
+        lockManageForms(true);
+        $("sessionFormMessage").textContent = "Menyimpan sesi dan jeda…";
+        try {
+          const r = await rpc("tambahSesiIndex", sessionPayload);
+          if (!r || !r.sukses) throw Error("Hasil penyimpanan belum tersedia.");
+          sessionPayload = null;
+          $("sessionForm").reset();
+          breakRows = [];
+          $("sessionBreaks").replaceChildren();
+          previewSesiKelola();
+          $("sessionFormMessage").textContent = r.pesan;
+          saving = false;
+          await refreshChoicesKelola(r.id_program, r.id_sesi);
+          message(
+            r.pesan + " Usulan: " + formatRekap(r.usulan_jp) + " JP.",
+            "success",
+          );
+        } catch (err) {
+          $("sessionFormMessage").textContent =
+            (err.message || "Penyimpanan belum terkonfirmasi.") +
+            " Daftar akan diperiksa ulang. Jika sesi sudah muncul, gunakan Periksa / Pulihkan Sesi.";
+          await loadManage();
+        } finally {
+          saving = false;
+          lockManageForms(false);
+          controls();
+        }
+      }
+      async function recoverSessionsKelola() {
+        if (saving || !$("program").value) return;
+        const id = $("program").value;
+        saving = true;
+        controls();
+        message("Memeriksa transaksi sesi dan seluruh jedanya…");
+        try {
+          const r = await rpc("pulihkanPembuatanSesiIndex", id);
+          if (!r || !r.sukses) throw Error("Hasil pemeriksaan belum tersedia.");
+          sessionPayload = null;
+          saving = false;
+          await refreshChoicesKelola(id);
+          message(r.pesan, r.masalah.length ? "error" : "success");
+        } catch (e) {
+          message(
+            e.message ||
+              "Pemulihan belum terkonfirmasi. Muat ulang daftar sebelum mencoba lagi.",
+            "error",
+          );
+        } finally {
+          saving = false;
+          controls();
+        }
+      }
+      async function refreshChoicesKelola(id, idSesi = "") {
+        await reloadPrograms(id);
+        await changeProgram();
+        if (idSesi)
+          message(
+            "Sesi baru sudah tersedia. Gunakan Buka kehadiran untuk menuju monitoring.",
+            "success",
+          );
+      }
+      $("program").addEventListener("change", changeProgram);
+      $("refreshSummary").addEventListener("click", loadParticipantSummary);
+      $("retryAccess").addEventListener("click", init);
+      $("recoverSessions").addEventListener("click", recoverSessionsKelola);
+      $("refreshManage").addEventListener("click", loadManage);
+      $("programForm").addEventListener("submit", saveProgramKelola);
+      $("sessionForm").addEventListener("submit", saveSessionKelola);
+      $("addBreak").addEventListener("click", addBreakKelola);
+      ["sessionStart", "sessionEnd", "sessionJP"].forEach((id) =>
+        $(id).addEventListener("input", () => {
+          sessionPayload = null;
+          previewSesiKelola();
+        }),
+      );
+      [
+        "programName",
+        "programCategory",
+        "programLevel",
+        "programStart",
+        "programEnd",
+        "programStatus",
+      ].forEach((id) =>
+        $(id).addEventListener("input", () => {
+          if (!saving) programPayload = null;
+        }),
+      );
+      ["sessionName", "sessionDate"].forEach((id) =>
+        $(id).addEventListener("input", () => {
+          if (!saving) sessionPayload = null;
+        }),
+      );
+      init();
+    </script>
+  <script id="flat-dashboard-interactions">
+/* Dashboard interactions are isolated from existing Apps Script handlers. */
+(() => {
+  'use strict';
+  document.addEventListener('DOMContentLoaded', () => {
+    const body = document.body;
+    const menu = document.getElementById('dashMenu');
+    if (!menu) return;
+    const sidebar = document.getElementById('dashSidebar');
+    const backdrop = document.getElementById('dashBackdrop');
+    const mobile = window.matchMedia('(max-width: 900px)');
+    const density = document.getElementById('dashDensity');
+    const date = document.getElementById('dashDate');
+    let toastTimer;
+    function toast(text) {
+      const el = document.getElementById('dashToast');
+      el.textContent = text;
+      el.hidden = false;
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => { el.hidden = true; }, 4500);
+    }
+    date.textContent = new Intl.DateTimeFormat('id-ID', {day:'numeric', month:'long', year:'numeric', timeZone:'Asia/Jakarta'}).format(new Date());
+    const inertBefore = new Map();
+    function closeMobile() {
+      body.classList.remove('dash-nav-open');
+      for (const [el, wasInert] of inertBefore) el.inert = wasInert;
+      inertBefore.clear();
+      sidebar.removeAttribute('role');
+      sidebar.removeAttribute('aria-modal');
+      sidebar.inert = mobile.matches;
+      menu.setAttribute('aria-expanded', String(!mobile.matches && !body.classList.contains('dash-nav-collapsed')));
+    }
+    function openMobile() {
+      body.classList.add('dash-nav-open');
+      sidebar.inert = false;
+      sidebar.setAttribute('role', 'dialog');
+      sidebar.setAttribute('aria-modal', 'true');
+      for (const el of body.children) {
+        if (el !== sidebar && el !== backdrop && !['SCRIPT','STYLE'].includes(el.tagName)) {
+          inertBefore.set(el, el.inert);
+          el.inert = true;
+        }
+      }
+      menu.setAttribute('aria-expanded', 'true');
+      sidebar.querySelector('button,a').focus();
+    }
+    menu.addEventListener('click', () => {
+      if (mobile.matches) {
+        if (body.classList.contains('dash-nav-open')) closeMobile(); else openMobile();
+      } else {
+        const collapsed = body.classList.toggle('dash-nav-collapsed');
+        sidebar.inert = collapsed;
+        menu.setAttribute('aria-expanded', String(!collapsed));
+      }
+    });
+    function closeAndFocus() { closeMobile(); menu.focus(); }
+    backdrop.addEventListener('click', closeAndFocus);
+    document.getElementById('dashCloseMenu').addEventListener('click', closeAndFocus);
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape' && body.classList.contains('dash-nav-open')) { e.preventDefault(); closeAndFocus(); }
+      if (e.key === 'Tab' && body.classList.contains('dash-nav-open')) {
+        const items = [...sidebar.querySelectorAll('a[href],button:not(:disabled)')].filter(el => el.getClientRects().length);
+        const first = items[0], last = items[items.length - 1];
+        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+      }
+      if (e.key === '/' && !e.ctrlKey && !e.metaKey && !e.altKey && !e.target.closest('input,select,textarea,[contenteditable=true]') && !document.querySelector('dialog[open]') && !body.classList.contains('dash-nav-open')) {
+        const input = [...document.querySelectorAll('main input[type=search]')].find(el => !el.disabled && el.getClientRects().length);
+        if (input) { e.preventDefault(); input.focus(); }
+      }
+    });
+    mobile.addEventListener('change', () => {
+      closeMobile();
+      if (!mobile.matches) sidebar.inert = body.classList.contains('dash-nav-collapsed');
+    });
+    closeMobile();
+    function applyDensity(compact) {
+      body.classList.toggle('dash-compact', compact);
+      density.setAttribute('aria-pressed', String(compact));
+      density.title = compact ? 'Gunakan tabel renggang' : 'Gunakan tabel ringkas';
+      density.setAttribute('aria-label', density.title);
+    }
+    try { applyDensity(localStorage.getItem('pelatihan-density') === 'compact'); } catch (_) {}
+    density.addEventListener('click', () => {
+      const compact = !body.classList.contains('dash-compact');
+      applyDensity(compact);
+      try { localStorage.setItem('pelatihan-density', compact ? 'compact' : 'comfortable'); } catch (_) {}
+      toast(compact ? 'Tampilan tabel ringkas diaktifkan.' : 'Tampilan tabel renggang diaktifkan.');
+    });
+    function navigationURL(page) {
+      const base = typeof navigationBase === 'string' ? navigationBase : '';
+      if (!base) return '';
+      const selected = document.getElementById('program');
+      return base + '?page=' + encodeURIComponent(page) + (selected && selected.value ? '&program=' + encodeURIComponent(selected.value) : '');
+    }
+    function syncNavigation() {
+      document.querySelectorAll('[data-dash-page]').forEach(link => {
+        const url = navigationURL(link.dataset.dashPage);
+        if (url) {
+          if (link.getAttribute('href') !== url) link.setAttribute('href', url);
+          link.removeAttribute('aria-disabled');
+          link.classList.remove('dash-unavailable');
+        } else {
+          link.setAttribute('aria-disabled','true');
+          link.classList.add('dash-unavailable');
+        }
+      });
+    }
+    document.querySelectorAll('[data-dash-page]').forEach(link => link.addEventListener('click', e => {
+      syncNavigation();
+      if (!navigationURL(link.dataset.dashPage)) {
+        e.preventDefault();
+        if (mobile.matches) closeMobile();
+        toast('Navigasi belum tersedia. Tunggu data dimuat atau buka halaman melalui menu Manajemen Pelatihan di Google Sheets.');
+      }
+    }));
+    document.getElementById('program')?.addEventListener('change', syncNavigation);
+    for (const id of ['openPengelolaan','openMonitoring','backParticipants','backMonitoring']) {
+      const link = document.getElementById(id);
+      if (link) new MutationObserver(syncNavigation).observe(link, {attributes:true, attributeFilter:['href']});
+    }
+    syncNavigation();
+    const progress = document.getElementById('dashCompletion');
+    if (progress) {
+      const total = document.getElementById('total'), complete = document.getElementById('complete');
+      function updateProgress() {
+        const n = Number(total.textContent), c = Number(complete.textContent);
+        const ready = total.textContent.trim() !== '—' && complete.textContent.trim() !== '—' && Number.isFinite(n) && Number.isFinite(c);
+        const percent = ready && n > 0 ? Math.max(0, Math.min(100, Math.round(c / n * 100))) : 0;
+        document.getElementById('dashCompletionValue').textContent = ready ? percent + '%' : '—';
+        document.getElementById('dashCompletionFill').style.width = percent + '%';
+        const meter = document.getElementById('dashProgress');
+        if (ready) meter.setAttribute('aria-valuenow', String(percent)); else meter.removeAttribute('aria-valuenow');
+        meter.setAttribute('aria-valuetext', ready ? c + ' dari ' + n + ' peserta memiliki absensi lengkap' : 'Pilih sesi untuk melihat kelengkapan absensi');
+        document.getElementById('dashCompletionNote').textContent = ready ? c + ' dari ' + n + ' peserta · datang dan pulang lengkap' : 'Pilih sesi untuk melihat ringkasan.';
+      }
+      const observer = new MutationObserver(updateProgress);
+      observer.observe(total, {childList:true, subtree:true, characterData:true});
+      observer.observe(complete, {childList:true, subtree:true, characterData:true});
+      updateProgress();
+    }
+    const attendanceBody = document.getElementById('tableBody');
+    if (attendanceBody) {
+      let activeFilter = 'all';
+      function applyAttendanceFilter() {
+        const tableRows = [...attendanceBody.querySelectorAll('tr')];
+        let visible = 0;
+        for (const row of tableRows) {
+          const status = (row.cells[3]?.querySelector('.badge')?.textContent || '').trim().toLowerCase();
+          const complete = status === 'lengkap';
+          const absent = status === 'belum absen';
+          const show = activeFilter === 'all' || (activeFilter === 'complete' && complete) || (activeFilter === 'absent' && absent) || (activeFilter === 'review' && !complete && !absent);
+          row.hidden = !show;
+          if (show) visible++;
+        }
+        document.getElementById('dashFilteredCount').textContent = tableRows.length ? visible + ' ditampilkan' : '';
+        document.getElementById('dashStatusEmpty').hidden = !(tableRows.length > 0 && visible === 0);
+      }
+      document.querySelectorAll('[data-attendance-filter]').forEach(button => button.addEventListener('click', () => {
+        activeFilter = button.dataset.attendanceFilter;
+        document.querySelectorAll('[data-attendance-filter]').forEach(el => el.setAttribute('aria-pressed', String(el === button)));
+        applyAttendanceFilter();
+      }));
+      new MutationObserver(applyAttendanceFilter).observe(attendanceBody, {childList:true});
+      applyAttendanceFilter();
+    }
+    document.querySelectorAll('.tablebox,.preview-wrap').forEach((wrap, index) => {
+      wrap.setAttribute('tabindex','0');
+      wrap.setAttribute('role','region');
+      const section = wrap.closest('section,.panel');
+      const heading = section?.querySelector('h2');
+      wrap.setAttribute('aria-label',(heading?.textContent.trim() || 'Tabel data') + '. Geser ke samping untuk kolom lainnya.');
+    });
+  });
+})();
+
+</script>
+</body>
+</html>

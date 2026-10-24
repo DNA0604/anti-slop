@@ -1,0 +1,4344 @@
+<!doctype html>
+<html lang="id">
+  <head>
+<meta charset="utf-8">
+    <base target="_top" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Monitoring Pelatihan</title>
+    <style>
+      :root {
+        --ink: #172e46;
+        --muted: #62758a;
+        --line: #dce5ed;
+        --blue: #2463df;
+        --bg: #f3f6fa;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font:
+          14px/1.5 Arial,
+          sans-serif;
+      }
+      button,
+      input,
+      select,
+      textarea {
+        font: inherit;
+      }
+      button {
+        cursor: pointer;
+      }
+      button:disabled {
+        cursor: not-allowed;
+        opacity: 0.5;
+      }
+      header {
+        background: #fff;
+        border-bottom: 1px solid var(--line);
+        padding: 22px 32px;
+      }
+      .top {
+        max-width: 1400px;
+        margin: auto;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 13px;
+      }
+      .mark {
+        background: var(--blue);
+        color: white;
+        width: 42px;
+        height: 42px;
+        display: grid;
+        place-items: center;
+        border-radius: 12px;
+        font-weight: bold;
+        font-size: 20px;
+      }
+      h1 {
+        margin: 0;
+        font-size: 21px;
+        letter-spacing: -0.5px;
+      }
+      .muted,
+      small {
+        color: var(--muted);
+      }
+      .tag {
+        border: 1px solid #cbdcf9;
+        border-radius: 20px;
+        background: #eef4ff;
+        padding: 5px 12px;
+        color: #2455a3;
+        font-size: 12px;
+      }
+      main {
+        max-width: 1464px;
+        padding: 26px 32px;
+        margin: auto;
+      }
+      .notice {
+        padding: 12px 16px;
+        border: 1px solid #dce5ed;
+        background: #fff;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        white-space: pre-line;
+      }
+      .notice.error {
+        background: #fff0ef;
+        color: #a92c24;
+        border-color: #f3c7c2;
+      }
+      .notice.success {
+        background: #edf9f1;
+        color: #236741;
+        border-color: #c4e6d1;
+      }
+      .hidden {
+        display: none !important;
+      }
+      .panel {
+        background: #fff;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: 22px;
+      }
+      .filters {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr)) auto;
+        gap: 14px;
+        align-items: end;
+      }
+      .field {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        flex: 1;
+      }
+      label {
+        font-size: 12px;
+        font-weight: bold;
+        color: #4a6077;
+      }
+      select,
+      input,
+      textarea {
+        width: 100%;
+        padding: 10px 12px;
+        background: #fff;
+        border: 1px solid #cdd8e3;
+        border-radius: 8px;
+        color: var(--ink);
+        min-height: 42px;
+      }
+      input:focus,
+      select:focus,
+      textarea:focus {
+        outline: 2px solid #acc7ff;
+        outline-offset: 1px;
+      }
+      .btn {
+        border: 1px solid #cdd8e3;
+        border-radius: 8px;
+        padding: 10px 15px;
+        background: white;
+        color: var(--ink);
+        font-weight: bold;
+        min-height: 42px;
+      }
+      .primary {
+        background: var(--blue);
+        color: white;
+        border-color: var(--blue);
+      }
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 14px;
+        margin: 18px 0;
+      }
+      .stat {
+        background: white;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 16px 20px;
+      }
+      .stat strong {
+        display: block;
+        font-size: 26px;
+        margin-top: 5px;
+      }
+      .layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 310px;
+        gap: 18px;
+        align-items: start;
+      }
+      .sectionhead {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 16px;
+      }
+      h2 {
+        margin: 0;
+        font-size: 17px;
+      }
+      p {
+        margin: 5px 0 14px;
+      }
+      .tablebox {
+        overflow: auto;
+      }
+      table {
+        border-collapse: collapse;
+        width: 100%;
+        min-width: 740px;
+      }
+      th {
+        text-align: left;
+        font-size: 11px;
+        color: #6d7d91;
+        letter-spacing: 0.4px;
+        background: #f6f8fb;
+        padding: 12px 10px;
+      }
+      td {
+        padding: 14px 10px;
+        border-bottom: 1px solid #edf1f5;
+        font-size: 13px;
+        vertical-align: top;
+      }
+      td strong {
+        font-size: 13px;
+      }
+      .sub {
+        font-size: 11px;
+        color: var(--muted);
+        display: block;
+        margin-top: 3px;
+      }
+      .badge {
+        display: inline-block;
+        padding: 3px 8px;
+        border-radius: 6px;
+        background: #eff3f8;
+        color: #596b80;
+        font-size: 11px;
+      }
+      .badge.ok {
+        background: #e7f6ec;
+        color: #217442;
+      }
+      .badge.late {
+        background: #fff0ef;
+        color: #a92c24;
+      }
+      .arrival-note {
+        display: block;
+        margin-top: 6px;
+        max-width: 210px;
+      }
+      .badge.warn {
+        background: #fff4dc;
+        color: #896118;
+      }
+      .action {
+        border: 0;
+        background: none;
+        color: var(--blue);
+        padding: 3px 5px;
+        font-size: 12px;
+        white-space: nowrap;
+      }
+      .qr-controls {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+      .qrbox {
+        margin-top: 18px;
+        border: 1px dashed #c6d3e1;
+        border-radius: 10px;
+        min-height: 230px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        padding: 16px;
+        gap: 12px;
+        text-align: center;
+        background: #fafcff;
+      }
+      #qrImage {
+        background: white;
+        padding: 8px;
+        max-width: 100%;
+        overflow: auto;
+      }
+      #qrImage img,
+      #qrImage canvas {
+        max-width: 100%;
+        height: auto;
+      }
+      .full {
+        width: 100%;
+        margin-top: 14px;
+      }
+      .foot {
+        color: var(--muted);
+        font-size: 12px;
+        margin-top: 18px;
+      }
+      .empty {
+        text-align: center;
+        padding: 40px 15px;
+        color: var(--muted);
+      }
+      dialog {
+        border: 0;
+        border-radius: 15px;
+        padding: 0;
+        width: min(560px, 94vw);
+        color: var(--ink);
+        box-shadow: 0 18px 80px #172e4640;
+      }
+      dialog::backdrop {
+        background: #172e4670;
+      }
+      .dialog-body {
+        padding: 25px;
+      }
+      .dialog-fields {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+      }
+      .dialog-fields .wide {
+        grid-column: 1/-1;
+      }
+      .buttons {
+        display: flex;
+        justify-content: end;
+        gap: 10px;
+        margin-top: 20px;
+      }
+      .help {
+        font-size: 12px;
+        background: #f4f7fb;
+        padding: 12px;
+        border-radius: 8px;
+        white-space: pre-line;
+      }
+      .fatal-title {
+        font-weight: bold;
+      }
+      #search {
+        max-width: 240px;
+      }
+      #qrStatus {
+        white-space: pre-line;
+        font-size: 12px;
+      }
+      a {
+        color: var(--blue);
+      }
+      @media (max-width: 1000px) {
+        .filters {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+        .filters > .btn {
+          grid-column: 1/-1;
+        }
+        .layout {
+          grid-template-columns: 1fr;
+        }
+        .qr-controls {
+          max-width: 400px;
+        }
+        .stats {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+      @media (max-width: 600px) {
+        main {
+          padding: 18px 12px;
+        }
+        header {
+          padding: 18px 14px;
+        }
+        .filters {
+          grid-template-columns: 1fr;
+          align-items: stretch;
+        }
+        .top {
+          align-items: start;
+        }
+        .tag {
+          display: none;
+        }
+        .dialog-fields {
+          grid-template-columns: 1fr;
+        }
+        .sectionhead {
+          align-items: start;
+          flex-direction: column;
+        }
+        #search {
+          max-width: none;
+        }
+        .panel {
+          padding: 16px;
+        }
+        h1 {
+          font-size: 18px;
+        }
+      }
+      .session-summary {
+        margin: 18px 0;
+      }
+      .session-summary dt {
+        font-size: 11px;
+        color: var(--muted);
+        margin-top: 13px;
+      }
+      .session-summary dd {
+        margin: 3px 0 0;
+        font-weight: 600;
+        overflow-wrap: anywhere;
+      }
+      .summary-counts {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin: 18px 0;
+      }
+      .summary-counts > div {
+        background: #f4f7fb;
+        padding: 12px;
+        border-radius: 9px;
+      }
+      .summary-counts span {
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .summary-counts strong {
+        display: block;
+        font-size: 25px;
+        margin-top: 4px;
+      }
+      #qrDialog .qrbox {
+        min-height: 260px;
+      }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <style id="flat-dashboard-theme">
+/* Shared flat dashboard skin. Embedded in every Apps Script HTML page. */
+:root { --ink:#1c3035; --muted:#607378; --line:#e0e8e7; --blue:#087f70; --bg:#f4f7f6; --nav-width:232px; --accent:#087f70; }
+html {scroll-behavior:smooth; scrollbar-gutter:stable}
+body.flat-dashboard {font:14px/1.6 'Segoe UI',Arial,sans-serif; background:var(--bg); color:var(--ink); margin:0; padding:0 0 0 var(--nav-width); transition:padding .18s ease}
+.flat-dashboard *, .flat-dashboard *::before, .flat-dashboard *::after {box-sizing:border-box}
+.flat-dashboard button,.flat-dashboard input,.flat-dashboard select,.flat-dashboard textarea {font:inherit}
+.flat-dashboard :is(button,a,input,select,textarea,summary):focus-visible {outline:3px solid #e2a72f; outline-offset:3px}
+.flat-dashboard a {color:#076f62}
+.flat-dashboard button {cursor:pointer}
+.flat-dashboard button:disabled {opacity:.48; cursor:not-allowed}
+.flat-dashboard .hidden {display:none!important}
+.flat-dashboard .dash-sidebar {position:fixed; inset:0 auto 0 0; width:var(--nav-width); background:#fff; border-right:1px solid var(--line); z-index:60; display:flex; flex-direction:column; padding:30px 18px 20px; transition:transform .18s ease; text-align:left}
+.dash-logo {display:flex; align-items:center; gap:11px; padding:0 10px 29px; border-bottom:1px solid var(--line)}
+.dash-logo-mark {display:grid; place-items:center; width:38px; height:38px; background:#087f70; color:white; border-radius:8px; flex-shrink:0}
+.dash-logo strong {font-size:19px; letter-spacing:-.7px; color:#183c38}
+.dash-logo small {display:block; font-size:10px; color:var(--muted); letter-spacing:1.15px; text-transform:uppercase}
+.dash-nav-label {font-size:10px; font-weight:700; color:#5d7468; letter-spacing:1.6px; margin:27px 12px 12px}
+.dash-nav {display:grid; gap:7px}
+.dash-nav a {display:flex; gap:12px; align-items:center; color:#536765; padding:12px; border-radius:6px; text-decoration:none; font-size:13px; font-weight:600; border:1px solid transparent}
+.dash-nav a:hover {background:#f1f6f4; color:#076f62}
+.dash-nav a[aria-current=page] {background:#e5f3ee; color:#076f62; border-color:#d0e9de}
+.dash-nav a svg {flex-shrink:0; width:19px; height:19px}
+.dash-nav a.dash-unavailable {opacity:.55}
+.dash-sidebar-bottom {margin-top:auto; padding:24px 10px 0; font-size:11px; color:var(--muted)}
+.dash-sidebar-bottom strong {display:block; color:#365b54; font-size:12px; margin-bottom:4px}
+.dash-sidebar-bottom p {margin:0 0 12px}
+.dash-shortcut {display:inline-block; border:1px solid var(--line); border-radius:4px; padding:0 6px; font-size:11px; background:white}
+.flat-dashboard .dash-toolbar {height:72px; padding:0 34px; display:flex; align-items:center; justify-content:space-between; gap:16px; border-bottom:1px solid var(--line); background:#fff}
+.dash-toolbar-start,.dash-toolbar-end {display:flex; align-items:center; gap:15px; min-width:0}
+.dash-breadcrumb {font-size:12px; color:var(--muted)}
+.dash-breadcrumb b {font-weight:600; color:#2a4741}
+.flat-dashboard .dash-icon-btn {display:grid; place-items:center; border:1px solid var(--line); color:#42635c; background:white; width:36px; height:36px; min-height:36px; padding:7px; border-radius:6px; margin:0; flex-shrink:0}
+.flat-dashboard .dash-icon-btn:hover {background:#edf5f0}
+.dash-icon-btn svg {width:19px; height:19px}
+.dash-date {font-size:12px; color:var(--muted)}
+.dash-avatar {width:34px; height:34px; border-radius:50%; background:#e5f3ee; color:#087164; display:grid; place-items:center}
+.flat-dashboard > header:not(.dash-toolbar) {margin:0; padding:30px 34px 6px; background:transparent; border:0}
+.flat-dashboard > header:not(.dash-toolbar) .top {max-width:none; align-items:center; margin:0}
+.flat-dashboard > header:not(.dash-toolbar) .mark {display:none}
+.flat-dashboard > header:not(.dash-toolbar) h1 {font-size:27px; font-weight:700; letter-spacing:-.8px; color:#193d35}
+.flat-dashboard > header:not(.dash-toolbar) .muted {margin-top:3px; font-size:13px}
+.flat-dashboard > #databaseHeader:empty {display:none}
+.flat-dashboard main {max-width:none; padding:22px 34px 40px; margin:0; min-width:0}
+.flat-dashboard h2 {font-size:16px; font-weight:650; letter-spacing:-.2px; color:#23443c}
+.flat-dashboard h3 {color:#294d44}
+.flat-dashboard .panel,.flat-dashboard .stat {background:#fff; border:1px solid var(--line); border-radius:8px; box-shadow:none}
+.flat-dashboard .panel {padding:22px}
+.flat-dashboard .panel .panel {border-color:#e7edeb}
+.flat-dashboard .notice {background:#edf4f1; border:1px solid #dbe8e1; color:#41645a; border-radius:6px; font-size:12px; padding:11px 15px; margin-bottom:20px}
+.flat-dashboard .notice.error,.flat-dashboard .status.error {background:#fff0ee; border-color:#f0d3ce; color:#a6342a}
+.flat-dashboard .notice.success,.flat-dashboard .status.success {background:#eaf5ef; border-color:#c9e3d4; color:#226446}
+.flat-dashboard .btn,.flat-dashboard .action {border:1px solid #d4dfda; color:#35584c; background:#fff; border-radius:5px; font-size:12px; font-weight:600; padding:10px 14px; min-height:40px; text-decoration:none; transition:background .15s,border-color .15s; margin-top:0}
+.flat-dashboard .btn:hover:not(:disabled),.flat-dashboard .action:hover:not(:disabled) {background:#edf6f1; border-color:#8db7a3}
+.flat-dashboard .primary,.flat-dashboard button#btnKonfirmasi {background:#087f70; border-color:#087f70; color:#fff}
+.flat-dashboard .primary:hover:not(:disabled),.flat-dashboard button#btnKonfirmasi:hover:not(:disabled) {background:#06675b; border-color:#06675b; color:white}
+.flat-dashboard .action {min-height:32px; padding:5px 10px; font-size:11px}
+.flat-dashboard input,.flat-dashboard select,.flat-dashboard textarea {border:1px solid #d3dfd9; border-radius:5px; padding:10px 12px; min-height:42px; color:#29473d; background:#fff; max-width:100%}
+.flat-dashboard input[type=checkbox],.flat-dashboard input[type=radio] {min-height:0; accent-color:#087f70}
+.flat-dashboard input[type=search] {padding-left:14px; background:#f8faf9}
+.flat-dashboard input::placeholder {color:#5d7468}
+.flat-dashboard label {font-size:11px; font-weight:650; letter-spacing:.25px; color:#52685e}
+.flat-dashboard .filters {gap:14px; background:#fff; border-top:3px solid #a5cdbc}
+.flat-dashboard .filters > * {min-width:0}
+.flat-dashboard .stats {gap:16px; margin:20px 0 24px}
+.flat-dashboard .stat {position:relative; padding:19px 20px 17px; min-height:118px; border-bottom:3px solid #b7cbdc; overflow:hidden}
+.flat-dashboard .stat:nth-child(2) {border-bottom-color:#60ad92}
+.flat-dashboard .stat:nth-child(3) {border-bottom-color:#e1b260}
+.flat-dashboard .stat:nth-child(4) {border-bottom-color:#cf958e}
+.flat-dashboard .stat span {font-size:12px; color:#5d7468}
+.flat-dashboard .stat strong {font-size:32px; color:#243e33; font-weight:650; letter-spacing:-1px; line-height:1.2; margin:12px 0 0; font-variant-numeric:tabular-nums}
+.flat-dashboard .stat small {margin-top:8px; font-size:11px; color:#64796c}
+.flat-dashboard .stat::after {content:''; position:absolute; right:20px; top:22px; width:8px; height:8px; background:#b7cbdc; border-radius:2px}
+.flat-dashboard .stat:nth-child(2)::after {background:#60ad92}
+.flat-dashboard .stat:nth-child(3)::after {background:#e1b260}
+.flat-dashboard .stat:nth-child(4)::after {background:#cf958e}
+.flat-dashboard .stat span {display:inline-block; max-width:88%}
+.flat-dashboard .accent {background:#f0f8f3}
+.flat-dashboard .layout {grid-template-columns:minmax(0,1fr) 274px; gap:20px}
+.flat-dashboard .sectionhead {gap:14px; margin-bottom:20px}
+.flat-dashboard .sectionhead > div {min-width:0}
+.flat-dashboard .sectionhead input[type=search] {max-width:245px}
+.flat-dashboard .sectionhead .muted {font-size:12px; margin-top:4px}
+.flat-dashboard .tablebox,.flat-dashboard .preview-wrap {border:1px solid #e5ece7; border-radius:5px; overflow:auto; max-width:100%; scrollbar-width:thin}
+.flat-dashboard table {width:100%; border-collapse:collapse; min-width:660px}
+.flat-dashboard th {padding:13px 14px; background:#f1f6f3; color:#5a7467; font-size:10px; font-weight:700; letter-spacing:.7px; white-space:nowrap; border-bottom:1px solid #dce7e0}
+.flat-dashboard td {padding:15px 14px; border-bottom:1px solid #edf1ee; font-size:12px; color:#355347; vertical-align:middle}
+.flat-dashboard tbody tr:last-child td {border-bottom:0}
+.flat-dashboard tbody tr:hover td {background:#f5faf7}
+.flat-dashboard td strong {color:#254637; font-weight:600}
+.flat-dashboard .sub {font-size:10px; color:#5d7468; margin-top:5px}
+.flat-dashboard .badge {padding:4px 8px; border-radius:4px; background:#edf1ef; color:#5d6d63; font-size:10px; font-weight:600; text-transform:capitalize; white-space:nowrap}
+.flat-dashboard .badge.ok,.flat-dashboard .ok {background:#e5f3ec; color:#267149}
+.flat-dashboard .badge.warn,.flat-dashboard .warn {background:#fff4dc; color:#8d6315}
+.flat-dashboard .foot,.flat-dashboard .help {font-size:11px; line-height:1.7; color:#5d7468}
+.flat-dashboard .empty {padding:40px 20px; text-align:center; color:#5d7468; font-size:13px; background:#fafcfb; border-radius:5px}
+.flat-dashboard .session-summary dt {font-size:10px; text-transform:uppercase; letter-spacing:.6px; color:#5d7468; margin-top:15px}
+.flat-dashboard .session-summary dd {font-size:12px; margin:4px 0 0; color:#365342; overflow-wrap:anywhere}
+.flat-dashboard .summary-counts {background:#f4f8f5; border:0; border-radius:5px; padding:12px; margin:18px 0}
+.flat-dashboard .summary-counts span {font-size:11px; color:#5d7468}
+.flat-dashboard .buttons:has(#tabSesi),.flat-dashboard .tabs {justify-content:flex-start; gap:0!important; border-bottom:1px solid #dbe5df; padding:8px 0 0; margin:16px 0!important; overflow-x:auto; flex-wrap:nowrap!important}
+.flat-dashboard :is(.buttons:has(#tabSesi),.tabs) .btn {white-space:nowrap; background:transparent; border:0; border-bottom:2px solid transparent; color:#5d7468; border-radius:0; padding:12px 16px; min-height:45px}
+.flat-dashboard :is(.buttons:has(#tabSesi),.tabs) .btn[aria-pressed=true] {color:#076f62; border-bottom-color:#087f70; font-weight:700}
+.flat-dashboard dialog {border:1px solid #cddbd3; border-radius:10px; box-shadow:0 24px 80px #102e2733; max-height:90dvh; color:var(--ink)}
+.flat-dashboard dialog::backdrop {background:#14372e66}
+.flat-dashboard details {border:1px solid #dce6df; border-radius:6px; padding:14px 16px; background:#fbfdfb}
+.flat-dashboard summary {font-size:12px; color:#087f70; cursor:pointer}
+.flat-dashboard .step {color:#087164; font-size:10px; letter-spacing:1.4px; font-weight:700}
+.dash-completion {margin:18px 0 22px; padding:0 0 18px; border-bottom:1px solid var(--line)}
+.dash-completion-label {display:flex; justify-content:space-between; font-size:11px; color:#5a7365; margin-bottom:8px}
+.dash-completion-label strong {color:#087164; font-size:12px}
+.dash-progress {height:6px; border-radius:3px; background:#e8efeb; overflow:hidden}
+.dash-progress-fill {height:100%; width:0; background:#239b7c; transition:width .3s ease}
+.dash-completion small {display:block; font-size:10px; color:#5d7468; margin-top:7px}
+.dash-density-label {display:none}
+.flat-dashboard.dash-compact td {padding-top:8px; padding-bottom:8px}
+.flat-dashboard .dash-skip {position:fixed; left:16px; top:-100px; z-index:100; background:#fff; padding:10px 18px; border:2px solid #087f70}
+.flat-dashboard .dash-skip:focus {top:10px}
+.flat-dashboard .dash-backdrop {display:none}
+.dash-toast {position:fixed; bottom:24px; left:50%; transform:translateX(-50%); background:#1b4337; color:#fff; border-radius:6px; padding:12px 20px; z-index:100; font-size:12px; max-width:90vw}
+.flat-dashboard.dash-nav-collapsed {padding-left:0}
+.dash-nav-collapsed .dash-sidebar {transform:translateX(-100%)}
+.flat-dashboard.public-page {padding:0; background:#f0f5f2}
+.public-page .public-brand {margin:36px auto 0; display:flex; justify-content:center; align-items:center; gap:10px; color:#1a4f40; font-size:17px; font-weight:700}
+.flat-dashboard.public-page .container {max-width:480px; width:calc(100% - 32px); margin:24px auto; border:1px solid var(--line); border-radius:8px; padding:30px; box-shadow:none; background:#fff}
+.public-page .container h2 {font-size:22px; color:#244e3d}
+.public-page .container .subtitle {font-size:13px; color:var(--muted)}
+.public-page .container button {min-height:44px; border-radius:5px; font-weight:600}
+.public-page .container select {width:100%}
+.public-page .public-foot {text-align:center; font-size:11px; color:#5d7468; padding:0 18px 28px}
+.public-page .qr-area {border:1px dashed #9ebdad; border-radius:6px; background:#f4faf6}
+.public-page #gambarQR img,.public-page #gambarQR canvas {margin:auto; max-width:100%}
+@media(min-width:1600px){.flat-dashboard main,.flat-dashboard > header:not(.dash-toolbar) {padding-left:48px; padding-right:48px}.flat-dashboard .layout{grid-template-columns:minmax(0,1fr) 300px}}
+@media(max-width:1200px){.flat-dashboard .filters {grid-template-columns:repeat(2,minmax(0,1fr))}.flat-dashboard .filters>div:last-child{grid-column:1/-1}.flat-dashboard .layout{grid-template-columns:minmax(0,1fr)}.flat-dashboard .stats{gap:12px}.flat-dashboard .stat{padding:16px}.flat-dashboard .sectionhead{flex-wrap:wrap}}
+@media(max-width:900px){body.flat-dashboard{padding-left:0}.flat-dashboard .dash-sidebar{transform:translateX(-100%); width:250px}.flat-dashboard.dash-nav-open .dash-sidebar{transform:translateX(0)}.flat-dashboard.dash-nav-open .dash-backdrop {display:block;position:fixed;inset:0;background:#14372e66;z-index:55;border:0;width:100%;height:100%;padding:0;margin:0;border-radius:0}.flat-dashboard.dash-nav-open{overflow:hidden}.flat-dashboard .dash-toolbar{padding:0 20px;height:64px}.flat-dashboard > header:not(.dash-toolbar){padding:24px 20px 4px}.flat-dashboard main{padding:18px 20px 30px}.flat-dashboard .identity{grid-template-columns:1fr}.dash-date{display:none}.flat-dashboard .stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:560px){.dash-breadcrumb{font-size:11px}.dash-breadcrumb span{display:none}.flat-dashboard .dash-toolbar{padding:0 16px}.dash-toolbar-start,.dash-toolbar-end{gap:10px}.flat-dashboard > header:not(.dash-toolbar){padding:22px 16px 0}.flat-dashboard > header:not(.dash-toolbar) .top{align-items:flex-start; flex-direction:column; gap:14px}.flat-dashboard > header:not(.dash-toolbar) h1{font-size:23px}.flat-dashboard main{padding:16px}.flat-dashboard .panel{padding:16px}.flat-dashboard .stats{gap:10px;margin:16px 0}.flat-dashboard .stat strong{font-size:28px}.flat-dashboard .stat span{font-size:11px}.flat-dashboard .stat{min-height:112px;padding:15px 12px}.flat-dashboard .stat::after{right:12px;top:18px;width:6px;height:6px}.flat-dashboard .filters,.flat-dashboard .formgrid,.flat-dashboard .dialog-fields{grid-template-columns:minmax(0,1fr)}.flat-dashboard .sectionhead{align-items:flex-start;flex-direction:column}.flat-dashboard .sectionhead input[type=search]{width:100%;max-width:none}.flat-dashboard .btn{padding:9px 11px}.flat-dashboard table{min-width:640px}.flat-dashboard dialog{width:calc(100% - 20px)!important;padding:16px}.flat-dashboard .dash-nav a{min-height:46px}.flat-dashboard .tabs .btn,.flat-dashboard .buttons:has(#tabSesi) .btn{padding:11px 12px;font-size:11px}.flat-dashboard.public-page .container{padding:24px 20px}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{transition:none!important;animation:none!important}}
+@media print{body.flat-dashboard{padding:0;background:white}.flat-dashboard .dash-sidebar,.flat-dashboard .dash-toolbar,.flat-dashboard .dash-backdrop,.flat-dashboard .dash-skip{display:none!important}.flat-dashboard main{padding:0}.flat-dashboard .tablebox{overflow:visible}.flat-dashboard table{min-width:0}.flat-dashboard .panel,.flat-dashboard .stat{break-inside:avoid}}
+.flat-dashboard.public-page #btnKonfirmasi,.flat-dashboard.public-page #btnUjiQR {background:#087f70!important;color:white!important}
+.flat-dashboard.public-page .container .status {font-size:13px;line-height:1.65;padding:14px;border-radius:5px;border:1px solid #dbe5df}
+@media(max-width:900px){body.flat-dashboard{transition:none}}
+.dash-status-filter {display:flex;align-items:center;justify-content:space-between;gap:12px;margin:-3px 0 16px;flex-wrap:wrap}
+.dash-status-filter>div {display:flex;gap:6px;flex-wrap:wrap}
+.flat-dashboard .dash-status-filter button {min-height:32px;border:1px solid #e2e9e5;border-radius:4px;padding:5px 10px;background:white;color:#687d70;font-size:11px}
+.flat-dashboard .dash-status-filter button:hover {background:#f0f7f3}
+.flat-dashboard .dash-status-filter button[aria-pressed=true] {color:#096e5d;background:#e9f5ee;border-color:#bddbc9;font-weight:650}
+.dash-status-filter>span {font-size:10px;color:#5d7468}
+.flat-dashboard tr[hidden],.flat-dashboard #dashStatusEmpty[hidden] {display:none!important}
+.flat-dashboard #tableBody td:first-child {min-width:170px}
+.flat-dashboard #tableBody td:nth-child(2),.flat-dashboard #tableBody td:nth-child(3) {min-width:105px}
+
+</style>
+<style>@media(min-width:901px){#dashCloseMenu{display:none!important}}</style></head>
+  <body class="flat-dashboard"><a class="dash-skip" href="#dashContent">Lewati ke konten utama</a>
+  <aside id="dashSidebar" class="dash-sidebar" aria-label="Menu utama">
+    <div class="dash-logo"><span class="dash-logo-mark"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h6l2 3 2-3h6v14h-6l-2 2-2-2H4z"/><path d="M12 8v13M7 10h2M15 10h2"/></svg></span><div><strong>Pelatihan<span style="color:#087f70">.</span></strong><small>Manajemen absensi</small></div></div>
+    <button type="button" id="dashCloseMenu" class="dash-icon-btn" aria-label="Tutup menu" style="align-self:flex-end;margin-top:12px"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 6 12 12M6 18 18 6"/></svg></button>
+    <div class="dash-nav-label">RUANG KERJA</div><nav class="dash-nav" aria-label="Navigasi dashboard"><a href="#" data-dash-page="monitoring" aria-current="page"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Monitoring</a><a href="#" data-dash-page="pengelolaan"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 11h18M7 15h3M14 15h3"/></svg>Pengelolaan</a><a href="#" data-dash-page="peserta"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3"/><path d="M3 21v-3a6 6 0 0 1 12 0v3M16 5a3 3 0 0 1 0 6M21 21v-3a6 6 0 0 0-3-5"/></svg>Peserta Program</a></nav>
+    <div class="dash-sidebar-bottom"><strong>Setiap kehadiran berarti.</strong><p>Kelola pelatihan dan pantau partisipasi dalam satu tempat.</p><span class="dash-shortcut">/</span> untuk mencari pada tabel</div>
+  </aside>
+  <button type="button" id="dashBackdrop" class="dash-backdrop" aria-label="Tutup menu navigasi" tabindex="-1"></button>
+  <header class="dash-toolbar"><div class="dash-toolbar-start"><button type="button" class="dash-icon-btn" id="dashMenu" aria-label="Buka atau tutup navigasi" aria-controls="dashSidebar" aria-expanded="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button><div class="dash-breadcrumb"><span>Ruang kerja &nbsp; / &nbsp; </span><b>Monitoring</b></div></div><div class="dash-toolbar-end"><time class="dash-date" id="dashDate"></time><button type="button" class="dash-icon-btn" id="dashDensity" aria-label="Gunakan tabel ringkas" aria-pressed="false" title="Gunakan tabel ringkas"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 5h14M5 10h14M5 15h14M5 20h14"/></svg></button><span class="dash-avatar" aria-label="Manajemen pelatihan"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h6l2 3 2-3h6v14h-6l-2 2-2-2H4z"/><path d="M12 8v13M7 10h2M15 10h2"/></svg></span></div></header>
+  <div id="dashToast" class="dash-toast" role="status" aria-live="polite" hidden></div>
+    <header>
+      <div class="top">
+        <div class="brand">
+          <div class="mark">P</div>
+          <div>
+            <div style="font-size:10px;letter-spacing:1.5px;color:#6a8478;font-weight:650;margin-bottom:4px">DASHBOARD PELATIHAN</div><h1>Monitoring Kehadiran</h1>
+            <div class="muted">Pantau kehadiran, jam pelajaran, dan perkembangan peserta.</div>
+          </div>
+        </div>
+        <a id="openPengelolaan" class="btn" style="text-decoration: none"
+          >Pengelolaan Pelatihan</a
+        >
+      </div>
+    </header>
+    <main id="dashContent" tabindex="-1">
+      <div id="message" class="notice" role="status" aria-live="polite">
+        Memeriksa akses dan memuat program…
+      </div>
+      <div id="blocked" class="panel hidden">
+        <h2>Panel belum dapat dibuka</h2>
+        <p>
+          Buka dengan akun pemilik spreadsheet. Jika identitas akun tidak
+          terbaca melalui Web App, buka Google Sheets lalu pilih
+          <strong>Manajemen Pelatihan → Buka Monitoring</strong>.
+        </p>
+        <button class="btn" id="retryAccess">Coba Lagi</button>
+      </div>
+      <div id="app" class="hidden">
+        <section class="panel filters">
+          <div class="field">
+            <label for="kategori">KATEGORI PELATIHAN</label
+            ><select id="kategori">
+              <option value="">Pilih kategori</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="jenjang">JENJANG</label
+            ><select id="jenjang" disabled>
+              <option value="">Pilih kategori terlebih dahulu</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="program">PROGRAM PELATIHAN</label
+            ><select id="program" disabled>
+              <option value="">Pilih jenjang terlebih dahulu</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="sesi">SESI PELATIHAN</label
+            ><select id="sesi" disabled>
+              <option value="">Pilih program terlebih dahulu</option>
+            </select>
+          </div>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap">
+            <button class="btn" id="refresh" disabled>Muat Ulang Data</button
+            ><button class="btn primary" id="calculate" disabled>
+              Hitung JP Sesi
+            </button>
+          </div>
+        </section>
+        <div
+          class="buttons"
+          style="justify-content: start; margin-bottom: 16px; flex-wrap: wrap"
+        >
+          <button class="btn primary" id="tabSesi" aria-pressed="true">
+            Kehadiran Sesi</button
+          ><button class="btn" id="tabRekap" aria-pressed="false">
+            Rekap Program</button
+          ><button class="btn" id="tabPerilaku" aria-pressed="false">
+            Catatan Perilaku</button
+          ><button class="btn" id="tabIzin" aria-pressed="false">
+            Daftar Izin Peserta</button
+          ><button class="btn" id="tabNilai" aria-pressed="false">
+            Nilai Perilaku
+          </button>
+        </div>
+        <div id="sessionPanel">
+          <div class="stats">
+            <div class="stat">
+              <span class="muted">Peserta program</span
+              ><strong id="total">—</strong>
+            </div>
+            <div class="stat">
+              <span class="muted">Absensi lengkap</span
+              ><strong id="complete">—</strong>
+            </div>
+            <div class="stat">
+              <span class="muted">Perlu dilengkapi / diperiksa</span
+              ><strong id="incomplete">—</strong>
+            </div>
+            <div class="stat">
+              <span class="muted">Belum absen</span
+              ><strong id="absent">—</strong>
+            </div>
+          </div>
+          <div class="layout">
+            <section class="panel">
+              <div class="sectionhead">
+                <div>
+                  <h2>Kehadiran Peserta</h2>
+                  <div id="sessionInfo" class="muted">
+                    Pilih kategori, jenjang, program, dan sesi untuk memulai.
+                  </div>
+                </div>
+                <input
+                  id="search"
+                  type="search"
+                  placeholder="Cari nama peserta…"
+                  aria-label="Cari nama peserta"
+                />
+              </div>
+              <div class="dash-status-filter" role="group" aria-label="Filter status kehadiran"><div><button type="button" data-attendance-filter="all" aria-pressed="true">Semua</button><button type="button" data-attendance-filter="complete" aria-pressed="false">Lengkap</button><button type="button" data-attendance-filter="review" aria-pressed="false">Perlu diperiksa</button><button type="button" data-attendance-filter="absent" aria-pressed="false">Belum absen</button></div><span id="dashFilteredCount" role="status" aria-live="polite"></span></div><p id="dashStatusEmpty" class="empty" hidden>Tidak ada peserta dengan status ini. Pilih status lain atau ubah pencarian.</p><div class="tablebox">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>PESERTA</th>
+                      <th>DATANG</th>
+                      <th>PULANG</th>
+                      <th>STATUS</th>
+                      <th>DURASI &amp; JP</th>
+                      <th>TINDAKAN</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tableBody"></tbody>
+                </table>
+              </div>
+              <div id="empty" class="empty">
+                Data kehadiran akan tampil di sini.
+              </div>
+              <p class="foot">
+                Waktu scan asli dan waktu terverifikasi ditampilkan terpisah. JP
+                = menit diakui ÷ 45. Aturan sementara: terlambat sampai 10 menit
+                ditoleransi; pulang lebih awal mengurangi JP.
+              </p>
+            </section>
+            <aside class="panel">
+              <h2>Ringkasan Sesi</h2><div class="dash-completion" id="dashCompletion"><div class="dash-completion-label"><span>Kelengkapan absensi</span><strong id="dashCompletionValue">—</strong></div><div class="dash-progress" id="dashProgress" role="progressbar" aria-label="Kelengkapan absensi sesi" aria-valuemin="0" aria-valuemax="100"><div class="dash-progress-fill" id="dashCompletionFill"></div></div><small id="dashCompletionNote">Pilih sesi untuk melihat ringkasan.</small></div>
+              <dl class="session-summary">
+                <dt>Program pelatihan</dt>
+                <dd id="summaryProgram">—</dd>
+                <dt>Kategori / jenjang</dt>
+                <dd id="summaryCategory">—</dd>
+                <dt>Sesi</dt>
+                <dd id="summarySession">—</dd>
+                <dt>Tanggal</dt>
+                <dd id="summaryDate">—</dd>
+                <dt>Jam</dt>
+                <dd id="summaryTime">—</dd>
+              </dl>
+              <div class="summary-counts">
+                <div>
+                  <span>Terlambat</span><strong id="summaryLate">—</strong>
+                </div>
+                <div>
+                  <span>Izin tercatat</span><strong id="summaryLeave">—</strong>
+                </div>
+              </div>
+              <p class="foot">
+                Terlambat: melewati toleransi 10 menit dan waktu tidak
+                bermasalah. Izin: jumlah peserta unik dengan catatan izin sesi
+                yang tidak ditolak, termasuk yang belum divalidasi. Peserta
+                dapat termasuk kedua kelompok.
+              </p>
+              <button id="openQR" class="btn primary full" disabled>
+                QR Absensi</button
+              ><button type="button" id="quickLeave" class="btn full" disabled>
+                Catat Izin</button
+              ><button
+                type="button"
+                id="quickBehavior"
+                class="btn full"
+                disabled
+              >
+                Catat Sikap &amp; Perilaku
+              </button>
+              <p class="foot">
+                Ringkasan mencakup seluruh peserta sesi, tidak mengikuti
+                pencarian tabel. Klik Muat Ulang Data setelah scan atau
+                perubahan catatan.
+              </p>
+            </aside>
+          </div>
+        </div>
+        <section id="recapPanel" class="hidden">
+          <div class="stats">
+            <div class="stat">
+              <span class="muted">JP acuan program</span
+              ><strong id="recapTarget">—</strong>
+            </div>
+            <div class="stat">
+              <span class="muted">Sesi diperhitungkan</span
+              ><strong id="recapSessions">—</strong>
+            </div>
+            <div class="stat">
+              <span class="muted">Peserta program</span
+              ><strong id="recapTotal">—</strong>
+            </div>
+            <div class="stat">
+              <span class="muted">Rekap sementara</span
+              ><strong id="recapPending">—</strong>
+            </div>
+          </div>
+          <div class="panel">
+            <div class="sectionhead">
+              <div>
+                <h2>Rekap Program</h2>
+                <div id="recapInfo" class="muted">
+                  Pilih program untuk melihat rekap. Klik nama peserta untuk
+                  rincian per sesi.
+                </div>
+              </div>
+              <div class="buttons">
+                <button class="btn" id="downloadRecap" disabled>
+                  Unduh CSV Semua Peserta</button
+                ><button class="btn" id="refreshRecap" disabled>
+                  Muat Ulang Rekap
+                </button>
+              </div>
+            </div>
+            <input
+              id="recapSearch"
+              type="search"
+              aria-label="Cari peserta dalam rekap"
+              placeholder="Cari nama peserta…"
+              style="max-width: 300px; margin-bottom: 16px"
+            />
+            <div class="tablebox">
+              <table>
+                <thead>
+                  <tr>
+                    <th>PESERTA</th>
+                    <th>JP DIPEROLEH</th>
+                    <th>JP ACUAN</th>
+                    <th>KEKURANGAN JP</th>
+                    <th>PEMENUHAN</th>
+                    <th>STATUS JP</th>
+                    <th>NILAI PERILAKU</th>
+                    <th>STATUS PERILAKU</th>
+                    <th>NILAI KESELURUHAN</th>
+                  </tr>
+                </thead>
+                <tbody id="recapBody"></tbody>
+              </table>
+            </div>
+            <div id="recapEmpty" class="empty">
+              Pilih program untuk memuat rekap.
+            </div>
+            <p class="foot">
+              Acuan = total durasi efektif sesi ÷ 45. JP diperoleh hanya
+              menjumlahkan hasil perhitungan yang sesuai data terbaru.
+              Kekurangan dan persentase pada rekap sementara masih dapat
+              berubah. Status lengkap menunjukkan kelengkapan data, bukan
+              keputusan kelulusan. Nilai perilaku mengikuti aturan aktif
+              program; tanpa catatan, nilai awal masih digunakan. Nilai
+              keseluruhan belum dihitung karena komponen dan bobot penilaian
+              belum lengkap. Unduhan mencakup seluruh peserta, termasuk yang
+              tersembunyi oleh pencarian. Muat ulang sebelum mengunduh hasil
+              terbaru.
+            </p>
+          </div>
+        </section>
+        <section id="behaviorPanel" class="panel hidden">
+          <div class="sectionhead">
+            <div>
+              <h2>Catatan Sikap &amp; Perilaku</h2>
+              <p id="behaviorInfo" class="muted">
+                Pilih sesi untuk melihat catatan.
+              </p>
+            </div>
+            <button class="btn" id="refreshBehavior" disabled>
+              Muat Ulang Catatan
+            </button>
+          </div>
+          <div class="stats">
+            <div class="stat">
+              <span class="muted">Total catatan sesi</span
+              ><strong id="behaviorTotal">—</strong>
+            </div>
+            <div class="stat">
+              <span class="muted">Catatan positif</span
+              ><strong id="behaviorPositive">—</strong>
+            </div>
+            <div class="stat">
+              <span class="muted">Catatan negatif</span
+              ><strong id="behaviorNegative">—</strong>
+            </div>
+            <div class="stat">
+              <span class="muted">Menunggu validasi</span
+              ><strong id="behaviorWaiting">—</strong>
+            </div>
+          </div>
+          <div
+            class="buttons"
+            style="justify-content: start; flex-wrap: wrap; margin-bottom: 16px"
+            aria-label="Jenis catatan"
+          >
+            <button
+              id="behaviorTabPositive"
+              class="btn primary"
+              type="button"
+              aria-pressed="true"
+            >
+              Positif</button
+            ><button
+              id="behaviorTabNegative"
+              class="btn"
+              type="button"
+              aria-pressed="false"
+            >
+              Negatif</button
+            ><button
+              id="behaviorTabUnknown"
+              class="btn hidden"
+              type="button"
+              aria-pressed="false"
+            >
+              Belum dikategorikan
+            </button>
+          </div>
+          <p id="behaviorFilterInfo" class="muted"></p>
+          <input
+            id="behaviorSearch"
+            type="search"
+            placeholder="Cari nama atau indikator…"
+            aria-label="Cari catatan perilaku"
+            style="max-width: 320px; margin-bottom: 16px"
+          />
+          <div class="tablebox">
+            <table>
+              <thead>
+                <tr>
+                  <th>PESERTA</th>
+                  <th>INDIKATOR</th>
+                  <th>WAKTU</th>
+                  <th>KETERANGAN &amp; BUKTI</th>
+                  <th>STATUS</th>
+                  <th>TINDAKAN</th>
+                </tr>
+              </thead>
+              <tbody id="behaviorBody"></tbody>
+            </table>
+          </div>
+          <p id="behaviorEmpty" class="empty">
+            Pilih sesi untuk memuat catatan.
+          </p>
+          <p class="foot">
+            Ringkasan menghitung seluruh catatan sesi, termasuk yang ditolak,
+            dan tidak mengikuti pencarian. Jumlah catatan bukan jumlah peserta
+            atau poin. Untuk menambah catatan, buka Kehadiran Sesi lalu klik
+            Catat Sikap &amp; Perilaku pada Ringkasan Sesi. Izin dicatat melalui
+            tombol Catat Izin pada Ringkasan Sesi. Catatan belum menghasilkan
+            poin sampai aturan penilaian ditetapkan.
+          </p>
+        </section>
+        <section id="izinPanel" class="panel hidden">
+          <div class="sectionhead">
+            <div>
+              <h2>Daftar Izin Peserta</h2>
+              <p id="izinInfo" class="muted">Pilih sesi untuk melihat izin.</p>
+            </div>
+            <button id="refreshIzin" type="button" class="btn" disabled>
+              Muat Ulang Izin
+            </button>
+          </div>
+          <div class="stats">
+            <div class="stat">
+              <span class="muted">Total kejadian izin</span
+              ><strong id="izinTotal">—</strong>
+            </div>
+            <div class="stat">
+              <span class="muted">Peserta dengan izin tercatat</span
+              ><strong id="izinPeople">—</strong>
+            </div>
+            <div class="stat">
+              <span class="muted">Disetujui</span
+              ><strong id="izinApproved">—</strong>
+            </div>
+            <div class="stat">
+              <span class="muted">Menunggu validasi</span
+              ><strong id="izinPending">—</strong>
+            </div>
+          </div>
+          <input
+            id="izinSearch"
+            type="search"
+            aria-label="Cari peserta pada daftar izin"
+            placeholder="Cari nama atau alasan izin…"
+            style="max-width: 340px; margin-bottom: 16px"
+          />
+          <p id="izinFilterInfo" class="foot"></p>
+          <div class="tablebox">
+            <table>
+              <thead>
+                <tr>
+                  <th>PESERTA</th>
+                  <th>MULAI IZIN</th>
+                  <th>KEMBALI</th>
+                  <th>DURASI</th>
+                  <th>ALASAN</th>
+                  <th>BUKTI</th>
+                  <th>VALIDASI / JP</th>
+                </tr>
+              </thead>
+              <tbody id="izinBody"></tbody>
+            </table>
+          </div>
+          <p id="izinEmpty" class="empty">Pilih sesi untuk memuat izin.</p>
+          <p class="foot">
+            Daftar hanya memuat sesi yang dipilih. Total kejadian mencakup semua
+            status; jumlah peserta dengan izin tercatat tidak mencakup izin
+            ditolak. Bukti file dibuka melalui Lihat bukti. Pencatatan izin
+            dilakukan melalui tombol Catat Izin pada Kehadiran Sesi; validasi
+            tersedia pada Catatan Perilaku.
+          </p>
+        </section>
+        <section id="scorePanel" class="panel hidden">
+          <div class="sectionhead">
+            <div>
+              <h2>Nilai Sikap &amp; Perilaku</h2>
+              <p id="scoreInfo" class="muted">Pilih program untuk memulai.</p>
+            </div>
+            <button id="refreshScore" class="btn" disabled>
+              Muat Ulang Nilai
+            </button>
+          </div>
+          <details id="indicatorDetails" style="margin-bottom: 20px">
+            <summary
+              style="cursor: pointer; font-weight: bold; color: var(--blue)"
+            >
+              Kelola Indikator Sikap &amp; Perilaku
+            </summary>
+            <p id="indicatorCount" class="foot">
+              Muat nilai program untuk melihat indikator.
+            </p>
+            <div class="tablebox">
+              <table>
+                <thead>
+                  <tr>
+                    <th>KODE / ID</th>
+                    <th>DEFINISI</th>
+                    <th>JENIS</th>
+                    <th>POIN BAWAAN</th>
+                    <th>STATUS</th>
+                    <th>TINDAKAN</th>
+                  </tr>
+                </thead>
+                <tbody id="indicatorBody"></tbody>
+              </table>
+            </div>
+            <div class="buttons">
+              <button id="newIndicatorForm" class="btn primary" type="button">
+                Tambah Indikator Baru
+              </button>
+            </div>
+          </details>
+          <details id="ruleDetails">
+            <summary
+              style="cursor: pointer; font-weight: bold; color: var(--blue)"
+            >
+              Pengaturan aturan program
+            </summary>
+            <form id="ruleForm" style="margin: 18px 0">
+              <p class="help">
+                Aturan prototipe ini berlaku untuk seluruh catatan program,
+                termasuk catatan sebelumnya. Setiap perubahan membuat versi
+                baru. Nilai akhir 0–100. Tolak catatan tugas yang salah sebelum
+                membuat penggantinya dengan ID tugas yang sama.
+              </p>
+              <div
+                id="ruleFields"
+                style="
+                  display: grid;
+                  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                  gap: 12px;
+                "
+              ></div>
+              <div class="field" style="margin-top: 14px">
+                <label for="ruleReason"
+                  >Alasan penetapan / perubahan aturan</label
+                ><textarea
+                  id="ruleReason"
+                  rows="2"
+                  maxlength="2000"
+                  required
+                ></textarea>
+              </div>
+              <button id="saveRule" type="submit" class="btn primary full">
+                Simpan Aturan Program
+              </button>
+              <p id="ruleMessage" class="foot" role="status"></p>
+            </form>
+          </details>
+          <div class="tablebox" style="margin-top: 20px">
+            <table>
+              <thead>
+                <tr>
+                  <th>PESERTA</th>
+                  <th>TAMBAHAN DIAKUI</th>
+                  <th>PENGURANGAN</th>
+                  <th>NILAI</th>
+                  <th>KONTRIBUSI BERBOBOT</th>
+                  <th>STATUS</th>
+                </tr>
+              </thead>
+              <tbody id="scoreBody"></tbody>
+            </table>
+          </div>
+          <p id="scoreEmpty" class="empty">Aturan program belum dimuat.</p>
+          <p class="foot">
+            Nilai = nilai awal + tambahan positif yang dibatasi − pengurangan,
+            dibatasi 0–100. Klik nama peserta untuk rincian. Hasil dihitung
+            langsung dari data saat dimuat; belum ditulis sebagai poin disahkan
+            atau nilai akhir pelatihan. Nilai awal tetap berlaku jika belum ada
+            catatan; ini belum berarti peserta telah dinilai secara menyeluruh.
+          </p>
+        </section>
+      </div>
+    </main>
+    <dialog
+      id="indicatorDialog"
+      style="width: min(760px, 96vw)"
+      aria-labelledby="indicatorFormTitle"
+    >
+      <div class="dialog-body">
+        <div class="sectionhead">
+          <h2 id="indicatorFormTitle">Tambah Indikator</h2>
+          <button id="closeIndicatorDialog" class="btn" type="button">
+            Tutup
+          </button>
+        </div>
+        <form id="indicatorForm">
+          <div class="dialog-fields">
+            <div class="field">
+              <label for="indicatorCode">Kode indikator</label
+              ><input
+                id="indicatorCode"
+                required
+                maxlength="80"
+                pattern="[A-Za-z][A-Za-z0-9_]{1,79}"
+                placeholder="MAKAN_SAAT_SESI"
+              />
+            </div>
+            <div class="field">
+              <label for="indicatorKind">Jenis</label
+              ><select id="indicatorKind" required>
+                <option value="negatif">Negatif</option>
+                <option value="positif">Positif</option>
+              </select>
+            </div>
+            <div class="field wide">
+              <label for="indicatorDefinition">Definisi</label
+              ><textarea
+                id="indicatorDefinition"
+                required
+                maxlength="2000"
+                rows="2"
+              ></textarea>
+            </div>
+            <div class="field">
+              <label for="indicatorDefault">Poin bawaan per kejadian</label
+              ><input
+                id="indicatorDefault"
+                type="number"
+                required
+                min="-1000"
+                max="1000"
+                step="0.01"
+              /><small>Positif: 0 atau lebih. Negatif: 0 atau kurang.</small>
+            </div>
+            <div class="field">
+              <label for="indicatorStatus">Status</label
+              ><select id="indicatorStatus">
+                <option value="aktif">Aktif</option>
+                <option value="nonaktif">Nonaktif</option>
+              </select>
+            </div>
+            <div class="field wide">
+              <label for="indicatorReason">Alasan penambahan/perubahan</label
+              ><textarea
+                id="indicatorReason"
+                required
+                maxlength="2000"
+                rows="2"
+              ></textarea>
+            </div>
+          </div>
+          <p id="indicatorMessage" class="help" role="status">
+            Poin bawaan adalah usulan; aturan program tetap perlu disimpan.
+          </p>
+          <button id="saveIndicator" class="btn primary" type="submit">
+            Simpan Indikator
+          </button>
+        </form>
+      </div>
+    </dialog>
+    <dialog
+      id="proofPreviewDialog"
+      aria-labelledby="proofPreviewTitle"
+      style="width: min(1100px, 96vw); max-height: 94vh"
+    >
+      <div class="dialog-body">
+        <div class="sectionhead">
+          <h2 id="proofPreviewTitle">Pratinjau Bukti Pendukung</h2>
+          <button id="closeProofPreview" class="btn" type="button">
+            Tutup
+          </button>
+        </div>
+        <p class="muted">
+          Pratinjau ditampilkan dalam halaman ini. Jika akses ditolak atau
+          pratinjau kosong, pastikan browser menggunakan akun Google yang
+          memiliki akses ke file.
+        </p>
+        <iframe
+          id="proofPreviewFrame"
+          title="Pratinjau file bukti pendukung"
+          style="
+            width: 100%;
+            height: 65vh;
+            border: 1px solid #dce5ed;
+            border-radius: 8px;
+          "
+          allow="fullscreen"
+          referrerpolicy="strict-origin-when-cross-origin"
+        ></iframe>
+      </div>
+    </dialog>
+    <dialog
+      id="qrDialog"
+      style="width: min(540px, 94vw)"
+      aria-labelledby="qrDialogTitle"
+    >
+      <div class="dialog-body">
+        <div class="sectionhead">
+          <h2 id="qrDialogTitle">QR Absensi</h2>
+          <button id="closeQR" type="button" class="btn">Tutup</button>
+        </div>
+        <p id="qrSessionInfo" class="help">Pilih sesi terlebih dahulu.</p>
+        <div class="qr-controls">
+          <div class="field">
+            <label for="jenis">Jenis absensi</label
+            ><select id="jenis">
+              <option value="datang">Datang</option>
+              <option value="pulang">Pulang</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="masa">Masa berlaku</label
+            ><select id="masa">
+              <option value="5">5 menit</option>
+              <option value="10" selected>10 menit</option>
+              <option value="15">15 menit</option>
+              <option value="30">30 menit</option>
+            </select>
+          </div>
+        </div>
+        <button id="publish" class="btn primary full" disabled>
+          Terbitkan QR
+        </button>
+        <div class="qrbox">
+          <div id="qrPlaceholder" class="muted">QR belum diterbitkan</div>
+          <div id="qrImage"></div>
+          <a
+            id="qrLink"
+            class="hidden"
+            target="_blank"
+            rel="noopener noreferrer"
+            >Buka halaman absensi</a
+          >
+        </div>
+        <p id="qrStatus" class="foot">Pilih sesi terlebih dahulu.</p>
+        <p class="foot">
+          Satu token aktif per jenis absensi dan sesi. Menerbitkan QR baru
+          menggantikan token sebelumnya untuk jenis dan sesi yang sama.
+        </p>
+      </div>
+    </dialog>
+    <dialog id="scoreDetailDialog" style="width: min(1000px, 96vw)">
+      <div class="dialog-body">
+        <div class="sectionhead">
+          <h2 id="scoreDetailTitle">Rincian Nilai Perilaku</h2>
+          <button type="button" id="closeScoreDetail" class="btn">Tutup</button>
+        </div>
+        <p id="scoreDetailSummary" class="help"></p>
+        <div class="tablebox">
+          <table>
+            <thead>
+              <tr>
+                <th>INDIKATOR / SESI</th>
+                <th>WAKTU</th>
+                <th>POIN</th>
+                <th>STATUS</th>
+                <th>KETERANGAN</th>
+              </tr>
+            </thead>
+            <tbody id="scoreDetailBody"></tbody>
+          </table>
+        </div>
+        <p class="foot">
+          Poin positif pada rincian adalah poin sebelum pembatasan total.
+          Tambahan yang diakui pada nilai akhir mengikuti batas aturan program.
+        </p>
+      </div>
+    </dialog>
+    <dialog id="validationDialog">
+      <form id="validationForm" class="dialog-body">
+        <h2>Validasi Catatan Perilaku</h2>
+        <p id="validationPerson" class="muted"></p>
+        <div id="validationEvidenceLinks"></div>
+        <p
+          id="validationContext"
+          class="help"
+          style="white-space: pre-wrap; max-height: 230px; overflow: auto"
+        ></p>
+        <div class="field">
+          <label for="validationDecision">Keputusan</label
+          ><select id="validationDecision" required>
+            <option value="">Pilih keputusan</option>
+            <option value="disetujui">Setujui</option>
+            <option value="ditolak">Tolak</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="validationReason">Alasan keputusan</label
+          ><textarea
+            id="validationReason"
+            required
+            maxlength="2000"
+            rows="3"
+          ></textarea>
+        </div>
+        <p class="foot">
+          Keputusan ini hanya memvalidasi catatan perilaku. Poin dan pengurangan
+          JP izin tidak diubah. Klik Batal jika belum dapat memutuskan.
+        </p>
+        <p id="validationMessage" class="foot" role="status"></p>
+        <div class="buttons">
+          <button id="cancelValidation" type="button" class="btn">Batal</button
+          ><button id="saveValidation" type="submit" class="btn primary">
+            Simpan Keputusan
+          </button>
+        </div>
+      </form>
+    </dialog>
+    <dialog id="behaviorDialog">
+      <form id="behaviorForm" class="dialog-body">
+        <h2>Catat Sikap &amp; Perilaku</h2>
+        <p id="behaviorPerson" class="muted"></p>
+        <div class="field">
+          <label for="behaviorParticipantSearch"
+            >Cari peserta yang sudah absen datang</label
+          ><input
+            id="behaviorParticipantSearch"
+            type="search"
+            autocomplete="off"
+            placeholder="Ketik nama peserta…"
+          /><button type="button" id="refreshBehaviorPeople" class="btn">
+            Muat Ulang Peserta
+          </button>
+          <div
+            id="behaviorParticipantResults"
+            class="foot"
+            aria-live="polite"
+          ></div>
+        </div>
+        <p class="help">
+          Catat satu kejadian yang diamati. Poin belum dihitung. Untuk izin
+          meninggalkan sesi, gunakan tombol Catat izin.
+        </p>
+        <div class="field">
+          <label for="behaviorIndicator">Indikator</label
+          ><select id="behaviorIndicator" required></select>
+          <p id="behaviorDefinition" class="foot"></p>
+        </div>
+        <div class="field">
+          <label for="behaviorTime">Waktu kejadian</label
+          ><input id="behaviorTime" type="datetime-local" step="1" required />
+        </div>
+        <div id="behaviorDurationField" class="field hidden">
+          <label for="behaviorDuration">Durasi off cam (menit)</label
+          ><input
+            id="behaviorDuration"
+            type="number"
+            min="0"
+            max="1440"
+            step="0.01"
+          />
+        </div>
+        <div id="behaviorTaskField" class="field hidden">
+          <label for="behaviorTask">ID tugas</label
+          ><input
+            id="behaviorTask"
+            maxlength="80"
+            placeholder="Contoh: TUGAS-01"
+          /><small
+            >Gunakan ID yang sama untuk tugas yang sama di seluruh sesi
+            program.</small
+          >
+        </div>
+        <div class="field">
+          <label for="behaviorReason">Keterangan kejadian</label
+          ><textarea
+            id="behaviorReason"
+            rows="3"
+            required
+            maxlength="2000"
+          ></textarea>
+        </div>
+        <div class="field">
+          <label for="behaviorEvidence"
+            >Keterangan bukti pendukung (opsional)</label
+          ><textarea
+            id="behaviorEvidence"
+            rows="2"
+            maxlength="2000"
+            placeholder="Contoh: pengamatan petugas kelas"
+          ></textarea>
+        </div>
+        <div class="field" style="margin-top: 14px">
+          <label for="behaviorEvidenceFile">Unggah bukti (opsional)</label
+          ><input
+            id="behaviorEvidenceFile"
+            type="file"
+            accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png"
+          /><small
+            >Satu file PDF/JPG/PNG, maksimal 5 MB. Tanpa file atau keterangan
+            bukti, catatan tetap dapat disimpan.</small
+          >
+        </div>
+        <p id="behaviorMessage" class="foot" role="status"></p>
+        <div class="buttons">
+          <button id="cancelBehavior" type="button" class="btn">Batal</button
+          ><button id="behaviorAgain" type="button" class="btn primary hidden">
+            Catat Lagi</button
+          ><button id="saveBehavior" type="submit" class="btn primary">
+            Simpan Catatan
+          </button>
+        </div>
+      </form>
+    </dialog>
+    <dialog id="detailDialog" style="width: min(1200px, 96vw)">
+      <div class="dialog-body">
+        <div class="sectionhead">
+          <div>
+            <h2 id="detailTitle">Rincian JP Peserta</h2>
+            <div id="detailSubtitle" class="muted"></div>
+          </div>
+          <button type="button" id="closeDetail" class="btn">Tutup</button>
+        </div>
+        <p id="detailSummary" class="help"></p>
+        <div class="tablebox">
+          <table style="min-width: 940px">
+            <thead>
+              <tr>
+                <th>SESI</th>
+                <th>DATANG EFEKTIF</th>
+                <th>PULANG EFEKTIF</th>
+                <th>KETERLAMBATAN</th>
+                <th>DURASI DIAKUI</th>
+                <th>JP</th>
+                <th>STATUS &amp; KETERANGAN</th>
+              </tr>
+            </thead>
+            <tbody id="detailBody"></tbody>
+          </table>
+        </div>
+        <p id="detailEmpty" class="empty hidden">
+          Program belum memiliki sesi.
+        </p>
+        <p class="foot">
+          Waktu efektif menggunakan waktu terverifikasi jika tersedia. JP yang
+          belum dihitung atau perlu diperiksa ditampilkan dengan tanda — dan
+          tidak dijumlahkan. Rincian mengikuti data saat rekap terakhir dimuat.
+        </p>
+      </div>
+    </dialog>
+    <dialog id="editDialog">
+      <form id="editForm" class="dialog-body">
+        <h2 id="dialogTitle">Koreksi waktu</h2>
+        <p id="dialogPerson" class="muted"></p>
+        <p id="dialogHelp" class="help"></p>
+        <section id="leavePicker" class="hidden" style="margin-bottom: 18px">
+          <div class="sectionhead">
+            <label for="leaveSearch">Cari peserta untuk izin</label
+            ><button type="button" class="btn" id="refreshLeavePeople">
+              Muat Ulang Peserta
+            </button>
+          </div>
+          <input
+            type="search"
+            id="leaveSearch"
+            placeholder="Cari nama, unit, atau ID keikutsertaan…"
+            autocomplete="off"
+          />
+          <div id="leaveResults" class="foot" role="status"></div>
+        </section>
+        <div class="dialog-fields">
+          <div class="field">
+            <label id="startLabel" for="startTime">Datang terverifikasi</label
+            ><input id="startTime" type="datetime-local" step="1" />
+          </div>
+          <div class="field">
+            <label id="endLabel" for="endTime">Pulang terverifikasi</label
+            ><input id="endTime" type="datetime-local" step="1" />
+          </div>
+          <div class="field wide">
+            <label for="reason">Alasan</label
+            ><textarea
+              id="reason"
+              rows="2"
+              required
+              maxlength="2000"
+            ></textarea>
+          </div>
+          <div class="field wide">
+            <label for="evidence">Dasar verifikasi / bukti pendukung</label
+            ><textarea
+              id="evidence"
+              rows="2"
+              required
+              maxlength="2000"
+              placeholder="Contoh: catatan petugas kelas"
+            ></textarea>
+          </div>
+        </div>
+        <div
+          id="leaveEvidenceField"
+          class="field hidden"
+          style="margin-top: 14px"
+        >
+          <label for="leaveEvidenceFile">Unggah bukti izin (opsional)</label
+          ><input
+            id="leaveEvidenceFile"
+            type="file"
+            accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png"
+          /><small
+            >Satu file PDF/JPG/PNG, maksimal 5 MB. Contoh: surat izin.</small
+          >
+        </div>
+        <p id="dialogMessage" role="status" class="foot"></p>
+        <div class="buttons">
+          <button type="button" class="btn" id="cancelEdit">Batal</button
+          ><button type="submit" id="saveEdit" class="btn primary">
+            Simpan
+          </button>
+        </div>
+      </form>
+    </dialog>
+    <script>
+      "use strict";
+      const $ = (id) => document.getElementById(id);
+      let allPrograms = [],
+        allSessions = [],
+        rows = [],
+        currentSession = null,
+        loadSequence = 0,
+        loading = false,
+        publishing = false,
+        saving = false,
+        selected = null,
+        mode = "",
+        zone = "",
+        issued = null,
+        qrTimer = null;
+      function rpc(name, ...args) {
+        return new Promise((resolve, reject) =>
+          google.script.run
+            .withSuccessHandler(resolve)
+            .withFailureHandler(reject)
+            [name](...args),
+        );
+      }
+      function message(text, type = "") {
+        $("message").textContent = text;
+        $("message").className = "notice " + type;
+      }
+      function options(select, label, data) {
+        select.replaceChildren();
+        const first = document.createElement("option");
+        first.value = "";
+        first.textContent = label;
+        select.append(first);
+        data.forEach((item) => {
+          const o = document.createElement("option");
+          o.value = item.id;
+          o.textContent = item.label;
+          select.append(o);
+        });
+      }
+      let navigationBase = "";
+      let scoreCatalog = [],
+        scoreCatalogVersion = "";
+      let scoreRows = [],
+        scoreRule = null,
+        scoreSeq = 0,
+        scoreLoading = false,
+        scoreProgram = "";
+      let leavePeople = [],
+        leaveContext = null,
+        leaveSeq = 0,
+        leaveLoading = false;
+      let validationSelected = null,
+        validationPayload = null;
+      let behaviorPeople = [],
+        behaviorContext = null,
+        behaviorFormSeq = 0,
+        behaviorSaved = false;
+      let izinRows = [],
+        izinSeq = 0,
+        izinLoading = false,
+        izinHasData = false;
+      let behaviorType = "positif",
+        behaviorHasData = false;
+      let behaviorRows = [],
+        behaviorIndicators = [],
+        behaviorSeq = 0,
+        behaviorLoading = false,
+        behaviorSelected = null,
+        behaviorPayload = null;
+      let recapScores = new Map(),
+        recapRule = null,
+        recapProgram = "",
+        recapAt = "";
+      let recapRows = [],
+        recapSeq = 0,
+        recapLoading = false,
+        activeTab = "sesi";
+      let buktiUploadState = { izin: null, perilaku: null };
+      function idUnggah() {
+        const a = new Uint32Array(4);
+        crypto.getRandomValues(a);
+        return Array.from(a, (x) => x.toString(16).padStart(8, "0")).join("");
+      }
+      async function siapkanLampiran(inputId, jenis, context) {
+        const file = $(inputId).files && $(inputId).files[0];
+        if (!file) return null;
+        if (
+          file.size <= 0 ||
+          file.size > 5 * 1024 * 1024 ||
+          !/\.(pdf|jpe?g|png)$/i.test(file.name)
+        )
+          throw Error("Gunakan PDF, JPG/JPEG, atau PNG, maksimal 5 MB.");
+        const target = JSON.stringify(context);
+        let state = buktiUploadState[jenis];
+        if (!state || state.file !== file || state.target !== target) {
+          state = {
+            file,
+            target,
+            request: idUnggah(),
+            base64: null,
+            result: null,
+          };
+          buktiUploadState[jenis] = state;
+        }
+        if (state.result) return state.result;
+        if (!state.base64)
+          state.base64 = await new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(String(reader.result).split(",")[1]);
+            reader.onerror = () =>
+              reject(Error("File tidak dapat dibaca. Pilih ulang file."));
+            reader.readAsDataURL(file);
+          });
+        const r = await rpc(
+          "unggahBuktiIndex",
+          Object.assign(
+            {
+              jenis: jenis,
+              id_permintaan: state.request,
+              nama: file.name,
+              base64: state.base64,
+            },
+            context,
+          ),
+        );
+        if (!r || !r.sukses || !r.id)
+          throw Error("Unggah bukti belum terkonfirmasi. Coba simpan kembali.");
+        state.result = r;
+        state.base64 = null;
+        return r;
+      }
+      function tautanBukti(container, text) {
+        const urls =
+          String(text || "").match(
+            /https:\/\/drive\.google\.com\/file\/d\/[A-Za-z0-9_-]{10,150}\/view/g,
+          ) || [];
+        Array.from(new Set(urls)).forEach((url) => {
+          const b = document.createElement("button");
+          b.type = "button";
+          b.className = "action";
+          b.textContent = "Lihat bukti";
+          b.style.cssText = "display:block;margin-top:6px";
+          b.addEventListener("click", () => bukaPratinjauBukti(url));
+          container.append(b);
+        });
+      }
+      function bukaPratinjauBukti(url) {
+        const m = String(url || "").match(
+          /^https:\/\/drive\.google\.com\/file\/d\/([A-Za-z0-9_-]{10,150})\/view$/,
+        );
+        if (!m) return;
+        $("proofPreviewFrame").src =
+          "https://drive.google.com/file/d/" + m[1] + "/preview";
+        if (!$("proofPreviewDialog").open) $("proofPreviewDialog").showModal();
+      }
+      $("closeProofPreview").addEventListener("click", () =>
+        $("proofPreviewDialog").close(),
+      );
+      $("proofPreviewDialog").addEventListener("close", () =>
+        $("proofPreviewFrame").removeAttribute("src"),
+      );
+      function kategoriCatatan(r) {
+        const jenis = String(r.jenis || "")
+          .trim()
+          .toLowerCase();
+        return ["positif", "negatif"].includes(jenis) ? jenis : "lain";
+      }
+      function pilihJenisCatatan(jenis) {
+        behaviorType = jenis;
+        renderBehavior();
+      }
+      $("behaviorTabPositive").addEventListener("click", () =>
+        pilihJenisCatatan("positif"),
+      );
+      $("behaviorTabNegative").addEventListener("click", () =>
+        pilihJenisCatatan("negatif"),
+      );
+      $("behaviorTabUnknown").addEventListener("click", () =>
+        pilihJenisCatatan("lain"),
+      );
+      $("leaveEvidenceFile").addEventListener("change", () => {
+        buktiUploadState.izin = null;
+      });
+      $("behaviorEvidenceFile").addEventListener("change", () => {
+        buktiUploadState.perilaku = null;
+      });
+
+      function controls() {
+        $("refreshIzin").disabled = !$("sesi").value || izinLoading || saving;
+        $("openQR").disabled =
+          !currentSession || loading || saving || publishing;
+        $("closeQR").disabled = publishing;
+        $("leaveEvidenceFile").disabled = saving;
+        $("downloadRecap").disabled =
+          recapLoading ||
+          !recapRows.length ||
+          recapProgram !== $("program").value;
+        const ready =
+          Boolean(currentSession) && !loading && !saving && !publishing;
+        $("refresh").disabled =
+          !$("sesi").value || loading || saving || publishing;
+        $("publish").disabled = !ready;
+        $("quickBehavior").disabled = !ready;
+        $("quickLeave").disabled = !ready;
+        $("leaveSearch").disabled = saving || leaveLoading;
+        $("refreshLeavePeople").disabled = saving || leaveLoading;
+        $("calculate").disabled = !ready;
+        $("kategori").disabled = saving || publishing;
+        $("jenjang").disabled = !$("kategori").value || saving || publishing;
+        $("program").disabled = !$("jenjang").value || saving || publishing;
+        $("sesi").disabled = !$("program").value || saving || publishing;
+        $("jenis").disabled = publishing;
+        $("masa").disabled = publishing;
+        $("refreshRecap").disabled =
+          !$("program").value || recapLoading || saving;
+        $("refreshBehavior").disabled =
+          !$("sesi").value || behaviorLoading || saving;
+        $("refreshScore").disabled =
+          !$("program").value || scoreLoading || saving;
+        $("saveRule").disabled = !scoreProgram || scoreLoading || saving;
+        $("saveIndicator").disabled = !scoreProgram || scoreLoading || saving;
+        $("newIndicatorForm").disabled =
+          !scoreProgram || scoreLoading || saving;
+        if (navigationBase)
+          $("openPengelolaan").href =
+            navigationBase +
+            "?page=pengelolaan" +
+            ($("program").value
+              ? "&program=" + encodeURIComponent($("program").value)
+              : "");
+      }
+      async function init() {
+        $("blocked").classList.add("hidden");
+        $("app").classList.add("hidden");
+        message("Memeriksa akses dan memuat program…");
+        try {
+          const r = await rpc("muatAwalIndex");
+          if (!r || !r.sukses) throw Error("Data awal tidak tersedia.");
+          navigationBase = (r.navigasi && r.navigasi.url) || "";
+          allSessions = r.data.sesi;
+          zone = r.zona_waktu;
+          allPrograms = r.data.program.map((p) => ({
+            ...p,
+            kategori_pelatihan: String(p.kategori_pelatihan || "").trim(),
+            jenjang: String(p.jenjang || "").trim(),
+          }));
+          options(
+            $("kategori"),
+            "Pilih kategori",
+            uniqueValues(allPrograms, "kategori_pelatihan"),
+          );
+          options($("jenjang"), "Pilih kategori terlebih dahulu", []);
+          options($("program"), "Pilih jenjang terlebih dahulu", []);
+          options($("sesi"), "Pilih program terlebih dahulu", []);
+          clearData();
+          $("app").classList.remove("hidden");
+          controls();
+          preselectMonitoring();
+          message(
+            "Pilih kategori, jenjang, program, dan sesi untuk mulai menguji absensi. Zona waktu: " +
+              zone +
+              ".",
+          );
+        } catch (e) {
+          message(e.message || "Panel gagal dimuat.", "error");
+          $("blocked").classList.remove("hidden");
+        }
+      }
+      function resetQR() {
+        issued = null;
+        clearInterval(qrTimer);
+        $("qrImage").replaceChildren();
+        $("qrPlaceholder").classList.remove("hidden");
+        $("qrLink").classList.add("hidden");
+        $("qrLink").removeAttribute("href");
+        $("qrStatus").textContent = "QR belum diterbitkan untuk pilihan ini.";
+      }
+      function clearData() {
+        if ($("qrDialog").open) $("qrDialog").close();
+        [
+          "summaryProgram",
+          "summaryCategory",
+          "summarySession",
+          "summaryDate",
+          "summaryTime",
+          "summaryLate",
+          "summaryLeave",
+        ].forEach((id) => ($(id).textContent = "—"));
+        currentSession = null;
+        rows = [];
+        ["total", "complete", "incomplete", "absent"].forEach(
+          (id) => ($(id).textContent = "—"),
+        );
+        $("sessionInfo").textContent =
+          "Pilih kategori, jenjang, program, dan sesi untuk memulai.";
+        render();
+        controls();
+      }
+      async function load() {
+        const id = $("sesi").value,
+          seq = ++loadSequence;
+        clearData();
+        if (!id) return;
+        loading = true;
+        controls();
+        message("Memuat kehadiran sesi…");
+        try {
+          const r = await rpc("muatKehadiranIndex", id);
+          if (seq !== loadSequence) return;
+          if (!r || !r.sukses) throw Error("Data kehadiran tidak tersedia.");
+          currentSession = r.sesi;
+          rows = r.peserta;
+          zone = r.zona_waktu;
+          renderSessionSummary(r);
+          $("sessionInfo").textContent =
+            r.sesi.nama +
+            " · " +
+            r.sesi.tanggal +
+            " · " +
+            r.sesi.mulai +
+            "–" +
+            r.sesi.selesai +
+            " (" +
+            zone +
+            ")";
+          $("total").textContent = rows.length;
+          $("complete").textContent = rows.filter(
+            (p) => p.status === "lengkap",
+          ).length;
+          $("incomplete").textContent = rows.filter(
+            (p) => p.id_kehadiran && p.status !== "lengkap",
+          ).length;
+          $("absent").textContent = rows.filter((p) => !p.id_kehadiran).length;
+          render();
+          message(
+            "Data dimuat pukul " +
+              new Date().toLocaleTimeString("id-ID") +
+              ". Klik Muat Ulang Data setelah mencoba scan.",
+            "success",
+          );
+        } catch (e) {
+          if (seq === loadSequence)
+            message(e.message || "Gagal memuat data.", "error");
+        } finally {
+          if (seq === loadSequence) {
+            loading = false;
+            controls();
+          }
+        }
+      }
+
+      function renderSessionSummary(r) {
+        const program = allPrograms.find(
+          (p) => p.id_program === $("program").value,
+        );
+        $("summaryProgram").textContent = program
+          ? program.nama_program + " · " + program.id_program
+          : "—";
+        $("summaryCategory").textContent = program
+          ? [
+              program.kategori_pelatihan,
+              program.jenjang || "Tanpa jenjang",
+            ].join(" · ")
+          : "—";
+        $("summarySession").textContent = r.sesi.nama + " · " + r.sesi.id_sesi;
+        $("summaryDate").textContent = r.sesi.tanggal;
+        $("summaryTime").textContent =
+          r.sesi.mulai + "–" + r.sesi.selesai + " (" + r.zona_waktu + ")";
+        $("summaryLate").textContent = r.ringkasan
+          ? r.ringkasan.terlambat
+          : "—";
+        $("summaryLeave").textContent = r.ringkasan ? r.ringkasan.izin : "—";
+        $("qrSessionInfo").textContent =
+          (program ? program.nama_program + " · " : "") +
+          r.sesi.nama +
+          "\n" +
+          r.sesi.tanggal +
+          " · " +
+          r.sesi.mulai +
+          "–" +
+          r.sesi.selesai +
+          " (" +
+          r.zona_waktu +
+          ")";
+      }
+      $("openQR").addEventListener("click", () => {
+        if (currentSession && !loading && !saving && !publishing)
+          $("qrDialog").showModal();
+      });
+      $("closeQR").addEventListener("click", () => {
+        if (!publishing) $("qrDialog").close();
+      });
+      $("qrDialog").addEventListener("cancel", (e) => {
+        if (publishing) e.preventDefault();
+      });
+
+      function cell(text, cls) {
+        const el = document.createElement("td");
+        if (cls) el.className = cls;
+        el.textContent = text;
+        return el;
+      }
+      function timeCell(original, verified) {
+        const td = cell(original || "—");
+        if (verified) {
+          const sub = document.createElement("span");
+          sub.className = "sub";
+          sub.textContent = "Terverifikasi: " + verified;
+          td.append(sub);
+        }
+        return td;
+      }
+      function penandaDatang(p) {
+        const td = timeCell(p.datang, p.datang_verifikasi),
+          m = p.terlambat_menit;
+        if (p.peringatan_waktu) {
+          const label = document.createElement("span");
+          label.className = "badge late arrival-note";
+          label.textContent = "Perlu Verifikasi";
+          label.title = p.peringatan_waktu;
+          td.append(label);
+          return td;
+        }
+        if (!Number.isFinite(m)) return td;
+        const label = document.createElement("span");
+        label.className = "badge arrival-note " + (m > 10 ? "late" : "ok");
+        if (m <= 10) label.textContent = "Tepat Waktu";
+        else {
+          const detik = Math.ceil(m * 60 - 1e-7),
+            menit = Math.floor(detik / 60),
+            sisa = detik % 60;
+          label.textContent =
+            "Terlambat " +
+            (menit ? menit + " menit" : "") +
+            (menit && sisa ? " " : "") +
+            (sisa ? sisa + " detik" : "");
+        }
+        td.append(label);
+        return td;
+      }
+      function render() {
+        const body = $("tableBody");
+        body.replaceChildren();
+        const q = $("search").value.trim().toLowerCase();
+        const filtered = rows.filter((p) => p.nama.toLowerCase().includes(q));
+        $("empty").classList.toggle("hidden", filtered.length > 0);
+        $("empty").textContent = rows.length
+          ? "Nama peserta tidak ditemukan."
+          : currentSession
+            ? "Belum ada peserta terdaftar pada program ini."
+            : "Pilih sesi untuk menampilkan kehadiran.";
+        filtered.forEach((p) => {
+          const tr = document.createElement("tr"),
+            name = cell("");
+          const strong = document.createElement("strong");
+          strong.textContent = p.nama;
+          const sub = document.createElement("span");
+          sub.className = "sub";
+          sub.textContent =
+            p.unit + " · " + p.id_keikutsertaan + " · " + p.status_peserta;
+          name.append(strong, sub);
+          tr.append(
+            name,
+            penandaDatang(p),
+            timeCell(p.pulang, p.pulang_verifikasi),
+          );
+          const st = cell(""),
+            badge = document.createElement("span");
+          badge.className =
+            "badge " +
+            (p.status === "lengkap" ? "ok" : p.id_kehadiran ? "warn" : "");
+          badge.textContent = p.status.replace(/_/g, " ");
+          st.append(badge);
+          tr.append(st);
+          const jp = cell("");
+          const valid =
+            p.status_jp === "dihitung_otomatis" &&
+            Number.isFinite(p.jp) &&
+            Number.isFinite(p.durasi_diakui);
+          jp.textContent = valid
+            ? p.jp.toLocaleString("id-ID", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              }) + " JP"
+            : "—";
+          const ket = document.createElement("span");
+          ket.className = "sub";
+          ket.textContent = valid
+            ? p.durasi_diakui.toLocaleString("id-ID", {
+                maximumFractionDigits: 2,
+              }) + " menit diakui"
+            : (p.status_jp || "belum dihitung").replace(/_/g, " ");
+          jp.title = p.alasan_jp || "";
+          jp.append(ket);
+          tr.append(jp);
+          const action = cell("");
+          [["Koreksi", "koreksi"]].forEach(([label, kind]) => {
+            const b = document.createElement("button");
+            b.type = "button";
+            b.className = "action";
+            b.textContent = label;
+            b.disabled = !p.id_kehadiran || loading || saving;
+            b.title = p.id_kehadiran
+              ? ""
+              : "Peserta perlu memiliki baris Kehadiran dari absensi terlebih dahulu.";
+            b.addEventListener("click", () => openEdit(p, kind));
+            action.append(b);
+          });
+          tr.append(action);
+          body.append(tr);
+        });
+      }
+
+      function renderLeavePeople() {
+        const box = $("leaveResults");
+        box.replaceChildren();
+        const q = $("leaveSearch").value.trim().toLowerCase();
+        if (leaveLoading) {
+          box.textContent = "Memuat peserta sesi…";
+          return;
+        }
+        if (!q) {
+          box.textContent =
+            leavePeople.length +
+            " peserta memiliki data kehadiran. Ketik nama untuk memilih. Tidak perlu menunggu absen pulang.";
+          return;
+        }
+        const found = leavePeople
+          .filter((p) =>
+            (p.nama + " " + p.unit + " " + p.id_keikutsertaan)
+              .toLowerCase()
+              .includes(q),
+          )
+          .slice(0, 10);
+        if (!found.length) {
+          box.textContent =
+            "Peserta tidak ditemukan atau belum memiliki data kehadiran. Muat ulang setelah peserta absen.";
+          return;
+        }
+        found.forEach((p) => {
+          const b = document.createElement("button");
+          b.type = "button";
+          b.className = "btn";
+          b.style.cssText =
+            "display:block;width:100%;text-align:left;margin-top:6px";
+          b.textContent = p.nama + " · " + p.unit + " · " + p.id_keikutsertaan;
+          b.disabled = saving;
+          b.addEventListener("click", () => chooseLeavePerson(p));
+          box.append(b);
+        });
+      }
+      function chooseLeavePerson(p) {
+        if (saving || leaveLoading || !leaveContext || mode !== "izin") return;
+        if (!selected || selected.id_keikutsertaan !== p.id_keikutsertaan)
+          [
+            "startTime",
+            "endTime",
+            "reason",
+            "evidence",
+            "leaveEvidenceFile",
+          ].forEach((id) => ($(id).value = ""));
+        selected = p;
+        $("leaveSearch").value = p.nama;
+        $("leaveResults").replaceChildren();
+        $("dialogPerson").textContent =
+          p.nama + " · " + p.unit + " · " + leaveContext.nama;
+        $("dialogMessage").textContent =
+          "Isi rentang waktu izin dan alasan. Tidak perlu menunggu absen pulang.";
+        $("saveEdit").disabled = false;
+      }
+      async function refreshLeavePeople() {
+        if (saving || !leaveContext) return;
+        const seq = ++leaveSeq,
+          id = leaveContext.id_sesi;
+        leaveLoading = true;
+        $("saveEdit").disabled = true;
+        controls();
+        renderLeavePeople();
+        try {
+          const r = await rpc("muatKehadiranIndex", id);
+          if (seq !== leaveSeq || !$("editDialog").open || mode !== "izin")
+            return;
+          if (!r || !r.sukses) throw Error("Data peserta tidak tersedia.");
+          leavePeople = r.peserta.filter(
+            (p) =>
+              p.id_kehadiran &&
+              String(p.status_peserta).toLowerCase() === "terdaftar",
+          );
+          if (selected) {
+            selected =
+              leavePeople.find(
+                (p) => p.id_keikutsertaan === selected.id_keikutsertaan,
+              ) || null;
+          }
+          $("dialogMessage").textContent =
+            "Pilih peserta yang ingin dicatat izinnya.";
+        } catch (e) {
+          if (seq === leaveSeq) {
+            leavePeople = [];
+            selected = null;
+            $("dialogMessage").textContent =
+              e.message || "Peserta gagal dimuat.";
+          }
+        } finally {
+          if (seq === leaveSeq) {
+            leaveLoading = false;
+            controls();
+            $("saveEdit").disabled = !selected;
+            renderLeavePeople();
+          }
+        }
+      }
+      async function openLeave() {
+        if (saving || loading || publishing || !currentSession) return;
+        leaveContext = {
+          id_sesi: currentSession.id_sesi,
+          nama: currentSession.nama,
+        };
+        leavePeople = [];
+        openEdit({ nama: "Pilih peserta" }, "izin");
+        selected = null;
+        $("saveEdit").disabled = true;
+        await refreshLeavePeople();
+        if ($("editDialog").open && mode === "izin") $("leaveSearch").focus();
+      }
+      $("quickLeave").addEventListener("click", openLeave);
+      $("refreshLeavePeople").addEventListener("click", refreshLeavePeople);
+      $("leaveSearch").addEventListener("input", () => {
+        if (saving || leaveLoading) return;
+        selected = null;
+        $("saveEdit").disabled = true;
+        $("dialogPerson").textContent =
+          (leaveContext ? leaveContext.nama : "") + " · pilih peserta";
+        [
+          "startTime",
+          "endTime",
+          "reason",
+          "evidence",
+          "leaveEvidenceFile",
+        ].forEach((id) => ($(id).value = ""));
+        renderLeavePeople();
+      });
+      $("editDialog").addEventListener("close", () => {
+        ++leaveSeq;
+        leaveLoading = false;
+        leaveContext = null;
+        leavePeople = [];
+        selected = null;
+        controls();
+      });
+
+      function openEdit(p, kind) {
+        if (loading || saving || !currentSession) return;
+        selected = p;
+        mode = kind;
+        $("editForm").reset();
+        $("leavePicker").classList.toggle("hidden", kind !== "izin");
+        $("leaveEvidenceField").classList.toggle("hidden", kind !== "izin");
+        $("evidence").required = kind !== "izin";
+        document.querySelector('label[for="evidence"]').textContent =
+          kind === "izin"
+            ? "Keterangan bukti pendukung (opsional)"
+            : "Dasar verifikasi / bukti pendukung";
+        buktiUploadState.izin = null;
+        $("saveEdit").disabled = false;
+        $("dialogMessage").textContent = "";
+        $("dialogTitle").textContent =
+          kind === "izin" ? "Catat Izin Sesi" : "Lengkapi / Koreksi Waktu";
+        $("dialogPerson").textContent = p.nama + " · " + currentSession.nama;
+        $("startLabel").textContent =
+          kind === "izin" ? "Mulai izin" : "Datang terverifikasi";
+        $("endLabel").textContent =
+          kind === "izin" ? "Kembali dari izin" : "Pulang terverifikasi";
+        $("startTime").required = kind === "izin";
+        $("endTime").required = kind === "izin";
+        $("dialogHelp").textContent =
+          (kind === "izin"
+            ? "Isi setelah waktu kembali diketahui. Rentang izin harus berada dalam jadwal sesi. Poin perilaku belum dihitung."
+            : "Scan datang: " +
+              (p.datang || "—") +
+              "\nScan pulang: " +
+              (p.pulang || "—") +
+              "\nWaktu terverifikasi yang sudah ada ditampilkan terlebih dahulu. Jika belum ada, kolom otomatis terisi dari scan. Tanpa scan, isi manual. Periksa waktu sebelum menyimpan; mengisi otomatis belum berarti terverifikasi. Kosongkan waktu yang tidak ingin diubah. Scan asli tetap disimpan.") +
+          "\nZona waktu: " +
+          zone;
+        if (kind === "koreksi") {
+          $("startTime").value = (
+            p.datang_verifikasi ||
+            p.datang ||
+            ""
+          ).replace(" ", "T");
+          $("endTime").value = (p.pulang_verifikasi || p.pulang || "").replace(
+            " ",
+            "T",
+          );
+        }
+        $("editDialog").showModal();
+      }
+      async function save(e) {
+        e.preventDefault();
+        if (saving || !selected) return;
+        const start = $("startTime").value,
+          end = $("endTime").value;
+        if (!start && !end) {
+          $("dialogMessage").textContent = "Isi minimal satu waktu.";
+          return;
+        }
+        const data = {
+          id_kehadiran: selected.id_kehadiran,
+          versi: selected.versi,
+          alasan: $("reason").value.trim(),
+          dasar: $("evidence").value.trim(),
+        };
+        if (!data.alasan || (mode !== "izin" && !data.dasar)) {
+          $("dialogMessage").textContent =
+            mode === "izin"
+              ? "Alasan izin wajib diisi."
+              : "Alasan dan dasar verifikasi wajib diisi.";
+          return;
+        }
+        if (mode === "izin") {
+          data.mulai = start;
+          data.selesai = end;
+        } else {
+          data.datang = start;
+          data.pulang = end;
+        }
+        saving = true;
+        $("saveEdit").disabled = true;
+        $("cancelEdit").disabled = true;
+        $("dialogMessage").textContent = "Menyimpan perubahan…";
+        controls();
+        try {
+          if (mode === "izin") {
+            $("dialogMessage").textContent =
+              "Menyiapkan bukti dan menyimpan izin…";
+            const lampiran = await siapkanLampiran(
+              "leaveEvidenceFile",
+              "izin",
+              { id_kehadiran: data.id_kehadiran },
+            );
+            data.id_bukti = lampiran ? lampiran.id : "";
+          }
+          const r = await rpc(
+            mode === "izin" ? "simpanIzinIndex" : "simpanKoreksiIndex",
+            data,
+          );
+          if (!r || !r.sukses) throw Error("Hasil penyimpanan tidak tersedia.");
+          $("editDialog").close();
+          saving = false;
+          resetRecap();
+          await load();
+          message(r.pesan, "success");
+        } catch (err) {
+          $("dialogMessage").textContent =
+            (err.message || "Penyimpanan belum terkonfirmasi.") +
+            " Jika hasil belum jelas, tutup formulir dan muat ulang data sebelum mengulang.";
+        } finally {
+          saving = false;
+          $("saveEdit").disabled = false;
+          $("cancelEdit").disabled = false;
+          controls();
+        }
+      }
+      async function publish() {
+        if (publishing || !currentSession) return;
+        if (typeof QRCode === "undefined") {
+          message(
+            "Pustaka QR belum dimuat. Periksa koneksi lalu muat ulang halaman.",
+            "error",
+          );
+          return;
+        }
+        publishing = true;
+        controls();
+        $("publish").textContent = "Menerbitkan…";
+        const id = currentSession.id_sesi;
+        try {
+          const r = await rpc(
+            "terbitkanQRAbsensiDariGenerator",
+            id,
+            $("jenis").value,
+            Number($("masa").value),
+          );
+          if (!r || !r.sukses || !r.url_absensi)
+            throw Error("Hasil QR tidak tersedia.");
+          resetQR();
+          issued = r;
+          new QRCode($("qrImage"), {
+            text: r.url_absensi,
+            width: 220,
+            height: 220,
+            correctLevel: QRCode.CorrectLevel.M,
+          });
+          $("qrPlaceholder").classList.add("hidden");
+          $("qrLink").href = r.url_absensi;
+          $("qrLink").classList.remove("hidden");
+          const update = () => {
+            const remaining = Math.max(
+              0,
+              Math.ceil((new Date(r.berlaku_sampai) - Date.now()) / 1000),
+            );
+            $("qrStatus").textContent =
+              "Sesi " +
+              r.id_sesi +
+              " · " +
+              r.jenis_scan.toUpperCase() +
+              "\n" +
+              (remaining
+                ? "Sisa waktu " +
+                  Math.floor(remaining / 60) +
+                  " menit " +
+                  (remaining % 60) +
+                  " detik"
+                : "Token sudah kedaluwarsa.") +
+              "\nBerlaku sampai " +
+              new Date(r.berlaku_sampai).toLocaleString("id-ID", {
+                timeZone: zone,
+              });
+            if (!remaining) clearInterval(qrTimer);
+          };
+          update();
+          qrTimer = setInterval(update, 1000);
+          message(
+            "QR " +
+              r.jenis_scan +
+              " diterbitkan. Scan melalui HP atau gunakan tautan di bawah QR.",
+            "success",
+          );
+        } catch (e) {
+          message(e.message || "Penerbitan QR belum terkonfirmasi.", "error");
+        } finally {
+          publishing = false;
+          $("publish").textContent = "Terbitkan QR";
+          controls();
+        }
+      }
+      function uniqueValues(data, field) {
+        return Array.from(new Set(data.map((p) => p[field])))
+          .sort((a, b) => a.localeCompare(b, "id", { numeric: true }))
+          .map((v) => ({ id: JSON.stringify(v), label: v || "Belum diisi" }));
+      }
+      function kategoriDipilih() {
+        return allPrograms.filter(
+          (p) => JSON.stringify(p.kategori_pelatihan) === $("kategori").value,
+        );
+      }
+      function resetPilihanSesi() {
+        resetScore();
+        resetBehavior();
+        resetRecap();
+        ++loadSequence;
+        loading = false;
+        options($("sesi"), "Pilih program terlebih dahulu", []);
+        $("search").value = "";
+        resetQR();
+        clearData();
+      }
+      $("kategori").addEventListener("change", () => {
+        options(
+          $("jenjang"),
+          $("kategori").value
+            ? "Pilih jenjang"
+            : "Pilih kategori terlebih dahulu",
+          kategoriDipilih().length
+            ? uniqueValues(kategoriDipilih(), "jenjang")
+            : [],
+        );
+        options($("program"), "Pilih jenjang terlebih dahulu", []);
+        resetPilihanSesi();
+      });
+      $("jenjang").addEventListener("change", () => {
+        const daftar = kategoriDipilih().filter(
+          (p) => JSON.stringify(p.jenjang) === $("jenjang").value,
+        );
+        options(
+          $("program"),
+          $("jenjang").value
+            ? "Pilih program"
+            : "Pilih jenjang terlebih dahulu",
+          daftar.map((p) => ({
+            id: p.id_program,
+            label: p.nama_program + " · " + p.id_program,
+          })),
+        );
+        resetPilihanSesi();
+      });
+      async function calculateJP() {
+        if (!currentSession || saving || loading || publishing) return;
+        const id = currentSession.id_sesi;
+        if (
+          !window.confirm(
+            "Hitung JP seluruh kehadiran pada sesi " +
+              currentSession.nama +
+              "?\nAturan sementara: toleransi datang maksimal 10 menit; pulang lebih awal mengurangi JP.",
+          )
+        )
+          return;
+        saving = true;
+        controls();
+        render();
+        $("calculate").textContent = "Menghitung…";
+        message("Menghitung JP sesi. Tunggu hingga proses selesai.");
+        try {
+          const r = await rpc("hitungJPSesiIndex", id);
+          saving = false;
+          resetRecap();
+          await load();
+          message(
+            r.pesan,
+            r.bermasalah.length || r.perlu_verifikasi ? "error" : "success",
+          );
+        } catch (e) {
+          message(
+            (e.message || "Perhitungan belum terkonfirmasi.") +
+              " Muat ulang data sebelum mengulang.",
+            "error",
+          );
+        } finally {
+          saving = false;
+          $("calculate").textContent = "Hitung JP Sesi";
+          controls();
+          render();
+        }
+      }
+      function resetRecap() {
+        if ($("detailDialog").open) $("detailDialog").close();
+        ++recapSeq;
+        recapLoading = false;
+        recapRows = [];
+        recapScores = new Map();
+        recapRule = null;
+        recapProgram = "";
+        recapAt = "";
+        ["recapTarget", "recapSessions", "recapTotal", "recapPending"].forEach(
+          (id) => ($(id).textContent = "—"),
+        );
+        $("recapInfo").textContent =
+          "Pilih program lalu muat rekap. Setelah koreksi atau perhitungan JP, muat ulang rekap.";
+        renderRecap();
+        controls();
+      }
+      function formatRekap(n, suffix = "") {
+        return Number.isFinite(n)
+          ? n.toLocaleString("id-ID", {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            }) + suffix
+          : "—";
+      }
+      function renderRecap() {
+        const body = $("recapBody");
+        body.replaceChildren();
+        const q = $("recapSearch").value.trim().toLowerCase();
+        const filtered = recapRows.filter((p) =>
+          p.nama.toLowerCase().includes(q),
+        );
+        $("recapEmpty").classList.toggle("hidden", filtered.length > 0);
+        $("recapEmpty").textContent = recapRows.length
+          ? "Nama peserta tidak ditemukan."
+          : "Belum ada data rekap. Pilih program lalu muat rekap.";
+        filtered.forEach((p) => {
+          const tr = document.createElement("tr"),
+            name = cell(""),
+            open = document.createElement("a");
+          open.className = "action";
+          open.style.fontWeight = "bold";
+          open.style.textAlign = "left";
+          open.style.whiteSpace = "normal";
+          open.textContent = p.nama;
+          open.title = "Buka Profil Peserta";
+          if (navigationBase)
+            open.href =
+              navigationBase +
+              "?page=profil&keikutsertaan=" +
+              encodeURIComponent(p.id_keikutsertaan) +
+              "&program=" +
+              encodeURIComponent($("program").value);
+          else open.addEventListener("click", () => bukaRincianJP(p));
+          name.append(open);
+          const jpDetail = document.createElement("button");
+          jpDetail.type = "button";
+          jpDetail.className = "action";
+          jpDetail.style.display = "block";
+          jpDetail.textContent = "Rincian JP";
+          jpDetail.addEventListener("click", () => bukaRincianJP(p));
+          name.append(jpDetail);
+          const sub = document.createElement("span");
+          sub.className = "sub";
+          sub.textContent =
+            p.unit + " · " + p.id_keikutsertaan + " · " + p.status_peserta;
+          name.append(sub);
+          tr.append(
+            name,
+            cell(formatRekap(p.jp_diperoleh)),
+            cell(formatRekap(p.jp_acuan)),
+            cell(formatRekap(p.kekurangan_jp)),
+            cell(formatRekap(p.persentase, "%")),
+          );
+          const status = cell(""),
+            badge = document.createElement("span");
+          badge.className = "badge " + (p.status === "lengkap" ? "ok" : "warn");
+          badge.textContent =
+            p.status === "lengkap" ? "Data lengkap" : "Sementara";
+          const detail = document.createElement("span");
+          detail.className = "sub";
+          detail.textContent =
+            p.sesi_dihitung +
+            " sesi dihitung · " +
+            p.belum_absen +
+            " belum absen · " +
+            p.belum_lengkap +
+            " belum lengkap · " +
+            p.belum_dihitung +
+            " perlu dihitung / diperiksa";
+          status.title = p.detail.join("\n");
+          status.append(badge, detail);
+          tr.append(status);
+          const score = recapScores.get(p.id_keikutsertaan);
+          tr.append(
+            cell(score ? formatRekap(score.nilai) : "—"),
+            cell(
+              !recapRule
+                ? "Aturan belum ditetapkan"
+                : !score
+                  ? "Data tidak tersedia"
+                  : (score.status === "lengkap"
+                      ? "Data lengkap"
+                      : "Sementara") +
+                    " · " +
+                    score.jumlah_catatan +
+                    " catatan",
+            ),
+            cell("Belum dapat dihitung — aturan penilaian belum lengkap"),
+          );
+          body.append(tr);
+        });
+      }
+      async function loadRecap() {
+        const id = $("program").value,
+          seq = ++recapSeq;
+        if (!id) {
+          resetRecap();
+          return;
+        }
+        recapLoading = true;
+        recapRows = [];
+        recapProgram = "";
+        recapScores = new Map();
+        recapRule = null;
+        renderRecap();
+        controls();
+        $("recapInfo").textContent = "Memuat rekap program…";
+        try {
+          const [r, nilai] = await Promise.all([
+            rpc("muatRekapJPProgramIndex", id),
+            rpc("muatNilaiPerilakuProgramIndex", id),
+          ]);
+          if (seq !== recapSeq) return;
+          if (!r || !r.sukses) throw Error("Rekap tidak tersedia.");
+          if (!nilai || !nilai.sukses)
+            throw Error("Nilai perilaku tidak tersedia. Muat ulang rekap.");
+          recapRows = r.peserta;
+          recapScores = new Map(
+            nilai.peserta.map((p) => [p.id_keikutsertaan, p]),
+          );
+          recapRule = nilai.aturan;
+          recapProgram = id;
+          recapAt = new Date().toISOString();
+          $("recapTarget").textContent = formatRekap(r.jp_acuan);
+          $("recapSessions").textContent = r.jumlah_sesi;
+          $("recapTotal").textContent = r.peserta.length;
+          $("recapPending").textContent = r.peserta.filter(
+            (p) => p.status !== "lengkap",
+          ).length;
+          $("recapInfo").textContent =
+            r.nama_program +
+            " · " +
+            r.sesi_diabaikan +
+            " sesi tidak diperhitungkan" +
+            (r.masalah.length
+              ? " · Acuan belum lengkap: " + r.masalah.join("; ")
+              : " · Diperbarui " + new Date().toLocaleTimeString("id-ID"));
+          renderRecap();
+        } catch (e) {
+          if (seq === recapSeq) {
+            recapRows = [];
+            renderRecap();
+            $("recapInfo").textContent = e.message || "Rekap gagal dimuat.";
+          }
+        } finally {
+          if (seq === recapSeq) {
+            recapLoading = false;
+            controls();
+          }
+        }
+      }
+      function bukaRincianJP(p) {
+        $("detailTitle").textContent = "Rincian JP · " + p.nama;
+        $("detailSubtitle").textContent = p.unit + " · " + p.id_keikutsertaan;
+        $("detailSummary").textContent =
+          "JP diperoleh: " +
+          formatRekap(p.jp_diperoleh) +
+          " | Acuan: " +
+          formatRekap(p.jp_acuan) +
+          " JP | Kekurangan: " +
+          formatRekap(p.kekurangan_jp) +
+          " JP | Pemenuhan: " +
+          formatRekap(p.persentase, "%") +
+          " | " +
+          (p.status === "lengkap" ? "Data lengkap" : "Sementara");
+        const body = $("detailBody");
+        body.replaceChildren();
+        const rincian = p.rincian || [];
+        $("detailEmpty").classList.toggle("hidden", rincian.length > 0);
+        rincian.forEach((r) => {
+          const tr = document.createElement("tr"),
+            sesi = cell(r.nama_sesi || r.id_sesi),
+            sub = document.createElement("span");
+          sub.className = "sub";
+          sub.textContent = r.tanggal + " · " + r.id_sesi;
+          sesi.append(sub);
+          tr.append(sesi);
+          ["datang", "pulang"].forEach((k) => {
+            const td = cell(r[k] || "—");
+            if (r["sumber_" + k]) {
+              const sumber = document.createElement("span");
+              sumber.className = "sub";
+              sumber.textContent =
+                r["sumber_" + k] === "terverifikasi"
+                  ? "Waktu terverifikasi"
+                  : "Waktu scan";
+              td.append(sumber);
+            }
+            if (r["sumber_" + k] === "terverifikasi") {
+              const asli = document.createElement("span");
+              asli.className = "sub";
+              asli.textContent = "Scan asli: " + (r[k + "_asli"] || "—");
+              td.append(asli);
+            }
+            tr.append(td);
+          });
+          const late = cell("");
+          if (r.peringatan_waktu) {
+            late.textContent = "Perlu Verifikasi";
+            late.title = r.peringatan_waktu;
+          } else if (Number.isFinite(r.terlambat)) {
+            const detik = Math.ceil(r.terlambat * 60 - 1e-7),
+              menit = Math.floor(detik / 60),
+              sisa = detik % 60;
+            late.textContent =
+              r.terlambat > 10
+                ? "Terlambat " +
+                  (menit ? menit + " menit" : "") +
+                  (menit && sisa ? " " : "") +
+                  (sisa ? sisa + " detik" : "")
+                : "Tepat Waktu";
+            if (r.terlambat > 10) {
+              const note = document.createElement("span");
+              note.className = "sub";
+              note.textContent =
+                r.terlambat <= 10 ? "Dalam toleransi" : "Mengurangi JP";
+              late.append(note);
+            }
+          } else late.textContent = "—";
+          tr.append(
+            late,
+            cell(formatRekap(r.durasi_diakui, " menit")),
+            cell(formatRekap(r.jp)),
+          );
+          const status = cell(""),
+            badge = document.createElement("span");
+          badge.className =
+            "badge " +
+            (r.status === "dihitung"
+              ? "ok"
+              : r.status === "tidak_diperhitungkan"
+                ? ""
+                : "warn");
+          badge.textContent = String(r.status || "belum_dihitung").replace(
+            /_/g,
+            " ",
+          );
+          const detail = document.createElement("span");
+          detail.className = "sub";
+          detail.textContent = r.keterangan || "";
+          status.append(badge, detail);
+          tr.append(status);
+          body.append(tr);
+        });
+        $("detailDialog").showModal();
+      }
+      $("closeDetail").addEventListener("click", () =>
+        $("detailDialog").close(),
+      );
+      function pilihTab(tab) {
+        activeTab = tab;
+        $("sessionPanel").classList.toggle("hidden", tab !== "sesi");
+        $("recapPanel").classList.toggle("hidden", tab !== "rekap");
+        $("tabSesi").className = "btn " + (tab === "sesi" ? "primary" : "");
+        $("tabRekap").className = "btn " + (tab === "rekap" ? "primary" : "");
+        $("tabSesi").setAttribute("aria-pressed", String(tab === "sesi"));
+        $("tabRekap").setAttribute("aria-pressed", String(tab === "rekap"));
+        $("behaviorPanel").classList.toggle("hidden", tab !== "perilaku");
+        $("tabPerilaku").className =
+          "btn " + (tab === "perilaku" ? "primary" : "");
+        $("tabPerilaku").setAttribute(
+          "aria-pressed",
+          String(tab === "perilaku"),
+        );
+        if (tab === "rekap") loadRecap();
+        $("scorePanel").classList.toggle("hidden", tab !== "nilai");
+        $("tabNilai").className = "btn " + (tab === "nilai" ? "primary" : "");
+        $("tabNilai").setAttribute("aria-pressed", String(tab === "nilai"));
+        if (tab === "perilaku") loadBehavior();
+        if (tab === "nilai") loadScore();
+        $("izinPanel").classList.toggle("hidden", tab !== "izin");
+        $("tabIzin").className = "btn " + (tab === "izin" ? "primary" : "");
+        $("tabIzin").setAttribute("aria-pressed", String(tab === "izin"));
+        if (tab === "izin") loadIzin();
+      }
+      function openValidation(r) {
+        if (saving) return;
+        validationSelected = r;
+        validationPayload = null;
+        $("validationForm").reset();
+        $("validationEvidenceLinks").replaceChildren();
+        tautanBukti($("validationEvidenceLinks"), r.bukti);
+        $("validationPerson").textContent = r.nama + " · " + r.indikator;
+        $("validationContext").textContent =
+          "Waktu: " +
+          r.waktu +
+          "\nKeterangan: " +
+          r.keterangan +
+          "\nDasar/bukti: " +
+          r.bukti +
+          "\nSumber: " +
+          (r.sumber || "—") +
+          "\nStatus sebelumnya: " +
+          r.status.replace(/_/g, " ") +
+          (r.alasan_validasi
+            ? "\nAlasan sebelumnya: " + r.alasan_validasi
+            : "") +
+          (r.mulai_izin
+            ? "\nIzin: " + r.mulai_izin + " – " + r.selesai_izin
+            : "") +
+          (r.kode === "TERLAMBAT_MASUK"
+            ? "\nWaktu datang efektif saat ini: " +
+              (r.waktu_datang_pembanding || "belum tersedia")
+            : "") +
+          (r.id_tugas ? "\nID tugas: " + r.id_tugas : "") +
+          (Number.isFinite(r.durasi_kejadian)
+            ? "\nDurasi kejadian: " + r.durasi_kejadian + " menit"
+            : "");
+        $("validationDecision").value = ["disetujui", "ditolak"].includes(
+          r.status,
+        )
+          ? r.status
+          : "";
+        $("validationMessage").textContent = "";
+        $("saveValidation").textContent = "Simpan Keputusan";
+        [
+          "validationDecision",
+          "validationReason",
+          "saveValidation",
+          "cancelValidation",
+        ].forEach((id) => ($(id).disabled = false));
+        $("validationDialog").showModal();
+      }
+      async function saveValidation(e) {
+        e.preventDefault();
+        if (saving || !validationSelected) return;
+        if (!validationPayload) {
+          const alasan = $("validationReason").value.trim(),
+            keputusan = $("validationDecision").value;
+          if (!alasan || !keputusan) {
+            $("validationMessage").textContent =
+              "Pilih keputusan dan isi alasannya.";
+            return;
+          }
+          const a = new Uint32Array(4);
+          crypto.getRandomValues(a);
+          validationPayload = {
+            id_catatan: validationSelected.id,
+            versi: validationSelected.versi,
+            keputusan: keputusan,
+            alasan: alasan,
+            id_permintaan: Array.from(a, (n) =>
+              n.toString(16).padStart(8, "0"),
+            ).join(""),
+          };
+        }
+        saving = true;
+        controls();
+        [
+          "validationDecision",
+          "validationReason",
+          "saveValidation",
+          "cancelValidation",
+        ].forEach((id) => ($(id).disabled = true));
+        $("validationMessage").textContent = "Menyimpan keputusan…";
+        try {
+          const r = await rpc("simpanValidasiPerilakuIndex", validationPayload);
+          if (!r || !r.sukses) throw Error("Penyimpanan belum terkonfirmasi.");
+          $("validationDialog").close();
+          validationSelected = null;
+          validationPayload = null;
+          saving = false;
+          resetScore();
+          await loadBehavior();
+          message(r.pesan, "success");
+        } catch (err) {
+          $("validationMessage").textContent =
+            (err.message || "Validasi belum terkonfirmasi.") +
+            " Coba Lagi mengirim permintaan yang sama. Jika data berubah, tutup formulir dan muat ulang catatan.";
+          $("saveValidation").textContent = "Coba Lagi";
+        } finally {
+          saving = false;
+          $("saveValidation").disabled = false;
+          $("cancelValidation").disabled = false;
+          controls();
+        }
+      }
+      $("validationForm").addEventListener("submit", saveValidation);
+      $("cancelValidation").addEventListener("click", () => {
+        if (!saving) {
+          $("validationDialog").close();
+          validationSelected = null;
+          validationPayload = null;
+        }
+      });
+      $("validationDialog").addEventListener("cancel", (e) => {
+        if (saving) e.preventDefault();
+        else {
+          validationSelected = null;
+          validationPayload = null;
+        }
+      });
+      function resetIzin() {
+        ++izinSeq;
+        izinLoading = false;
+        izinHasData = false;
+        izinRows = [];
+        $("izinInfo").textContent = "Pilih sesi lalu muat daftar izin.";
+        renderIzin();
+        controls();
+      }
+      function renderIzin() {
+        const body = $("izinBody");
+        body.replaceChildren();
+        const q = $("izinSearch").value.trim().toLowerCase(),
+          list = izinRows.filter((r) =>
+            (r.nama + " " + r.keterangan + " " + r.id_keikutsertaan)
+              .toLowerCase()
+              .includes(q),
+          );
+        $("izinTotal").textContent = izinHasData ? izinRows.length : "—";
+        $("izinPeople").textContent = izinHasData
+          ? new Set(
+              izinRows
+                .filter((r) => r.status !== "ditolak")
+                .map((r) => r.id_keikutsertaan),
+            ).size
+          : "—";
+        $("izinApproved").textContent = izinHasData
+          ? izinRows.filter((r) => r.status === "disetujui").length
+          : "—";
+        $("izinPending").textContent = izinHasData
+          ? izinRows.filter((r) => !["disetujui", "ditolak"].includes(r.status))
+              .length
+          : "—";
+        $("izinFilterInfo").textContent = izinHasData
+          ? "Menampilkan " +
+            list.length +
+            " dari " +
+            izinRows.length +
+            " kejadian · " +
+            izinRows.filter((r) => r.status === "ditolak").length +
+            " ditolak."
+          : "";
+        $("izinEmpty").classList.toggle("hidden", list.length > 0);
+        $("izinEmpty").textContent = !izinHasData
+          ? "Pilih sesi lalu muat daftar izin."
+          : izinRows.length
+            ? "Izin tidak ditemukan sesuai pencarian."
+            : "Belum ada izin pada sesi ini.";
+        list.forEach((r) => {
+          const tr = document.createElement("tr"),
+            name = cell(r.nama);
+          const id = document.createElement("span");
+          id.className = "sub";
+          id.textContent = r.id_keikutsertaan;
+          name.append(id);
+          const proof = cell(
+            String(r.bukti || "")
+              .replace(
+                /(?:Lampiran:\s*)?https:\/\/drive\.google\.com\/file\/d\/[A-Za-z0-9_-]{10,150}\/view/g,
+                "",
+              )
+              .trim() || (r.bukti ? "Terlampir" : "Tidak dilampirkan"),
+          );
+          tautanBukti(proof, r.bukti);
+          const status = cell(
+              String(r.status || "belum_divalidasi").replace(/_/g, " "),
+            ),
+            jp = document.createElement("span");
+          jp.className = "sub";
+          jp.textContent =
+            "JP: " + String(r.status_pengurangan_jp || "—").replace(/_/g, " ");
+          status.append(jp);
+          tr.append(
+            name,
+            cell(r.mulai_izin || "—"),
+            cell(r.selesai_izin || "—"),
+            cell(formatRekap(r.durasi_izin_menit, " menit")),
+            cell(r.keterangan),
+            proof,
+            status,
+          );
+          body.append(tr);
+        });
+      }
+      async function loadIzin() {
+        const id = $("sesi").value,
+          seq = ++izinSeq;
+        if (!id) {
+          resetIzin();
+          return;
+        }
+        izinLoading = true;
+        izinHasData = false;
+        izinRows = [];
+        renderIzin();
+        controls();
+        $("izinInfo").textContent = "Memuat izin sesi " + id + "…";
+        try {
+          const r = await rpc("muatDaftarIzinIndex", id);
+          if (seq !== izinSeq) return;
+          if (!r || !r.sukses || r.id_sesi !== id)
+            throw Error("Hasil daftar izin tidak sesuai sesi.");
+          izinRows = r.catatan;
+          izinHasData = true;
+          $("izinInfo").textContent = "Sesi " + id + " · " + r.zona_waktu;
+          renderIzin();
+        } catch (e) {
+          if (seq === izinSeq) {
+            izinRows = [];
+            renderIzin();
+            $("izinInfo").textContent =
+              e.message || "Daftar izin gagal dimuat.";
+          }
+        } finally {
+          if (seq === izinSeq) {
+            izinLoading = false;
+            controls();
+          }
+        }
+      }
+      $("tabIzin").addEventListener("click", () => pilihTab("izin"));
+      $("refreshIzin").addEventListener("click", loadIzin);
+      $("izinSearch").addEventListener("input", renderIzin);
+
+      function resetBehavior() {
+        resetIzin();
+        behaviorHasData = false;
+        behaviorType = "positif";
+        ++behaviorSeq;
+        behaviorLoading = false;
+        behaviorRows = [];
+        $("behaviorInfo").textContent = "Pilih sesi lalu muat catatan.";
+        renderBehavior();
+        controls();
+      }
+      function renderBehavior() {
+        const body = $("behaviorBody");
+        body.replaceChildren();
+        const q = $("behaviorSearch").value.trim().toLowerCase();
+        const counts = { positif: 0, negatif: 0, lain: 0 };
+        behaviorRows.forEach((r) => counts[kategoriCatatan(r)]++);
+        if (behaviorType === "lain" && !counts.lain) behaviorType = "positif";
+        $("behaviorTotal").textContent = behaviorHasData
+          ? behaviorRows.length
+          : "—";
+        $("behaviorPositive").textContent = behaviorHasData
+          ? counts.positif
+          : "—";
+        $("behaviorNegative").textContent = behaviorHasData
+          ? counts.negatif
+          : "—";
+        $("behaviorWaiting").textContent = behaviorHasData
+          ? behaviorRows.filter(
+              (r) => !["disetujui", "ditolak"].includes(r.status),
+            ).length
+          : "—";
+        [
+          ["behaviorTabPositive", "positif", "Positif"],
+          ["behaviorTabNegative", "negatif", "Negatif"],
+          ["behaviorTabUnknown", "lain", "Belum dikategorikan"],
+        ].forEach(([id, type, label]) => {
+          const b = $(id);
+          b.textContent =
+            label + (behaviorHasData ? " (" + counts[type] + ")" : "");
+          b.className =
+            "btn " +
+            (behaviorType === type ? "primary" : "") +
+            (type === "lain" && !counts.lain ? " hidden" : "");
+          b.setAttribute("aria-pressed", String(behaviorType === type));
+        });
+        const list = behaviorRows.filter(
+          (r) =>
+            kategoriCatatan(r) === behaviorType &&
+            (r.nama + " " + r.indikator + " " + r.kode)
+              .toLowerCase()
+              .includes(q),
+        );
+        $("behaviorFilterInfo").textContent = behaviorHasData
+          ? "Menampilkan " +
+            list.length +
+            " dari " +
+            counts[behaviorType] +
+            " catatan " +
+            (behaviorType === "lain" ? "belum dikategorikan" : behaviorType) +
+            (counts.lain
+              ? " · " + counts.lain + " catatan belum dikategorikan."
+              : "")
+          : "Pilih sesi lalu muat catatan.";
+        $("behaviorEmpty").classList.toggle("hidden", list.length > 0);
+        $("behaviorEmpty").textContent = !behaviorHasData
+          ? "Data catatan belum dimuat."
+          : counts[behaviorType]
+            ? "Catatan tidak ditemukan sesuai pencarian."
+            : "Belum ada catatan pada jenis ini.";
+        list.forEach((r) => {
+          const tr = document.createElement("tr"),
+            name = cell(r.nama),
+            id = document.createElement("span");
+          id.className = "sub";
+          id.textContent = r.id_keikutsertaan;
+          name.append(id);
+          const ind = cell(r.indikator),
+            code = document.createElement("span");
+          code.className = "sub";
+          code.textContent = r.kode + " · " + r.jenis;
+          ind.append(code);
+          const time = cell(r.waktu || "—");
+          if (r.mulai_izin) {
+            const izin = document.createElement("span");
+            izin.className = "sub";
+            izin.textContent =
+              "Izin: " +
+              r.mulai_izin +
+              " – " +
+              (r.selesai_izin || "belum kembali");
+            time.append(izin);
+          }
+          const ket = cell(r.keterangan),
+            bukti = document.createElement("span");
+          bukti.className = "sub";
+          const teks = String(r.bukti || "")
+            .replace(
+              /(?:Lampiran:\s*)?https:\/\/drive\.google\.com\/file\/d\/[A-Za-z0-9_-]{10,150}\/view/g,
+              "",
+            )
+            .trim();
+          bukti.textContent = teks
+            ? "Bukti: " + teks
+            : r.bukti
+              ? "Bukti terlampir"
+              : "Bukti: tidak dilampirkan";
+          ket.append(bukti);
+          tautanBukti(ket, r.bukti);
+          if (r.id_tugas || Number.isFinite(r.durasi_kejadian)) {
+            const extra = document.createElement("span");
+            extra.className = "sub";
+            extra.textContent = r.id_tugas
+              ? "ID tugas: " + r.id_tugas
+              : "Durasi: " + r.durasi_kejadian + " menit";
+            ket.append(extra);
+          }
+          const status = cell(r.status.replace(/_/g, " ")),
+            poin = document.createElement("span");
+          poin.className = "sub";
+          poin.textContent = Number.isFinite(r.poin)
+            ? "Poin disahkan: " + r.poin
+            : "Poin belum ditetapkan";
+          status.append(poin);
+          if (r.alasan_validasi) {
+            const v = document.createElement("span");
+            v.className = "sub";
+            v.textContent =
+              "Alasan: " +
+              r.alasan_validasi +
+              " · " +
+              r.divalidasi_oleh +
+              " · " +
+              r.divalidasi_pada;
+            status.append(v);
+          }
+          const actions = cell(""),
+            b = document.createElement("button");
+          b.type = "button";
+          b.className = "action";
+          b.textContent = ["disetujui", "ditolak"].includes(r.status)
+            ? "Ubah validasi"
+            : "Validasi";
+          b.disabled = saving;
+          b.addEventListener("click", () => openValidation(r));
+          actions.append(b);
+          tr.append(name, ind, time, ket, status, actions);
+          body.append(tr);
+        });
+      }
+      async function loadBehavior() {
+        const id = $("sesi").value,
+          seq = ++behaviorSeq;
+        if (!id) {
+          resetBehavior();
+          return;
+        }
+        behaviorLoading = true;
+        behaviorHasData = false;
+        behaviorRows = [];
+        renderBehavior();
+        controls();
+        $("behaviorInfo").textContent = "Memuat catatan…";
+        try {
+          const r = await rpc("muatCatatanPerilakuIndex", id);
+          if (seq !== behaviorSeq) return;
+          if (!r || !r.sukses) throw Error("Data catatan tidak tersedia.");
+          behaviorRows = r.catatan;
+          behaviorHasData = true;
+          behaviorIndicators = r.indikator;
+          $("behaviorInfo").textContent =
+            "Sesi " +
+            id +
+            " · " +
+            behaviorRows.length +
+            " catatan · Zona waktu " +
+            r.zona_waktu;
+          renderBehavior();
+        } catch (e) {
+          if (seq === behaviorSeq) {
+            behaviorRows = [];
+            renderBehavior();
+            $("behaviorInfo").textContent =
+              e.message || "Gagal memuat catatan.";
+          }
+        } finally {
+          if (seq === behaviorSeq) {
+            behaviorLoading = false;
+            controls();
+          }
+        }
+      }
+      function kunciFormPerilaku(disabled) {
+        [
+          "behaviorParticipantSearch",
+          "refreshBehaviorPeople",
+          "behaviorIndicator",
+          "behaviorTime",
+          "behaviorReason",
+          "behaviorEvidence",
+          "behaviorEvidenceFile",
+          "behaviorDuration",
+          "behaviorTask",
+        ].forEach((id) => ($(id).disabled = disabled));
+        $("behaviorParticipantResults")
+          .querySelectorAll("button")
+          .forEach((b) => (b.disabled = disabled));
+      }
+      function renderPilihanPerilaku() {
+        const box = $("behaviorParticipantResults");
+        box.replaceChildren();
+        const q = $("behaviorParticipantSearch").value.trim().toLowerCase();
+        if (!q) {
+          box.textContent =
+            behaviorPeople.length +
+            " peserta sudah absen datang. Ketik nama untuk memilih.";
+          return;
+        }
+        const found = behaviorPeople
+          .filter((p) => (p.nama + " " + p.unit).toLowerCase().includes(q))
+          .slice(0, 10);
+        if (!found.length) {
+          box.textContent =
+            "Peserta tidak ditemukan atau belum absen datang. Klik Muat Ulang Peserta setelah peserta absen.";
+          return;
+        }
+        found.forEach((p) => {
+          const b = document.createElement("button");
+          b.type = "button";
+          b.className = "btn";
+          b.style.cssText =
+            "display:block;width:100%;text-align:left;margin-top:6px";
+          b.textContent =
+            p.nama +
+            " · " +
+            p.unit +
+            (p.peringatan_waktu ? " · Perlu Verifikasi" : "");
+          b.addEventListener("click", () => pilihPesertaPerilaku(p));
+          box.append(b);
+        });
+      }
+      function pilihPesertaPerilaku(p) {
+        if (saving || behaviorSaved || !behaviorContext) return;
+        behaviorSelected = { peserta: p, id_sesi: behaviorContext.id_sesi };
+        behaviorPayload = null;
+        $("behaviorParticipantSearch").value = p.nama;
+        $("behaviorParticipantResults").replaceChildren();
+        $("behaviorPerson").textContent =
+          p.nama + " · " + p.unit + " · " + behaviorContext.nama;
+        $("behaviorMessage").textContent =
+          p.peringatan_waktu ||
+          "Peserta sudah absen datang. Catatan dapat disimpan tanpa menunggu absen pulang.";
+        $("saveBehavior").disabled = !behaviorIndicators.length;
+        const i = behaviorIndicators.find(
+          (i) => i.id === $("behaviorIndicator").value,
+        );
+        if (i && i.kode === "TERLAMBAT_MASUK")
+          $("behaviorTime").value = (
+            p.datang_verifikasi ||
+            p.datang ||
+            ""
+          ).replace(" ", "T");
+      }
+      async function muatUlangPesertaPerilaku() {
+        if (saving || behaviorSaved || !behaviorContext) return;
+        const seq = behaviorFormSeq,
+          id = behaviorContext.id_sesi;
+        $("refreshBehaviorPeople").disabled = true;
+        try {
+          const r = await rpc("muatKehadiranIndex", id);
+          if (seq !== behaviorFormSeq || !$("behaviorDialog").open) return;
+          if (!r || !r.sukses) throw Error("Data peserta tidak tersedia.");
+          behaviorPeople = r.peserta.filter(
+            (p) =>
+              p.sudah_datang && p.status_peserta.toLowerCase() === "terdaftar",
+          );
+          if (behaviorSelected) {
+            const p = behaviorPeople.find(
+              (p) =>
+                p.id_keikutsertaan ===
+                behaviorSelected.peserta.id_keikutsertaan,
+            );
+            if (p) behaviorSelected.peserta = p;
+            else {
+              behaviorSelected = null;
+              $("saveBehavior").disabled = true;
+            }
+          }
+          renderPilihanPerilaku();
+        } catch (e) {
+          $("behaviorMessage").textContent =
+            e.message || "Peserta gagal dimuat.";
+        } finally {
+          if (seq === behaviorFormSeq && !saving && !behaviorSaved)
+            $("refreshBehaviorPeople").disabled = false;
+        }
+      }
+      async function openBehavior(p = null) {
+        if (saving || loading || !currentSession) return;
+        const seq = ++behaviorFormSeq;
+        behaviorContext = {
+          id_sesi: currentSession.id_sesi,
+          nama: currentSession.nama,
+        };
+        behaviorSelected = null;
+        behaviorPayload = null;
+        behaviorSaved = false;
+        behaviorPeople = [];
+        behaviorIndicators = [];
+        $("behaviorForm").reset();
+        $("behaviorParticipantSearch").value = "";
+        $("behaviorDurationField").classList.add("hidden");
+        $("behaviorTaskField").classList.add("hidden");
+        $("behaviorDuration").required = false;
+        $("behaviorTask").required = false;
+        $("behaviorPerson").textContent =
+          behaviorContext.nama + " · pilih peserta yang sudah absen datang";
+        $("behaviorMessage").textContent = "Memuat peserta dan indikator…";
+        $("behaviorDefinition").textContent = "";
+        $("behaviorParticipantResults").textContent = "Memuat peserta…";
+        kunciFormPerilaku(true);
+        options($("behaviorIndicator"), "Memuat indikator…", []);
+        $("saveBehavior").disabled = true;
+        $("saveBehavior").classList.remove("hidden");
+        $("saveBehavior").textContent = "Simpan Catatan";
+        $("behaviorAgain").classList.add("hidden");
+        $("cancelBehavior").textContent = "Batal";
+        $("cancelBehavior").disabled = false;
+        $("behaviorDialog").showModal();
+        try {
+          const [r, k] = await Promise.all([
+            rpc("muatCatatanPerilakuIndex", behaviorContext.id_sesi),
+            rpc("muatKehadiranIndex", behaviorContext.id_sesi),
+          ]);
+          if (seq !== behaviorFormSeq || !$("behaviorDialog").open) return;
+          if (!r || !r.sukses || !k || !k.sukses)
+            throw Error("Data formulir belum tersedia.");
+          behaviorIndicators = r.indikator;
+          behaviorPeople = k.peserta.filter(
+            (p) =>
+              p.sudah_datang && p.status_peserta.toLowerCase() === "terdaftar",
+          );
+          options(
+            $("behaviorIndicator"),
+            "Pilih indikator",
+            behaviorIndicators.map((i) => ({
+              id: i.id,
+              label: i.kode + " · " + i.jenis,
+            })),
+          );
+          $("behaviorTime").value = String(
+            r.waktu_sekarang ||
+              currentSession.tanggal + " " + currentSession.mulai,
+          ).replace(" ", "T");
+          kunciFormPerilaku(false);
+          $("behaviorMessage").textContent = behaviorIndicators.length
+            ? "Zona waktu: " +
+              r.zona_waktu +
+              ". Pilih peserta untuk mulai mencatat."
+            : "Belum ada indikator aktif selain izin.";
+          renderPilihanPerilaku();
+          const selected =
+            p &&
+            behaviorPeople.find(
+              (x) => x.id_keikutsertaan === p.id_keikutsertaan,
+            );
+          if (selected) pilihPesertaPerilaku(selected);
+          $("behaviorParticipantSearch").focus();
+        } catch (e) {
+          if (seq === behaviorFormSeq)
+            $("behaviorMessage").textContent =
+              e.message || "Formulir gagal dimuat. Tutup lalu buka kembali.";
+        }
+      }
+      async function saveBehavior(e) {
+        e.preventDefault();
+        if (saving || behaviorSaved) return;
+        if (!behaviorSelected) {
+          $("behaviorMessage").textContent =
+            "Cari dan pilih peserta yang sudah absen datang.";
+          return;
+        }
+        if (!behaviorPayload) {
+          const a = new Uint32Array(4);
+          crypto.getRandomValues(a);
+          behaviorPayload = {
+            id_sesi: behaviorSelected.id_sesi,
+            id_keikutsertaan: behaviorSelected.peserta.id_keikutsertaan,
+            id_indikator: $("behaviorIndicator").value,
+            waktu: $("behaviorTime").value,
+            keterangan: $("behaviorReason").value.trim(),
+            bukti: $("behaviorEvidence").value.trim(),
+            durasi: $("behaviorDuration").value,
+            id_tugas: $("behaviorTask").value.trim(),
+            id_permintaan: Array.from(a, (n) =>
+              n.toString(16).padStart(8, "0"),
+            ).join(""),
+          };
+          if (
+            !behaviorPayload.id_indikator ||
+            !behaviorPayload.waktu ||
+            !behaviorPayload.keterangan
+          ) {
+            behaviorPayload = null;
+            $("behaviorMessage").textContent = "Lengkapi seluruh isian.";
+            return;
+          }
+        }
+        saving = true;
+        controls();
+        $("saveBehavior").disabled = true;
+        $("cancelBehavior").disabled = true;
+        kunciFormPerilaku(true);
+        $("behaviorMessage").textContent = "Menyimpan catatan…";
+        try {
+          $("behaviorMessage").textContent =
+            "Menyiapkan bukti dan menyimpan catatan…";
+          const lampiran = await siapkanLampiran(
+            "behaviorEvidenceFile",
+            "perilaku",
+            {
+              id_sesi: behaviorPayload.id_sesi,
+              id_keikutsertaan: behaviorPayload.id_keikutsertaan,
+            },
+          );
+          behaviorPayload.id_bukti = lampiran ? lampiran.id : "";
+          const r = await rpc("simpanCatatanPerilakuIndex", behaviorPayload);
+          if (!r || !r.sukses) throw Error("Hasil penyimpanan belum tersedia.");
+          behaviorSaved = true;
+          behaviorPayload = null;
+          $("behaviorMessage").textContent =
+            r.pesan + " Klik Catat Lagi untuk kejadian berikutnya.";
+          $("saveBehavior").classList.add("hidden");
+          $("behaviorAgain").classList.remove("hidden");
+          $("cancelBehavior").textContent = "Tutup";
+          saving = false;
+          resetScore();
+          await loadBehavior();
+        } catch (err) {
+          $("behaviorMessage").textContent =
+            (err.message || "Penyimpanan belum terkonfirmasi.") +
+            " Coba Lagi memakai permintaan yang sama. Untuk memperbaiki isian, tutup formulir dan periksa daftar catatan dahulu.";
+          $("saveBehavior").textContent = "Coba Lagi";
+        } finally {
+          saving = false;
+          $("saveBehavior").disabled = behaviorSaved;
+          $("cancelBehavior").disabled = false;
+          controls();
+        }
+      }
+      function catatPerilakuLagi() {
+        if (saving || !behaviorSaved) return;
+        behaviorSaved = false;
+        behaviorPayload = null;
+        [
+          "behaviorReason",
+          "behaviorEvidence",
+          "behaviorEvidenceFile",
+          "behaviorDuration",
+          "behaviorTask",
+        ].forEach((id) => ($(id).value = ""));
+        buktiUploadState.perilaku = null;
+        $("behaviorIndicator").value = "";
+        $("behaviorDefinition").textContent = "";
+        $("behaviorDurationField").classList.add("hidden");
+        $("behaviorTaskField").classList.add("hidden");
+        $("behaviorDuration").required = false;
+        $("behaviorTask").required = false;
+        kunciFormPerilaku(false);
+        try {
+          const now = new Intl.DateTimeFormat("sv-SE", {
+            timeZone: zone,
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+            hour: "2-digit",
+            minute: "2-digit",
+            second: "2-digit",
+            hourCycle: "h23",
+          }).format(new Date());
+          $("behaviorTime").value = now.replace(" ", "T");
+        } catch (ignored) {}
+        $("saveBehavior").classList.remove("hidden");
+        $("saveBehavior").textContent = "Simpan Catatan";
+        $("saveBehavior").disabled =
+          !behaviorSelected || !behaviorIndicators.length;
+        $("behaviorAgain").classList.add("hidden");
+        $("cancelBehavior").textContent = "Batal";
+        $("behaviorMessage").textContent =
+          "Siap mencatat lagi. Peserta yang dipilih tetap sama; cari nama lain untuk mengganti peserta.";
+        $("behaviorParticipantSearch").focus();
+        muatUlangPesertaPerilaku();
+      }
+
+      $("quickBehavior").addEventListener("click", () => openBehavior());
+      $("behaviorAgain").addEventListener("click", catatPerilakuLagi);
+      $("refreshBehaviorPeople").addEventListener(
+        "click",
+        muatUlangPesertaPerilaku,
+      );
+      $("behaviorParticipantSearch").addEventListener("input", () => {
+        if (saving || behaviorSaved) return;
+        $("behaviorEvidenceFile").value = "";
+        buktiUploadState.perilaku = null;
+        behaviorSelected = null;
+        behaviorPayload = null;
+        $("saveBehavior").disabled = true;
+        $("behaviorPerson").textContent =
+          (behaviorContext ? behaviorContext.nama : "") + " · pilih peserta";
+        renderPilihanPerilaku();
+      });
+      $("tabPerilaku").addEventListener("click", () => pilihTab("perilaku"));
+      $("refreshBehavior").addEventListener("click", loadBehavior);
+      $("behaviorSearch").addEventListener("input", renderBehavior);
+      $("behaviorForm").addEventListener("submit", saveBehavior);
+      $("cancelBehavior").addEventListener("click", () => {
+        if (!saving) {
+          $("behaviorDialog").close();
+          ++behaviorFormSeq;
+          behaviorContext = null;
+          behaviorSelected = null;
+          behaviorPayload = null;
+        }
+      });
+      $("behaviorDialog").addEventListener("cancel", (e) => {
+        if (saving) e.preventDefault();
+        else {
+          ++behaviorFormSeq;
+          behaviorContext = null;
+          behaviorSelected = null;
+          behaviorPayload = null;
+        }
+      });
+      $("behaviorIndicator").addEventListener("change", () => {
+        const i = behaviorIndicators.find(
+          (i) => i.id === $("behaviorIndicator").value,
+        );
+        $("behaviorDefinition").textContent = i ? i.definisi : "";
+        const off = i && i.kode === "OFF_CAM",
+          task = i && ["TUGAS_TEPAT_WAKTU", "TERLAMBAT_TUGAS"].includes(i.kode);
+        $("behaviorDurationField").classList.toggle("hidden", !off);
+        $("behaviorTaskField").classList.toggle("hidden", !task);
+        $("behaviorDuration").required = Boolean(off);
+        $("behaviorTask").required = Boolean(task);
+        if (!off) $("behaviorDuration").value = "";
+        if (!task) $("behaviorTask").value = "";
+        if (i && i.kode === "TERLAMBAT_MASUK" && behaviorSelected) {
+          const p = behaviorSelected.peserta;
+          $("behaviorTime").value = (
+            p.datang_verifikasi ||
+            p.datang ||
+            ""
+          ).replace(" ", "T");
+          $("behaviorDefinition").textContent +=
+            " Waktu kejadian mengikuti waktu datang efektif dari absensi.";
+        }
+      });
+      $("sesi").addEventListener("change", () => {
+        resetBehavior();
+        if (activeTab === "perilaku") loadBehavior();
+        if (activeTab === "izin") loadIzin();
+      });
+      const baseRuleSpec = [
+        ["nilai_dasar", "Nilai awal", 0, 100, 1],
+        ["bobot", "Bobot (%)", 0, 100, 0.1],
+        ["tambahan_positif_maks", "Batas tambahan positif", 0, 100, 1],
+        [
+          "toleransi_terlambat_menit",
+          "Toleransi terlambat (menit)",
+          0,
+          1440,
+          1,
+        ],
+        ["toleransi_off_cam_menit", "Toleransi off cam (menit)", 0, 1440, 0.01],
+        ["izin_bebas_poin", "Jumlah izin bebas poin", 0, 1440, 1],
+      ];
+      let ruleSpec = [];
+      function isiRule(cfg) {
+        const keys = new Set(Object.keys(cfg.indikator));
+        scoreCatalog
+          .filter((i) => i.status === "aktif")
+          .forEach((i) => keys.add(i.kode));
+        ruleSpec = baseRuleSpec.concat(
+          Array.from(keys).map((k) => {
+            const i =
+              scoreCatalog.find((i) => i.kode === k && i.status === "aktif") ||
+              scoreCatalog.find((i) => i.kode === k);
+            const value = Object.prototype.hasOwnProperty.call(cfg.indikator, k)
+              ? cfg.indikator[k]
+              : i && i.poin;
+            const jenis =
+              (i && i.jenis) || ((value || 0) < 0 ? "negatif" : "positif");
+            return [
+              k,
+              "Poin " +
+                k +
+                (i && i.status !== "aktif" ? " (riwayat/nonaktif)" : ""),
+              jenis === "negatif" ? -1000 : 0,
+              jenis === "negatif" ? 0 : 1000,
+              0.01,
+            ];
+          }),
+        );
+        const box = $("ruleFields");
+        box.replaceChildren();
+        ruleSpec.forEach(([key, title, min, max, step]) => {
+          const f = document.createElement("div");
+          f.className = "field";
+          const l = document.createElement("label");
+          l.htmlFor = "rule_" + key;
+          l.textContent = title;
+          const input = document.createElement("input");
+          input.id = "rule_" + key;
+          input.type = "number";
+          input.min = min;
+          input.max = max;
+          input.step = step;
+          input.required = true;
+          input.value =
+            key === "nilai_dasar"
+              ? cfg.nilai_dasar
+              : key === "bobot"
+                ? cfg.bobot * 100
+                : Object.prototype.hasOwnProperty.call(cfg.indikator, key)
+                  ? cfg.indikator[key]
+                  : key === key.toUpperCase()
+                    ? ((
+                        scoreCatalog.find(
+                          (i) => i.kode === key && i.status === "aktif",
+                        ) || {}
+                      ).poin ?? "")
+                    : cfg.perhitungan[key];
+          f.append(l, input);
+          box.append(f);
+        });
+        $("ruleReason").value = "";
+      }
+      function resetScore() {
+        scoreCatalog = [];
+        scoreCatalogVersion = "";
+        $("indicatorBody").replaceChildren();
+        $("indicatorCount").textContent =
+          "Muat nilai program untuk melihat indikator.";
+        resetIndicatorForm();
+        ++scoreSeq;
+        scoreLoading = false;
+        scoreRows = [];
+        scoreRule = null;
+        scoreProgram = "";
+        $("scoreInfo").textContent = "Pilih program lalu muat nilai.";
+        $("scoreBody").replaceChildren();
+        $("scoreEmpty").classList.remove("hidden");
+        $("scoreEmpty").textContent = "Aturan program belum dimuat.";
+        if ($("scoreDetailDialog").open) $("scoreDetailDialog").close();
+        controls();
+      }
+      function renderScore() {
+        const body = $("scoreBody");
+        body.replaceChildren();
+        $("scoreEmpty").classList.toggle("hidden", scoreRows.length > 0);
+        scoreRows.forEach((p) => {
+          const tr = document.createElement("tr"),
+            name = cell(""),
+            b = document.createElement("button");
+          b.type = "button";
+          b.className = "action";
+          b.textContent = p.nama;
+          b.addEventListener("click", () => showScoreDetail(p));
+          const unit = document.createElement("span");
+          unit.className = "sub";
+          unit.textContent = p.unit + " · " + p.id_keikutsertaan;
+          name.append(b, unit);
+          tr.append(
+            name,
+            cell("+" + formatRekap(p.tambahan_diakui)),
+            cell("−" + formatRekap(p.pengurangan)),
+            cell(formatRekap(p.nilai)),
+            cell(formatRekap(p.kontribusi)),
+          );
+          const status = cell(
+              p.status === "lengkap" ? "Data lengkap" : "Sementara",
+            ),
+            sub = document.createElement("span");
+          sub.className = "sub";
+          sub.textContent =
+            p.jumlah_catatan +
+            " catatan · " +
+            p.menunggu +
+            " menunggu / perlu dilengkapi";
+          status.append(sub);
+          tr.append(status);
+          body.append(tr);
+        });
+      }
+      async function loadScore() {
+        const id = $("program").value,
+          seq = ++scoreSeq;
+        if (!id) {
+          resetScore();
+          return;
+        }
+        scoreLoading = true;
+        controls();
+        $("scoreInfo").textContent = "Memuat aturan dan nilai program…";
+        try {
+          const r = await rpc("muatNilaiPerilakuProgramIndex", id);
+          if (seq !== scoreSeq) return;
+          if (!r || !r.sukses) throw Error("Nilai tidak tersedia.");
+          scoreProgram = id;
+          scoreRule = r.aturan;
+          scoreRows = r.peserta;
+          scoreCatalog = r.katalog || [];
+          scoreCatalogVersion = r.versi_indikator || "";
+          renderIndicatorCatalog();
+          isiRule(r.aturan ? r.aturan.cfg : r.default_cfg);
+          $("scoreInfo").textContent = r.aturan
+            ? r.aturan.nama +
+              " · versi " +
+              r.aturan.versi +
+              " · bobot " +
+              formatRekap(r.aturan.cfg.bobot * 100, "%")
+            : "Program belum memiliki aturan. Periksa nilai bawaan lalu simpan aturan program.";
+          $("scoreEmpty").textContent = r.aturan
+            ? "Belum ada peserta pada program."
+            : "Simpan aturan program untuk mulai menghitung nilai.";
+          $("ruleDetails").open = !r.aturan;
+          $("ruleMessage").textContent = "";
+          renderScore();
+        } catch (e) {
+          if (seq === scoreSeq) {
+            scoreProgram = "";
+            scoreRows = [];
+            renderScore();
+            $("scoreInfo").textContent = e.message || "Gagal memuat nilai.";
+          }
+        } finally {
+          if (seq === scoreSeq) {
+            scoreLoading = false;
+            controls();
+          }
+        }
+      }
+      async function saveRule(e) {
+        e.preventDefault();
+        if (
+          saving ||
+          scoreLoading ||
+          !scoreProgram ||
+          scoreProgram !== $("program").value
+        )
+          return;
+        const missing = ruleSpec.find(([key]) => $("rule_" + key).value === "");
+        if (missing) {
+          $("ruleMessage").textContent =
+            "Isi poin/parameter " + missing[0] + ".";
+          return;
+        }
+        const cfg = {
+          schema: 1,
+          nilai_dasar: Number($("rule_nilai_dasar").value),
+          bobot: Number($("rule_bobot").value) / 100,
+          indikator: {},
+          perhitungan: { nilai_min: 0, nilai_maks: 100 },
+        };
+        ruleSpec.forEach(([key]) => {
+          if (["nilai_dasar", "bobot"].includes(key)) return;
+          const raw = $("rule_" + key).value;
+          const value = Number(raw);
+          if (key === key.toUpperCase()) cfg.indikator[key] = value;
+          else cfg.perhitungan[key] = value;
+        });
+        const reason = $("ruleReason").value.trim();
+        if (!reason) {
+          $("ruleMessage").textContent = "Isi alasan penetapan atau perubahan.";
+          return;
+        }
+        const payload = {
+          versi_indikator: scoreCatalogVersion,
+          id_program: scoreProgram,
+          id_aturan_sebelumnya: scoreRule ? scoreRule.id : "",
+          cfg: cfg,
+          alasan: reason,
+        };
+        saving = true;
+        controls();
+        $("ruleMessage").textContent = "Menyimpan versi aturan…";
+        try {
+          const r = await rpc("simpanAturanPerilakuProgramIndex", payload);
+          if (!r || !r.sukses) throw Error("Hasil penyimpanan belum tersedia.");
+          saving = false;
+          await loadScore();
+          message(r.pesan, "success");
+        } catch (err) {
+          $("ruleMessage").textContent =
+            (err.message || "Penyimpanan belum terkonfirmasi.") +
+            " Muat ulang nilai sebelum mengulang.";
+        } finally {
+          saving = false;
+          controls();
+        }
+      }
+      function showScoreDetail(p) {
+        $("scoreDetailTitle").textContent = "Nilai Perilaku · " + p.nama;
+        $("scoreDetailSummary").textContent =
+          "Nilai awal " +
+          formatRekap(scoreRule.cfg.nilai_dasar) +
+          " + tambahan diakui " +
+          formatRekap(p.tambahan_diakui) +
+          " − pengurangan " +
+          formatRekap(p.pengurangan) +
+          " → nilai " +
+          formatRekap(p.nilai) +
+          " · Kontribusi berbobot " +
+          formatRekap(p.kontribusi) +
+          " · " +
+          (p.status === "lengkap" ? "Data lengkap" : "Sementara");
+        const body = $("scoreDetailBody");
+        body.replaceChildren();
+        p.detail.forEach((r) => {
+          const tr = document.createElement("tr");
+          tr.append(
+            cell(r.kode + " · " + r.id_sesi),
+            cell(r.waktu),
+            cell(formatRekap(r.poin)),
+            cell(r.status.replace(/_/g, " ")),
+            cell(r.alasan + " " + r.keterangan_catatan),
+          );
+          body.append(tr);
+        });
+        if (!p.detail.length) {
+          const tr = document.createElement("tr"),
+            td = cell("Belum ada catatan. Nilai awal digunakan.");
+          td.colSpan = 5;
+          tr.append(td);
+          body.append(tr);
+        }
+        $("scoreDetailDialog").showModal();
+      }
+      let indicatorEdit = null,
+        indicatorPayload = null;
+      function resetIndicatorForm() {
+        indicatorEdit = null;
+        indicatorPayload = null;
+        $("indicatorForm").reset();
+        $("indicatorCode").readOnly = false;
+        $("indicatorFormTitle").textContent = "Tambah Indikator";
+        $("indicatorMessage").textContent =
+          "Poin bawaan belum mengubah aturan program. Simpan pengaturan program setelah menambah indikator.";
+      }
+      function renderIndicatorCatalog() {
+        const body = $("indicatorBody");
+        body.replaceChildren();
+        scoreCatalog.forEach((i) => {
+          const tr = document.createElement("tr"),
+            action = cell(""),
+            b = document.createElement("button");
+          b.type = "button";
+          b.className = "action";
+          b.textContent = "Edit / Ubah Status";
+          b.disabled = saving || scoreLoading;
+          b.addEventListener("click", () => {
+            if (saving || scoreLoading) return;
+            indicatorEdit = i;
+            indicatorPayload = null;
+            $("indicatorCode").value = i.kode;
+            $("indicatorCode").readOnly = true;
+            $("indicatorDefinition").value = i.definisi;
+            $("indicatorKind").value = i.jenis;
+            $("indicatorDefault").value = Number.isFinite(i.poin) ? i.poin : "";
+            $("indicatorStatus").value =
+              i.status === "aktif" ? "aktif" : "nonaktif";
+            $("indicatorReason").value = "";
+            $("indicatorFormTitle").textContent = "Edit Indikator · " + i.id;
+            $("indicatorMessage").textContent =
+              "Kode dan ID tetap. Definisi/jenis yang sudah dipakai dalam catatan tidak dapat diubah. Perubahan poin bawaan tidak mengubah aturan program yang tersimpan.";
+            if (!$("indicatorDialog").open) $("indicatorDialog").showModal();
+            $("indicatorDefinition").focus();
+          });
+          action.append(b);
+          tr.append(
+            cell(i.kode + " · " + i.id),
+            cell(i.definisi),
+            cell(i.jenis || "Belum diisi"),
+            cell(Number.isFinite(i.poin) ? i.poin : "Belum diisi"),
+            cell(i.status || "Belum diisi"),
+            action,
+          );
+          body.append(tr);
+        });
+        $("indicatorCount").textContent =
+          scoreCatalog.length +
+          " indikator · Daftar ini digunakan bersama oleh seluruh program.";
+      }
+      async function saveIndicator(e) {
+        e.preventDefault();
+        if (saving || scoreLoading || !scoreProgram) return;
+        if (!indicatorPayload) {
+          const poin = $("indicatorDefault").value;
+          if (poin === "") return;
+          const reason = $("indicatorReason").value.trim();
+          if (!reason) return;
+          if (indicatorEdit)
+            indicatorPayload = {
+              jenis: "Indikator_Perilaku",
+              id: indicatorEdit.id,
+              versi: indicatorEdit.versi,
+              id_permintaan: idUnggah(),
+              alasan: reason,
+              values: {
+                definisi_indikator: $("indicatorDefinition").value.trim(),
+                jenis_indikator: $("indicatorKind").value,
+                poin_per_kejadian: poin,
+                status_indikator: $("indicatorStatus").value,
+              },
+              jeda: [],
+            };
+          else {
+            indicatorPayload = {
+              status: $("indicatorStatus").value,
+              kode: $("indicatorCode").value.trim(),
+              definisi: $("indicatorDefinition").value.trim(),
+              jenis: $("indicatorKind").value,
+              poin: Number(poin),
+              alasan: reason,
+              id_permintaan: idUnggah(),
+            };
+          }
+        }
+        saving = true;
+        controls();
+        kunciIndikator(true);
+        $("indicatorMessage").textContent = "Menyimpan indikator…";
+        try {
+          const r = await rpc(
+            indicatorPayload.jenis === "Indikator_Perilaku"
+              ? "simpanEditDataIndex"
+              : "tambahIndikatorIndex",
+            indicatorPayload,
+          );
+          if (!r || !r.sukses) throw Error("Penyimpanan belum terkonfirmasi.");
+          $("indicatorDialog").close();
+          resetIndicatorForm();
+          message(r.pesan, "success");
+          saving = false;
+          await loadScore();
+          $("ruleDetails").open = true;
+          message(
+            r.pesan + " Periksa poin lalu simpan versi aturan program.",
+            "success",
+          );
+        } catch (err) {
+          $("indicatorMessage").textContent =
+            (err.message || "Penyimpanan belum terkonfirmasi.") +
+            " Coba simpan lagi tanpa mengubah isian, atau muat ulang nilai untuk memeriksa hasil.";
+        } finally {
+          saving = false;
+          kunciIndikator(false);
+          controls();
+        }
+      }
+      function kunciIndikator(disabled) {
+        $("closeIndicatorDialog").disabled = disabled;
+        $("indicatorForm")
+          .querySelectorAll("input,select,textarea,button")
+          .forEach((el) => (el.disabled = disabled));
+        $("newIndicatorForm").disabled = disabled;
+      }
+      $("indicatorForm").addEventListener("submit", saveIndicator);
+      $("newIndicatorForm").addEventListener("click", () => {
+        if (saving || scoreLoading || !scoreProgram) return;
+        resetIndicatorForm();
+        $("indicatorDialog").showModal();
+        $("indicatorCode").focus();
+      });
+      $("closeIndicatorDialog").addEventListener("click", () => {
+        if (!saving) $("indicatorDialog").close();
+      });
+      $("indicatorDialog").addEventListener("cancel", (e) => {
+        if (saving) e.preventDefault();
+      });
+      $("indicatorForm").addEventListener("input", () => {
+        if (!saving) indicatorPayload = null;
+      });
+
+      $("tabNilai").addEventListener("click", () => pilihTab("nilai"));
+      $("refreshScore").addEventListener("click", loadScore);
+      $("ruleForm").addEventListener("submit", saveRule);
+      $("closeScoreDetail").addEventListener("click", () =>
+        $("scoreDetailDialog").close(),
+      );
+
+      function csvRecapCell(value) {
+        let t = String(value == null ? "" : value);
+        if (/^[\s]*[=+@-]/.test(t)) t = "'" + t;
+        return '"' + t.replace(/"/g, '""') + '"';
+      }
+      function buatCSVRekap() {
+        const header = [
+          "id_program",
+          "id_keikutsertaan",
+          "nama_pegawai",
+          "unit_kerja",
+          "jp_diperoleh",
+          "jp_acuan",
+          "kekurangan_jp",
+          "pemenuhan_persen",
+          "status_jp",
+          "nilai_perilaku",
+          "status_perilaku",
+          "jumlah_catatan_perilaku",
+          "versi_aturan_perilaku",
+          "nilai_keseluruhan",
+          "status_nilai_keseluruhan",
+          "dimuat_pada",
+        ];
+        const num = (n) => (Number.isFinite(n) ? String(n) : "");
+        const rows = recapRows.map((p) => {
+          const n = recapScores.get(p.id_keikutsertaan);
+          return [
+            recapProgram,
+            p.id_keikutsertaan,
+            p.nama,
+            p.unit,
+            num(p.jp_diperoleh),
+            num(p.jp_acuan),
+            num(p.kekurangan_jp),
+            num(p.persentase),
+            p.status,
+            n ? num(n.nilai) : "",
+            !recapRule
+              ? "aturan_belum_ditetapkan"
+              : n
+                ? n.status
+                : "data_tidak_tersedia",
+            n ? n.jumlah_catatan : "",
+            recapRule ? recapRule.versi : "",
+            "",
+            "aturan_penilaian_belum_lengkap",
+            recapAt,
+          ];
+        });
+        return (
+          "\uFEFF" +
+          [header, ...rows]
+            .map((r) => r.map(csvRecapCell).join(","))
+            .join("\r\n")
+        );
+      }
+      function unduhRekap() {
+        if (
+          recapLoading ||
+          !recapRows.length ||
+          recapProgram !== $("program").value
+        )
+          return;
+        const url = URL.createObjectURL(
+          new Blob([buatCSVRekap()], { type: "text/csv;charset=utf-8" }),
+        );
+        const a = document.createElement("a");
+        a.href = url;
+        a.download =
+          "Rekap_" +
+          recapProgram.replace(/[^a-zA-Z0-9_-]/g, "_") +
+          "_" +
+          recapAt.slice(0, 10) +
+          ".csv";
+        document.body.append(a);
+        a.click();
+        a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+      }
+      $("downloadRecap").addEventListener("click", unduhRekap);
+      $("tabSesi").addEventListener("click", () => pilihTab("sesi"));
+      $("tabRekap").addEventListener("click", () => pilihTab("rekap"));
+      $("refreshRecap").addEventListener("click", loadRecap);
+      $("recapSearch").addEventListener("input", renderRecap);
+      $("calculate").addEventListener("click", calculateJP);
+      function preselectMonitoring() {
+        try {
+          google.script.url.getLocation((loc) => {
+            const para = (loc && loc.parameter) || {},
+              p = allPrograms.find(
+                (p) => p.id_program === String(para.program || ""),
+              );
+            if (!p) return;
+            $("kategori").value = JSON.stringify(p.kategori_pelatihan);
+            $("kategori").dispatchEvent(new Event("change"));
+            $("jenjang").value = JSON.stringify(p.jenjang);
+            $("jenjang").dispatchEvent(new Event("change"));
+            $("program").value = p.id_program;
+            $("program").dispatchEvent(new Event("change"));
+            if (
+              para.sesi &&
+              allSessions.some(
+                (s) => s.id_sesi === para.sesi && s.id_program === p.id_program,
+              )
+            ) {
+              $("sesi").value = para.sesi;
+              $("sesi").dispatchEvent(new Event("change"));
+            }
+          });
+        } catch (ignored) {}
+      }
+      $("program").addEventListener("change", () => {
+        resetScore();
+        resetBehavior();
+        resetRecap();
+        ++loadSequence;
+        loading = false;
+        options(
+          $("sesi"),
+          "Pilih sesi",
+          allSessions
+            .filter((s) => s.id_program === $("program").value)
+            .map((s) => ({
+              id: s.id_sesi,
+              label: s.nama_sesi + " · " + s.id_sesi,
+            })),
+        );
+        resetQR();
+        clearData();
+        if (activeTab === "rekap") loadRecap();
+        if (activeTab === "nilai") loadScore();
+      });
+      $("sesi").addEventListener("change", () => {
+        resetQR();
+        load();
+      });
+      $("refresh").addEventListener("click", load);
+      $("search").addEventListener("input", render);
+      $("publish").addEventListener("click", publish);
+      ["jenis", "masa"].forEach((id) =>
+        $(id).addEventListener("change", resetQR),
+      );
+      $("editForm").addEventListener("submit", save);
+      $("cancelEdit").addEventListener("click", () => {
+        if (!saving) $("editDialog").close();
+      });
+      $("editDialog").addEventListener("cancel", (e) => {
+        if (saving) e.preventDefault();
+      });
+      $("retryAccess").addEventListener("click", init);
+      init();
+    </script>
+  <script id="flat-dashboard-interactions">
+/* Dashboard interactions are isolated from existing Apps Script handlers. */
+(() => {
+  'use strict';
+  document.addEventListener('DOMContentLoaded', () => {
+    const body = document.body;
+    const menu = document.getElementById('dashMenu');
+    if (!menu) return;
+    const sidebar = document.getElementById('dashSidebar');
+    const backdrop = document.getElementById('dashBackdrop');
+    const mobile = window.matchMedia('(max-width: 900px)');
+    const density = document.getElementById('dashDensity');
+    const date = document.getElementById('dashDate');
+    let toastTimer;
+    function toast(text) {
+      const el = document.getElementById('dashToast');
+      el.textContent = text;
+      el.hidden = false;
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => { el.hidden = true; }, 4500);
+    }
+    date.textContent = new Intl.DateTimeFormat('id-ID', {day:'numeric', month:'long', year:'numeric', timeZone:'Asia/Jakarta'}).format(new Date());
+    const inertBefore = new Map();
+    function closeMobile() {
+      body.classList.remove('dash-nav-open');
+      for (const [el, wasInert] of inertBefore) el.inert = wasInert;
+      inertBefore.clear();
+      sidebar.removeAttribute('role');
+      sidebar.removeAttribute('aria-modal');
+      sidebar.inert = mobile.matches;
+      menu.setAttribute('aria-expanded', String(!mobile.matches && !body.classList.contains('dash-nav-collapsed')));
+    }
+    function openMobile() {
+      body.classList.add('dash-nav-open');
+      sidebar.inert = false;
+      sidebar.setAttribute('role', 'dialog');
+      sidebar.setAttribute('aria-modal', 'true');
+      for (const el of body.children) {
+        if (el !== sidebar && el !== backdrop && !['SCRIPT','STYLE'].includes(el.tagName)) {
+          inertBefore.set(el, el.inert);
+          el.inert = true;
+        }
+      }
+      menu.setAttribute('aria-expanded', 'true');
+      sidebar.querySelector('button,a').focus();
+    }
+    menu.addEventListener('click', () => {
+      if (mobile.matches) {
+        if (body.classList.contains('dash-nav-open')) closeMobile(); else openMobile();
+      } else {
+        const collapsed = body.classList.toggle('dash-nav-collapsed');
+        sidebar.inert = collapsed;
+        menu.setAttribute('aria-expanded', String(!collapsed));
+      }
+    });
+    function closeAndFocus() { closeMobile(); menu.focus(); }
+    backdrop.addEventListener('click', closeAndFocus);
+    document.getElementById('dashCloseMenu').addEventListener('click', closeAndFocus);
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape' && body.classList.contains('dash-nav-open')) { e.preventDefault(); closeAndFocus(); }
+      if (e.key === 'Tab' && body.classList.contains('dash-nav-open')) {
+        const items = [...sidebar.querySelectorAll('a[href],button:not(:disabled)')].filter(el => el.getClientRects().length);
+        const first = items[0], last = items[items.length - 1];
+        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+      }
+      if (e.key === '/' && !e.ctrlKey && !e.metaKey && !e.altKey && !e.target.closest('input,select,textarea,[contenteditable=true]') && !document.querySelector('dialog[open]') && !body.classList.contains('dash-nav-open')) {
+        const input = [...document.querySelectorAll('main input[type=search]')].find(el => !el.disabled && el.getClientRects().length);
+        if (input) { e.preventDefault(); input.focus(); }
+      }
+    });
+    mobile.addEventListener('change', () => {
+      closeMobile();
+      if (!mobile.matches) sidebar.inert = body.classList.contains('dash-nav-collapsed');
+    });
+    closeMobile();
+    function applyDensity(compact) {
+      body.classList.toggle('dash-compact', compact);
+      density.setAttribute('aria-pressed', String(compact));
+      density.title = compact ? 'Gunakan tabel renggang' : 'Gunakan tabel ringkas';
+      density.setAttribute('aria-label', density.title);
+    }
+    try { applyDensity(localStorage.getItem('pelatihan-density') === 'compact'); } catch (_) {}
+    density.addEventListener('click', () => {
+      const compact = !body.classList.contains('dash-compact');
+      applyDensity(compact);
+      try { localStorage.setItem('pelatihan-density', compact ? 'compact' : 'comfortable'); } catch (_) {}
+      toast(compact ? 'Tampilan tabel ringkas diaktifkan.' : 'Tampilan tabel renggang diaktifkan.');
+    });
+    function navigationURL(page) {
+      const base = typeof navigationBase === 'string' ? navigationBase : '';
+      if (!base) return '';
+      const selected = document.getElementById('program');
+      return base + '?page=' + encodeURIComponent(page) + (selected && selected.value ? '&program=' + encodeURIComponent(selected.value) : '');
+    }
+    function syncNavigation() {
+      document.querySelectorAll('[data-dash-page]').forEach(link => {
+        const url = navigationURL(link.dataset.dashPage);
+        if (url) {
+          if (link.getAttribute('href') !== url) link.setAttribute('href', url);
+          link.removeAttribute('aria-disabled');
+          link.classList.remove('dash-unavailable');
+        } else {
+          link.setAttribute('aria-disabled','true');
+          link.classList.add('dash-unavailable');
+        }
+      });
+    }
+    document.querySelectorAll('[data-dash-page]').forEach(link => link.addEventListener('click', e => {
+      syncNavigation();
+      if (!navigationURL(link.dataset.dashPage)) {
+        e.preventDefault();
+        if (mobile.matches) closeMobile();
+        toast('Navigasi belum tersedia. Tunggu data dimuat atau buka halaman melalui menu Manajemen Pelatihan di Google Sheets.');
+      }
+    }));
+    document.getElementById('program')?.addEventListener('change', syncNavigation);
+    for (const id of ['openPengelolaan','openMonitoring','backParticipants','backMonitoring']) {
+      const link = document.getElementById(id);
+      if (link) new MutationObserver(syncNavigation).observe(link, {attributes:true, attributeFilter:['href']});
+    }
+    syncNavigation();
+    const progress = document.getElementById('dashCompletion');
+    if (progress) {
+      const total = document.getElementById('total'), complete = document.getElementById('complete');
+      function updateProgress() {
+        const n = Number(total.textContent), c = Number(complete.textContent);
+        const ready = total.textContent.trim() !== '—' && complete.textContent.trim() !== '—' && Number.isFinite(n) && Number.isFinite(c);
+        const percent = ready && n > 0 ? Math.max(0, Math.min(100, Math.round(c / n * 100))) : 0;
+        document.getElementById('dashCompletionValue').textContent = ready ? percent + '%' : '—';
+        document.getElementById('dashCompletionFill').style.width = percent + '%';
+        const meter = document.getElementById('dashProgress');
+        if (ready) meter.setAttribute('aria-valuenow', String(percent)); else meter.removeAttribute('aria-valuenow');
+        meter.setAttribute('aria-valuetext', ready ? c + ' dari ' + n + ' peserta memiliki absensi lengkap' : 'Pilih sesi untuk melihat kelengkapan absensi');
+        document.getElementById('dashCompletionNote').textContent = ready ? c + ' dari ' + n + ' peserta · datang dan pulang lengkap' : 'Pilih sesi untuk melihat ringkasan.';
+      }
+      const observer = new MutationObserver(updateProgress);
+      observer.observe(total, {childList:true, subtree:true, characterData:true});
+      observer.observe(complete, {childList:true, subtree:true, characterData:true});
+      updateProgress();
+    }
+    const attendanceBody = document.getElementById('tableBody');
+    if (attendanceBody) {
+      let activeFilter = 'all';
+      function applyAttendanceFilter() {
+        const tableRows = [...attendanceBody.querySelectorAll('tr')];
+        let visible = 0;
+        for (const row of tableRows) {
+          const status = (row.cells[3]?.querySelector('.badge')?.textContent || '').trim().toLowerCase();
+          const complete = status === 'lengkap';
+          const absent = status === 'belum absen';
+          const show = activeFilter === 'all' || (activeFilter === 'complete' && complete) || (activeFilter === 'absent' && absent) || (activeFilter === 'review' && !complete && !absent);
+          row.hidden = !show;
+          if (show) visible++;
+        }
+        document.getElementById('dashFilteredCount').textContent = tableRows.length ? visible + ' ditampilkan' : '';
+        document.getElementById('dashStatusEmpty').hidden = !(tableRows.length > 0 && visible === 0);
+      }
+      document.querySelectorAll('[data-attendance-filter]').forEach(button => button.addEventListener('click', () => {
+        activeFilter = button.dataset.attendanceFilter;
+        document.querySelectorAll('[data-attendance-filter]').forEach(el => el.setAttribute('aria-pressed', String(el === button)));
+        applyAttendanceFilter();
+      }));
+      new MutationObserver(applyAttendanceFilter).observe(attendanceBody, {childList:true});
+      applyAttendanceFilter();
+    }
+    document.querySelectorAll('.tablebox,.preview-wrap').forEach((wrap, index) => {
+      wrap.setAttribute('tabindex','0');
+      wrap.setAttribute('role','region');
+      const section = wrap.closest('section,.panel');
+      const heading = section?.querySelector('h2');
+      wrap.setAttribute('aria-label',(heading?.textContent.trim() || 'Tabel data') + '. Geser ke samping untuk kolom lainnya.');
+    });
+  });
+})();
+
+</script>
+</body>
+</html>
