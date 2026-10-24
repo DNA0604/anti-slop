@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-10-24 — Beranda as the default landing page
+- Added Beranda.html with whole-database program, unique-participant and session counts; upcoming/today agenda; category/status distribution; follow-up counters; program search, filters and pagination.
+- Added an owner-protected, read-only muatBerandaIndex endpoint. Counts distinguish unique participants from registrations, honor spreadsheet timezone, exclude future attendance from follow-up and surface invalid relationships/schedules.
+- Changed the default Web App route to Beranda, retained Index for page=monitoring, and preserved participant/profile routes and QR token priority. Added Buka Beranda to the spreadsheet menu.
+- Added Beranda to the four existing admin sidebars while retaining the accepted sidebar/navigation implementation and creation modals.
+- Added 12 backend tests for aggregation, empty/error cases, owner access, duplicate/foreign relationships, effective corrected times, agenda limits, timezone and routing. Local Chromium checks covered desktop/mobile UI, search/filter/pagination, escaping, sidebar click/hover/keyboard, missing navigation base and navigation round trips with program/dev context.
+- Updated installation notes, context and source hashes. No Google deployment, production data writes, new database schema or changes to scoring/JP formulas performed.
+
 ## 2026-10-24 — creation forms in separate modals
 - Replaced the program/session creation disclosures in Pengelolaan with native dialogs and buttons in the card headers.
 - Moved manual participant entry and existing-participant lookup into a dialog opened from the participant registration card; file import remains on the page.

@@ -6,8 +6,13 @@ function doGet(e) {
     ? String(parameter.absen).trim()
     : "";
 
-  let namaFile = "Index";
-  let judul = "Monitoring Pelatihan";
+  let namaFile = "Beranda";
+  let judul = "Beranda Pelatihan";
+
+  if (!token && String(parameter.page || "").trim() === "monitoring") {
+    namaFile = "Index";
+    judul = "Monitoring Pelatihan";
+  }
 
   if (!token && String(parameter.page || "").trim() === "pengelolaan") {
     namaFile = "Pengelolaan";
@@ -2658,6 +2663,7 @@ function onOpen() {
     .addItem("Catat Izin Sesi", "catatIzinSesi_")
     .addItem("Buka Panel Pengelolaan", "bukaPanelPengelolaan_")
     .addItem("Buka Peserta Program", "bukaPanelPeserta_")
+    .addItem("Buka Beranda", "bukaPanelBeranda_")
     .addItem("Buka Monitoring", "bukaPanelMonitoring_")
     .addSeparator()
     .addItem(
@@ -4292,3 +4298,130 @@ function muatProfilPesertaIndex(d){
 }
 
 function muatDaftarIzinIndex(idSesi){const r=muatCatatanPerilakuIndex(idSesi);return {sukses:true,id_sesi:String(idSesi).trim(),zona_waktu:r.zona_waktu,catatan:r.catatan.filter(c=>c.kode==='IZIN_SESI')};}
+
+// Beranda reads existing records only; it does not calculate or write JP/scores.
+function muatBerandaIndex() {
+  wajibPemilikIndex_();
+  const zona = SpreadsheetApp.getActiveSpreadsheet().getSpreadsheetTimeZone();
+  const data = {
+    program: tabelIndex_('Program', ['id_program','nama_program','kategori_pelatihan','jenjang','tanggal_mulai','tanggal_selesai','status_program']).records,
+    peserta: tabelIndex_('Peserta', ['id_peserta']).records,
+    ikut: tabelIndex_('Keikutsertaan', ['id_keikutsertaan','id_program','id_peserta','status_keikutsertaan']).records,
+    sesi: tabelIndex_('Sesi', ['id_sesi','id_program','nama_sesi','tanggal_sesi','jam_mulai','jam_selesai']).records,
+    hadir: tabelIndex_('Kehadiran', ['id_kehadiran','id_sesi','id_keikutsertaan','waktu_datang','waktu_pulang','waktu_datang_terverifikasi','waktu_pulang_terverifikasi']).records,
+    catatan: tabelIndex_('Catatan_Perilaku', ['id_catatan','id_keikutsertaan','id_sesi','status_validasi']).records
+  };
+  const result = ringkasBeranda_(data, Date.now(), zona);
+  result.navigasi = navigasiPelatihan_();
+  return result;
+}
+
+function ringkasBeranda_(data, now, zona) {
+  const txt = v => String(v == null ? '' : v).trim();
+  const norm = v => txt(v).toLowerCase();
+  const tanggal = v => v instanceof Date && Number.isFinite(v.getTime()) ? Utilities.formatDate(v, zona, 'yyyy-MM-dd') : txt(v);
+  const jam = v => v instanceof Date && Number.isFinite(v.getTime()) ? Utilities.formatDate(v, zona, 'HH:mm') : txt(v);
+  function byId(rows, key, label) {
+    const map = new Map();
+    rows.forEach(row => {
+      const id = txt(row[key]);
+      if (!id || map.has(id)) throw Error('ID kosong atau duplikat pada ' + label + '. Periksa Data di Pengelolaan sebelum memuat Beranda.');
+      map.set(id, row);
+    });
+    return map;
+  }
+  const programs = byId(data.program, 'id_program', 'Program');
+  const people = byId(data.peserta, 'id_peserta', 'Peserta');
+  byId(data.ikut, 'id_keikutsertaan', 'Keikutsertaan');
+  const rawSessions = byId(data.sesi, 'id_sesi', 'Sesi');
+  byId(data.hadir, 'id_kehadiran', 'Kehadiran');
+  byId(data.catatan, 'id_catatan', 'Catatan_Perilaku');
+  const hari = Utilities.formatDate(new Date(now), zona, 'yyyy-MM-dd');
+  const members = new Map(), sessions = new Map(), perProgram = new Map();
+  const category = new Map(), statuses = {draft: 0, aktif: 0, selesai: 0, lainnya: 0};
+  let relasi = 0, jadwalInvalid = 0, registered = 0;
+  programs.forEach((p, id) => {
+    perProgram.set(id, {peserta: new Set(), sesi: 0});
+    const status = norm(p.status_program);
+    statuses[Object.prototype.hasOwnProperty.call(statuses, status) ? status : 'lainnya']++;
+    const value = txt(p.kategori_pelatihan), known = ['Manajerial', 'Sosial Kultural', 'Teknis'].find(k => norm(k) === norm(value));
+    const label = known || value || 'Belum diisi';
+    category.set(label, (category.get(label) || 0) + 1);
+  });
+  const membershipPairs = new Set();
+  data.ikut.forEach(k => {
+    const program = txt(k.id_program), person = txt(k.id_peserta);
+    if (!programs.has(program) || !people.has(person)) { relasi++; return; }
+    const pair = JSON.stringify([program, person]);
+    if (membershipPairs.has(pair)) throw Error('Keikutsertaan peserta duplikat pada program. Periksa Data di Pengelolaan.');
+    membershipPairs.add(pair);
+    members.set(txt(k.id_keikutsertaan), k);
+    if (norm(k.status_keikutsertaan) === 'terdaftar') {
+      perProgram.get(program).peserta.add(person);
+      registered++;
+    }
+  });
+  let sesiTotal = 0, sesiHariIni = 0, sesiMendatang = 0;
+  data.sesi.forEach(s => {
+    const program = txt(s.id_program);
+    if (!programs.has(program)) { relasi++; return; }
+    sesiTotal++;
+    perProgram.get(program).sesi++;
+    try {
+      const start = waktuJadwalJP_(s.tanggal_sesi, s.jam_mulai, zona);
+      const end = waktuJadwalJP_(s.tanggal_sesi, s.jam_selesai, zona);
+      if (!Number.isFinite(start) || !Number.isFinite(end) || end <= start) throw Error('Jadwal tidak valid.');
+      sessions.set(txt(s.id_sesi), {raw: s, start: start, end: end, hari: tanggal(s.tanggal_sesi)});
+      if (tanggal(s.tanggal_sesi) === hari) sesiHariIni++;
+      if (start > now) sesiMendatang++;
+    } catch (_) { jadwalInvalid++; }
+  });
+  let pending = 0, attendanceReview = 0;
+  data.catatan.forEach(c => {
+    const member = members.get(txt(c.id_keikutsertaan)), sid = txt(c.id_sesi);
+    const rawSession = sid ? rawSessions.get(sid) : null;
+    if (!member || (sid && (!rawSession || txt(rawSession.id_program) !== txt(member.id_program)))) { relasi++; return; }
+    if (norm(c.status_validasi) === 'belum_divalidasi') pending++;
+  });
+  const attendancePairs = new Set();
+  data.hadir.forEach(k => {
+    const s = sessions.get(txt(k.id_sesi)), member = members.get(txt(k.id_keikutsertaan));
+    if (!member || !s || txt(s.raw.id_program) !== txt(member.id_program)) { relasi++; return; }
+    const pair = JSON.stringify([txt(k.id_sesi), txt(k.id_keikutsertaan)]);
+    if (attendancePairs.has(pair)) throw Error('Catatan kehadiran duplikat pada sesi. Periksa Data di Pengelolaan.');
+    attendancePairs.add(pair);
+    if (s.end > now) return;
+    const state = statusKehadiranProfil_(s.raw, k, now, zona);
+    if (state.selesai && state.status !== 'hadir_lengkap') attendanceReview++;
+  });
+  const programRows = Array.from(programs, ([id, p]) => ({
+    id: id, nama: txt(p.nama_program) || id, kategori: txt(p.kategori_pelatihan) || 'Belum diisi',
+    jenjang: txt(p.jenjang), status: norm(p.status_program) || 'belum_diisi',
+    mulai: tanggal(p.tanggal_mulai), selesai: tanggal(p.tanggal_selesai),
+    peserta: perProgram.get(id).peserta.size, sesi: perProgram.get(id).sesi
+  })).sort((a, b) => b.mulai.localeCompare(a.mulai) || a.nama.localeCompare(b.nama, 'id'));
+  const agenda = Array.from(sessions, ([id, s]) => ({
+    id: id, program: txt(s.raw.id_program), nama: txt(s.raw.nama_sesi) || id,
+    nama_program: txt(programs.get(txt(s.raw.id_program)).nama_program), tanggal: s.hari,
+    mulai: jam(s.raw.jam_mulai), selesai: jam(s.raw.jam_selesai), start: s.start,
+    status: s.end <= now ? 'selesai' : s.start <= now ? 'berlangsung' : 'mendatang',
+    urutan: s.start <= now && s.end > now ? 0 : s.hari === hari ? (s.start > now ? 1 : 2) : 3,
+    tampil: s.end > now || s.hari === hari
+  })).filter(s => s.tampil).sort((a, b) => a.urutan - b.urutan || a.start - b.start).slice(0, 6)
+    .map(s => ({id:s.id, program:s.program, nama:s.nama, nama_program:s.nama_program, tanggal:s.tanggal, mulai:s.mulai, selesai:s.selesai, status:s.status}));
+  const peringatan = [];
+  if (jadwalInvalid) peringatan.push(jadwalInvalid + ' sesi memiliki jadwal tidak valid; tidak disertakan dalam agenda dan hitungan waktu.');
+  if (relasi) peringatan.push(relasi + ' baris dengan relasi tidak valid atau jadwal yang tidak dapat dibaca tidak disertakan dalam ringkasan terkait. Periksa Data di Pengelolaan.');
+  return {
+    sukses: true, zona_waktu: zona, waktu: Utilities.formatDate(new Date(now), zona, 'yyyy-MM-dd HH:mm:ss'),
+    ringkasan: {program: programs.size, aktif: statuses.aktif, peserta: people.size, pendaftaran: registered, sesi: sesiTotal, hari_ini: sesiHariIni, mendatang: sesiMendatang},
+    status_program: statuses, kategori: Array.from(category, ([nama, jumlah]) => ({nama:nama, jumlah:jumlah})).sort((a,b) => b.jumlah-a.jumlah || a.nama.localeCompare(b.nama,'id')),
+    tindak_lanjut: {tanpa_sesi: programRows.filter(p => !p.sesi).length, tanpa_peserta: programRows.filter(p => p.status === 'aktif' && !p.peserta).length, catatan: pending, absensi: attendanceReview},
+    program: programRows, agenda: agenda, peringatan: peringatan
+  };
+}
+
+function bukaPanelBeranda_() {
+  wajibPemilikIndex_();
+  SpreadsheetApp.getUi().showModalDialog(HtmlService.createHtmlOutputFromFile('Beranda').setWidth(1100).setHeight(780), 'Beranda Pelatihan');
+}
