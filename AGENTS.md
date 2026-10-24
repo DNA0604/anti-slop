@@ -9,6 +9,7 @@ This repository also contains the upstream anti-slop project. Keep unrelated ups
 - Technology: spreadsheet-bound Google Apps Script + Google Sheets + HTML/CSS/vanilla JS. Do not introduce SQL, React, build frameworks, or a new database without a specific request.
 - Follow the user's latest requested scope. Keep existing business rules, sheet schema, data relationships, IDs, and google.script.run contracts intact during UI work.
 - Describe what changed and exactly which Apps Script files must be replaced. Deliver complete changed HTML/GS files, rather than fragments, when the user needs manual installation.
+- The user cannot download chat attachments reliably. Deliver complete updated files through a dedicated GitHub branch and provide direct file links for copying with GitHub Raw; do not rely on sandbox download links. Keep main unchanged unless merging is explicitly requested.
 - Do not deploy to Google, edit real spreadsheet data, or merge branches merely to implement a UI request.
 
 ## Current accepted UI

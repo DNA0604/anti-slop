@@ -4,8 +4,8 @@ Snapshot: 24 October 2026, Asia/Jakarta. This snapshot is the latest source acce
 
 ## Current status
 The user confirmed the latest sidebar/navigation fix with: "nah, sudah normal ini".
-No new feature request is pending. The immediate purpose is continuation in Codex without resending source or replaying the conversation.
-Do not rebuild the project from scratch. First summarize understanding and wait for the next concrete change request.
+The next requested UI change moves the inline creation disclosures into separate modals. Pengelolaan now has header buttons for adding a program or a session with breaks; Peserta has a header button for adding/searching a participant. This update is implemented locally and has not yet been confirmed on the deployed Apps Script version.
+Continue from this source rather than rebuilding the project from scratch.
 
 ## Source of truth and files
 Directory: apps-script/absensi-dashboard/.
@@ -48,6 +48,14 @@ Actualization JP may be entered manually. Some activities have no JP. Preserve i
 See AGENTS.md. Logo is already embedded in all four admin HTMLs. No repeated upload is required.
 The latest sidebar revision moved hamburger into the sidebar, removed duplicate book branding, added Nama/Posisi and placeholder settings/logout.
 Hover expands icon rail with a smooth push of the content. Mobile has a toggleable compact rail/panel.
+
+## Creation modal update
+- Pengelolaan.html: program and session forms are native dialogs, opened from the right side of their cards. The existing newProgramDetails/newSessionDetails IDs now identify dialogs, so use showModal()/close() rather than assigning open.
+- Saving a new program still selects it and leads to session creation. Saving a session closes its modal after the list refresh. Closing an unsaved modal preserves the draft.
+- Peserta.html: manual participant entry and old-participant lookup share a modal; file import stays in its existing card. Successful manual preview closes the modal and focuses the preview/confirmation card. Import still requires explicit confirmation.
+- Errors remain visible in the form modal. Close buttons and Escape are blocked while saving/checking a preview.
+- Existing backend, RPC names/payloads, request IDs, schema, sidebar code and navigation remain unchanged. Only Pengelolaan.html and Peserta.html need replacement in Apps Script for this UI change.
+- Local browser checks passed on desktop/mobile with Google bridge mocks, including validation/failure paths and focus handling. The update has not been deployed or confirmed with live spreadsheet data.
 
 ## Latest regression and fix
 Observed by user: initial Monitoring worked; after visiting Pengelolaan/Peserta, sidebar failed and return navigation could be blank.

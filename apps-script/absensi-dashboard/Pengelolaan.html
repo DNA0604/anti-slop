@@ -454,7 +454,7 @@ window.resolveDatabaseBase = function(canonical) {
           grid-template-columns: 1fr;
         }
       }
-    
+
 /* Navigasi kembali selalu terlihat tanpa membuka sidebar. */
 .dash-back {display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:6px 10px;border:1px solid #cbded6;border-radius:6px;color:#076f62;background:#fff;text-decoration:none;font-size:12px;font-weight:600;white-space:nowrap;flex-shrink:0}
 .dash-back:hover {background:#e5f3ee}
@@ -750,6 +750,23 @@ body.flat-dashboard {font-family:'Avenir Next',Avenir,'Segoe UI',Arial,sans-seri
 }
 @media(prefers-reduced-motion:no-preference){.sidebar-toggle-label,.sidebar-account-text,.sidebar-tool-label {transition:opacity .16s ease}}
 </style>
+
+<style id="addition-modal-styles">
+.flat-dashboard .creation-dialog {width:min(780px,calc(100vw - 32px));max-height:calc(100dvh - 32px);overflow-y:auto;overscroll-behavior:contain;scrollbar-gutter:stable}
+.flat-dashboard .creation-dialog .creation-heading {display:flex;align-items:flex-start;justify-content:space-between;gap:18px;margin-bottom:18px}
+.flat-dashboard .creation-dialog h2 {margin:0;font-size:20px;color:#192e50}
+.flat-dashboard .creation-dialog .creation-context {margin:6px 0 0;font-size:12px;overflow-wrap:anywhere}
+.flat-dashboard .creation-dialog .creation-heading button {flex-shrink:0}
+.flat-dashboard .creation-dialog .creation-actions {display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap;margin-top:22px}
+.flat-dashboard .creation-dialog .creation-actions .btn {width:auto;margin:0}
+.flat-dashboard .creation-dialog form {margin:0!important}
+.flat-dashboard .creation-dialog #singleForm {display:grid;gap:14px;margin-top:18px!important}
+.flat-dashboard .creation-dialog .foot {white-space:pre-line}
+.flat-dashboard .creation-card-actions {display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;margin-left:auto}
+.flat-dashboard .import-upload-grid {grid-template-columns:minmax(0,1fr)}
+.flat-dashboard #participantPreviewCard {scroll-margin-top:160px}
+@media(max-width:560px){.flat-dashboard .creation-dialog{width:calc(100vw - 20px)!important;max-height:calc(100dvh - 20px)}.flat-dashboard .creation-dialog .creation-heading{gap:12px}.flat-dashboard .creation-dialog h2{font-size:18px}.flat-dashboard .creation-card-actions{margin-left:0;width:100%;justify-content:flex-start}.flat-dashboard .creation-dialog .dialog-fields{grid-template-columns:minmax(0,1fr)}}
+</style>
 </head>
   <body class="flat-dashboard"><a class="dash-skip" href="#dashContent">Lewati ke konten utama</a>
   <aside id="dashSidebar" class="dash-sidebar" aria-label="Menu utama">
@@ -827,71 +844,13 @@ body.flat-dashboard {font-family:'Avenir Next',Avenir,'Segoe UI',Arial,sans-seri
                 </p>
               </div>
               <div style="display: flex; gap: 8px; flex-wrap: wrap">
-                <button class="btn" id="refreshManage">Muat Ulang Daftar</button
+                <button type="button" class="btn primary" id="openNewProgram" aria-haspopup="dialog" aria-controls="newProgramDetails">Tambah Program</button><button class="btn" id="refreshManage">Muat Ulang Daftar</button
                 ><button class="btn" id="recoverSessions" disabled>
                   Periksa / Pulihkan Sesi
                 </button>
               </div>
             </div>
-            <details id="newProgramDetails">
-              <summary
-                style="cursor: pointer; font-weight: bold; color: var(--blue)"
-              >
-                Tambah Program Pelatihan
-              </summary>
-              <form id="programForm" style="margin-top: 16px">
-                <div class="dialog-fields">
-                  <div class="field wide">
-                    <label for="programName">Nama program</label
-                    ><input
-                      id="programName"
-                      required
-                      maxlength="200"
-                      placeholder="Contoh: Pelatihan Sosial Kultural Angkatan I"
-                    />
-                  </div>
-                  <div class="field">
-                    <label for="programCategory">Kategori pelatihan</label
-                    ><input
-                      id="programCategory"
-                      list="categoryList"
-                      required
-                      maxlength="100"
-                      placeholder="Pilih atau ketik kategori"
-                    /><datalist id="categoryList"></datalist>
-                  </div>
-                  <div class="field">
-                    <label for="programLevel">Jenjang (jika ada)</label
-                    ><input
-                      id="programLevel"
-                      list="levelList"
-                      maxlength="100"
-                      placeholder="Contoh: Jenjang 1"
-                    /><datalist id="levelList"></datalist>
-                  </div>
-                  <div class="field">
-                    <label for="programStart">Tanggal mulai</label
-                    ><input id="programStart" type="date" required />
-                  </div>
-                  <div class="field">
-                    <label for="programEnd">Tanggal selesai</label
-                    ><input id="programEnd" type="date" required />
-                  </div>
-                  <div class="field">
-                    <label for="programStatus">Status program</label
-                    ><select id="programStatus">
-                      <option value="draft">Draft</option>
-                      <option value="aktif">Aktif</option>
-                      <option value="selesai">Selesai</option>
-                    </select>
-                  </div>
-                </div>
-                <button class="btn primary full" id="saveProgram" type="submit">
-                  Simpan Program
-                </button>
-                <p id="programFormMessage" class="foot" role="status"></p>
-              </form>
-            </details>
+
             <div class="tablebox" style="margin-top: 20px">
               <table>
                 <thead>
@@ -918,66 +877,8 @@ body.flat-dashboard {font-family:'Avenir Next',Avenir,'Segoe UI',Arial,sans-seri
                   Pilih program di atas atau dari daftar program.
                 </p>
               </div>
+              <div class="creation-card-actions"><button type="button" class="btn primary" id="openNewSession" aria-haspopup="dialog" aria-controls="newSessionDetails" disabled>Tambah Sesi dan Jeda</button></div>
             </div>
-            <details id="newSessionDetails">
-              <summary
-                style="cursor: pointer; font-weight: bold; color: var(--blue)"
-              >
-                Tambah Sesi dan Jeda
-              </summary>
-              <form id="sessionForm" style="margin-top: 16px">
-                <div class="dialog-fields">
-                  <div class="field wide">
-                    <label for="sessionName">Nama sesi</label
-                    ><input id="sessionName" required maxlength="200" />
-                  </div>
-                  <div class="field">
-                    <label for="sessionDate">Tanggal sesi</label
-                    ><input id="sessionDate" type="date" required />
-                  </div>
-                  <div class="field">
-                    <label for="sessionJP">Perhitungan JP</label
-                    ><select id="sessionJP">
-                      <option value="dihitung">Dihitung sebagai JP</option>
-                      <option value="tidak_dihitung">
-                        Tidak dihitung sebagai JP
-                      </option>
-                    </select>
-                  </div>
-                  <div class="field">
-                    <label for="sessionStart">Jam mulai</label
-                    ><input id="sessionStart" type="time" required />
-                  </div>
-                  <div class="field">
-                    <label for="sessionEnd">Jam selesai</label
-                    ><input id="sessionEnd" type="time" required />
-                  </div>
-                </div>
-                <div style="margin-top: 18px">
-                  <strong>Jeda / istirahat</strong>
-                  <p class="foot">
-                    Opsional. Seluruh jeda harus berada dalam sesi dan tidak
-                    saling bertumpang tindih.
-                  </p>
-                  <div id="sessionBreaks"></div>
-                  <button class="btn" id="addBreak" type="button">
-                    Tambah Jeda
-                  </button>
-                </div>
-                <p class="help" id="sessionPreview" style="margin-top: 14px">
-                  Isi jam sesi untuk melihat durasi dan usulan JP.
-                </p>
-                <button
-                  class="btn primary full"
-                  id="saveSession"
-                  type="submit"
-                  disabled
-                >
-                  Simpan Sesi &amp; Jeda
-                </button>
-                <p id="sessionFormMessage" class="foot" role="status"></p>
-              </form>
-            </details>
             <div class="tablebox" style="margin-top: 20px">
               <table>
                 <thead>
@@ -1092,6 +993,116 @@ body.flat-dashboard {font-family:'Avenir Next',Avenir,'Segoe UI',Arial,sans-seri
         </section>
       </div>
     </main>
+<dialog id="newProgramDetails" class="creation-dialog" aria-labelledby="newProgramDetailsTitle">
+ <div class="creation-heading"><div><h2 id="newProgramDetailsTitle">Tambah Program Pelatihan</h2><p class="creation-context muted">Buat program pelatihan sebelum menambahkan sesi.</p></div><button type="button" class="btn" data-close-creation="newProgramDetails">Tutup</button></div>
+ <form id="programForm" style="margin-top: 16px">
+                <div class="dialog-fields">
+                  <div class="field wide">
+                    <label for="programName">Nama program</label
+                    ><input
+                      id="programName"
+                      required
+                      maxlength="200"
+                      placeholder="Contoh: Pelatihan Sosial Kultural Angkatan I"
+                    />
+                  </div>
+                  <div class="field">
+                    <label for="programCategory">Kategori pelatihan</label
+                    ><input
+                      id="programCategory"
+                      list="categoryList"
+                      required
+                      maxlength="100"
+                      placeholder="Pilih atau ketik kategori"
+                    /><datalist id="categoryList"></datalist>
+                  </div>
+                  <div class="field">
+                    <label for="programLevel">Jenjang (jika ada)</label
+                    ><input
+                      id="programLevel"
+                      list="levelList"
+                      maxlength="100"
+                      placeholder="Contoh: Jenjang 1"
+                    /><datalist id="levelList"></datalist>
+                  </div>
+                  <div class="field">
+                    <label for="programStart">Tanggal mulai</label
+                    ><input id="programStart" type="date" required />
+                  </div>
+                  <div class="field">
+                    <label for="programEnd">Tanggal selesai</label
+                    ><input id="programEnd" type="date" required />
+                  </div>
+                  <div class="field">
+                    <label for="programStatus">Status program</label
+                    ><select id="programStatus">
+                      <option value="draft">Draft</option>
+                      <option value="aktif">Aktif</option>
+                      <option value="selesai">Selesai</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="creation-actions"><button type="button" class="btn" data-close-creation="newProgramDetails">Batal</button><button class="btn primary" id="saveProgram" type="submit">
+                  Simpan Program
+                </button></div>
+                <p id="programFormMessage" class="foot" role="status"></p>
+              </form>
+ </dialog>
+<dialog id="newSessionDetails" class="creation-dialog" aria-labelledby="newSessionDetailsTitle">
+ <div class="creation-heading"><div><h2 id="newSessionDetailsTitle">Tambah Sesi dan Jeda</h2><p class="creation-context muted" data-creation-program></p></div><button type="button" class="btn" data-close-creation="newSessionDetails">Tutup</button></div>
+ <form id="sessionForm" style="margin-top: 16px">
+                <div class="dialog-fields">
+                  <div class="field wide">
+                    <label for="sessionName">Nama sesi</label
+                    ><input id="sessionName" required maxlength="200" />
+                  </div>
+                  <div class="field">
+                    <label for="sessionDate">Tanggal sesi</label
+                    ><input id="sessionDate" type="date" required />
+                  </div>
+                  <div class="field">
+                    <label for="sessionJP">Perhitungan JP</label
+                    ><select id="sessionJP">
+                      <option value="dihitung">Dihitung sebagai JP</option>
+                      <option value="tidak_dihitung">
+                        Tidak dihitung sebagai JP
+                      </option>
+                    </select>
+                  </div>
+                  <div class="field">
+                    <label for="sessionStart">Jam mulai</label
+                    ><input id="sessionStart" type="time" required />
+                  </div>
+                  <div class="field">
+                    <label for="sessionEnd">Jam selesai</label
+                    ><input id="sessionEnd" type="time" required />
+                  </div>
+                </div>
+                <div style="margin-top: 18px">
+                  <strong>Jeda / istirahat</strong>
+                  <p class="foot">
+                    Opsional. Seluruh jeda harus berada dalam sesi dan tidak
+                    saling bertumpang tindih.
+                  </p>
+                  <div id="sessionBreaks"></div>
+                  <button class="btn" id="addBreak" type="button">
+                    Tambah Jeda
+                  </button>
+                </div>
+                <p class="help" id="sessionPreview" style="margin-top: 14px">
+                  Isi jam sesi untuk melihat durasi dan usulan JP.
+                </p>
+                <div class="creation-actions"><button type="button" class="btn" data-close-creation="newSessionDetails">Batal</button><button
+                  class="btn primary"
+                  id="saveSession"
+                  type="submit"
+                  disabled
+                >
+                  Simpan Sesi &amp; Jeda
+                </button></div>
+                <p id="sessionFormMessage" class="foot" role="status"></p>
+              </form>
+ </dialog>
     <dialog id="dataEditDialog" style="width: min(780px, 96vw)">
       <form id="dataEditForm" class="dialog-body">
         <h2 id="dataEditTitle">Edit Data</h2>
@@ -1248,6 +1259,9 @@ body.flat-dashboard {font-family:'Avenir Next',Avenir,'Segoe UI',Arial,sans-seri
         const selected = Boolean($("program").value);
         $("program").disabled = saving;
         $("refreshManage").disabled = manageLoading || saving;
+        $("openNewProgram").disabled = saving;
+        $("openNewSession").disabled = !selected || manageLoading || saving;
+        document.querySelectorAll("[data-close-creation]").forEach(b => b.disabled = saving);
         $("saveProgram").disabled = saving;
         $("saveSession").disabled = !selected || manageLoading || saving;
         $("addBreak").disabled = saving;
@@ -1837,7 +1851,7 @@ body.flat-dashboard {font-family:'Avenir Next',Avenir,'Segoe UI',Arial,sans-seri
         }
         try {
           await refreshChoicesKelola(id);
-          $("newSessionDetails").open = true;
+          openCreationDialog("newSessionDetails");
           $("sessionName").focus();
         } catch (e) {
           message(e.message || "Pilihan gagal diperbarui.", "error");
@@ -1970,8 +1984,10 @@ body.flat-dashboard {font-family:'Avenir Next',Avenir,'Segoe UI',Arial,sans-seri
           $("programFormMessage").textContent = r.pesan;
           saving = false;
           await refreshChoicesKelola(r.id_program);
-          $("newProgramDetails").open = false;
-          $("newSessionDetails").open = true;
+          $("newProgramDetails").close();
+          lockManageForms(false);
+          controls();
+          openCreationDialog("newSessionDetails");
           message(r.pesan + " Tambahkan sesi untuk melanjutkan.", "success");
         } catch (err) {
           $("programFormMessage").textContent =
@@ -2016,6 +2032,7 @@ body.flat-dashboard {font-family:'Avenir Next',Avenir,'Segoe UI',Arial,sans-seri
           $("sessionFormMessage").textContent = r.pesan;
           saving = false;
           await refreshChoicesKelola(r.id_program, r.id_sesi);
+          $("newSessionDetails").close();
           message(
             r.pesan + " Usulan: " + formatRekap(r.usulan_jp) + " JP.",
             "success",
@@ -2069,6 +2086,24 @@ body.flat-dashboard {font-family:'Avenir Next',Avenir,'Segoe UI',Arial,sans-seri
       $("retryAccess").addEventListener("click", init);
       $("recoverSessions").addEventListener("click", recoverSessionsKelola);
       $("refreshManage").addEventListener("click", loadManage);
+      function openCreationDialog(id) {
+        if (saving || (id === "newSessionDetails" && (!$("program").value || manageLoading))) return;
+        const modal = $(id);
+        if (id === "newProgramDetails" && !programPayload) $("programFormMessage").textContent = "";
+        if (id === "newSessionDetails" && !sessionPayload) $("sessionFormMessage").textContent = "";
+        const context = modal.querySelector("[data-creation-program]");
+        if (context) context.textContent = "Program: " + $("program").selectedOptions[0].textContent;
+        if (!modal.open) modal.showModal();
+        $(id === "newProgramDetails" ? "programName" : "sessionName").focus();
+      }
+      $("openNewProgram").addEventListener("click", () => openCreationDialog("newProgramDetails"));
+      $("openNewSession").addEventListener("click", () => openCreationDialog("newSessionDetails"));
+      document.querySelectorAll("[data-close-creation]").forEach(button => button.addEventListener("click", () => {
+        if (!saving) $(button.dataset.closeCreation).close();
+      }));
+      ["newProgramDetails", "newSessionDetails"].forEach(id => $(id).addEventListener("cancel", e => {
+        if (saving) e.preventDefault();
+      }));
       $("programForm").addEventListener("submit", saveProgramKelola);
       $("sessionForm").addEventListener("submit", saveSessionKelola);
       $("addBreak").addEventListener("click", addBreakKelola);
