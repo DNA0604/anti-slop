@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-10-25 — completed-program evaluation PDF
+- Added owner-protected Laporan.gs with preview and PDF endpoints, strict completed-program checks before/after generation, read-only aggregation, existing JP/behavior snapshots and native Google Docs/Charts rendering.
+- Formal PDF contains program identity, executive summary, schedule/breaks, per-session/participant attendance, validation/indicator charts, activity/leave history, JP/behavior status, limitations and follow-up. Pending/rejected notes and unavailable values remain explicit; no new grading formula or Sheets writes.
+- Added a status-gated report card/modal to Pengelolaan with explicit PDF download, busy guards, retry/error feedback and Blob cleanup. Export uses temporary owner documents with Trash cleanup; no public sharing link is created.
+- Added 9 report tests (26 total passing) and local desktop/mobile browser checks with mocked services. Native Google Docs export, authorization, quotas, pagination and live-data validation still require installation checks. PDF is the initial format; DOCX is not implemented.
+
 ## 2026-10-24 — Komdigi public attendance page
 - Restyled Absensi.html to the user's blue reference: embedded institutional logo/name, pale blue background, centered white card, responsive fields, blue confirmation button and accessible participant selection.
 - Added muatTampilanAbsensiQR to resolve the validated token's session name. The page displays the name and Datang/Pulang instead of the session ID; blank names use a descriptive fallback.

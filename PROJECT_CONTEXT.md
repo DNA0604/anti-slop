@@ -4,7 +4,7 @@ Snapshot: 24 October 2026, Asia/Jakarta. This snapshot is the latest source acce
 
 ## Current status
 The user confirmed the latest sidebar/navigation fix with: "nah, sudah normal ini".
-The creation-modal update is committed on ui/modal-penambahan-pelatihan. Beranda is committed on feat/beranda-pelatihan as the default landing page and a read-only database overview. Current work on ui/absensi-komdigi restyles the participant QR page and resolves its session name. These updates are locally validated and await deployment/user verification.
+The creation-modal update is committed on ui/modal-penambahan-pelatihan. Beranda is committed on feat/beranda-pelatihan; the public QR page update is on ui/absensi-komdigi. Current work on feat/laporan-program-pdf adds completed-program evaluation reports. These updates are locally validated and await deployment/user verification, including native Google Docs export.
 Continue from this source rather than rebuilding the project from scratch.
 
 ## Source of truth and files
@@ -17,10 +17,11 @@ Directory: apps-script/absensi-dashboard/.
 - Profil.html: participant identity and program-specific histories.
 - Absensi.html: participant attendance reached using an absen token; optimize for phones.
 - AdminQR.html: original administrative QR page.
+- Laporan.gs: owner-only, completed-program PDF report preview, aggregation and native Google Docs/Charts export.
 Files named with (1) in uploads were normalized for Apps Script. Use the exact names above.
 
 The app is bound to a spreadsheet with its existing sheets. This handoff contains source, not the live spreadsheet or its data. No fresh schema migration is needed for these UI changes.
-The existing appsscript.json from the original branch is a reference. Keep the deployed project's real manifest, OAuth scopes, permissions and deployment settings. SOURCE_SNAPSHOT.json records SHA-256 hashes for the current eight HTML/GS application files.
+The existing appsscript.json from the original branch is a reference. Keep the deployed project's real manifest, OAuth scopes, permissions and deployment settings. SOURCE_SNAPSHOT.json records SHA-256 hashes for the current nine HTML/GS application files. Report export requires Docs and Drive authorization; preserve existing explicit scopes when adding those permissions.
 
 ## Functional scope already built
 - Categories: Manajerial, Sosial Kultural, Teknis; programs can have jenjang and multiple sessions.
@@ -82,6 +83,16 @@ DOM tests used all original inline scripts with a mocked Google bridge, desktop/
 - Participant search, stale-response protection, selected participant, save payload, single pending request, locked inputs, same-ID retry and final success/rejection behavior are preserved. Selection styling now uses aria-pressed.
 - For this update, replace only Absensi.html and Code.gs together; keep deployment URL, manifest/scopes and existing sheet data. Tests and preview images are not Apps Script application files.
 - Local backend tests (5 display cases plus 12 Beranda regression cases) and Chromium desktop/320/390/768 px checks passed using mocks. Actual Google deployment, writes and production QR scans have not been exercised from this environment.
+
+## Completed-program evaluation report
+- Add Script file Laporan.gs and replace Pengelolaan.html together. No Code.gs, sheet schema, grading formula or sidebar changes are required for this feature.
+- Pengelolaan has a report card, enabled only for the selected completed program. Both preview/export require the owner and recheck status=selesai; PDF generation rechecks after rendering/export. Report lock prevents overlapping exports for the same user.
+- PDF format only: institution/program cover, executive summary, session/break schedule, per-session and per-participant attendance, three data charts (when available), activity/leave validation, existing JP/behavior snapshots, limitations/recommendations and all-status activity appendix. No final institutional grade or invented evaluation conclusions.
+- Denominator: current terdaftar memberships × valid ended sessions, including sessions without JP. Other memberships are listed but excluded; future/invalid sessions are not counted as absent. Missing attendance is labelled unrecorded, not adjudicated absence. Pending/rejected notes remain separate and leave is exclusive from positive/negative note categories.
+- Global duplicate selected session/membership IDs fail to prevent cross-program contamination; duplicate attendance and membership/person relations also fail. Foreign/unresolved activity links are excluded with warnings. Unavailable/partial JP and behavior values remain explicitly unavailable/temporary.
+- Uses DocumentApp and Charts in a temporary document; exported PDF bytes are returned for explicit browser Blob download, and temporary Docs are moved to Trash. No public file sharing or Sheets writes. Cleanup failure warns the owner. Limits: 1,000 participants, 300 sessions, 3,000 notes, 8 MB PDF; Google service quotas may impose lower effective limits.
+- Run otorisasiLaporanProgram in the editor as owner once to authorize Docs/Drive. Actual Google PDF layout/export and production data are not validated locally. See tests/LAPORAN_VALIDATION.md and README installation instructions.
+- 26 Node tests (9 report + 17 existing) pass. Chromium mocked-service checks cover eligibility, preview/errors/retry, busy modal guards, explicit download, cleanup/focus and mobile layout. They do not prove native Google Docs export or live OAuth works.
 
 ## Remaining candidate work (not automatically authorized)
 - Real authentication and roles for the user account/settings/logout placeholders.

@@ -767,7 +767,7 @@ body.flat-dashboard {font-family:'Avenir Next',Avenir,'Segoe UI',Arial,sans-seri
 .flat-dashboard #participantPreviewCard {scroll-margin-top:160px}
 @media(max-width:560px){.flat-dashboard .creation-dialog{width:calc(100vw - 20px)!important;max-height:calc(100dvh - 20px)}.flat-dashboard .creation-dialog .creation-heading{gap:12px}.flat-dashboard .creation-dialog h2{font-size:18px}.flat-dashboard .creation-card-actions{margin-left:0;width:100%;justify-content:flex-start}.flat-dashboard .creation-dialog .dialog-fields{grid-template-columns:minmax(0,1fr)}}
 </style>
-</head>
+<style>#downloadProgramReport[hidden]{display:none!important}#programReportDialog ul{overflow-wrap:anywhere}</style></head>
   <body class="flat-dashboard"><a class="dash-skip" href="#dashContent">Lewati ke konten utama</a>
   <aside id="dashSidebar" class="dash-sidebar" aria-label="Menu utama">
     <button type="button" class="sidebar-toggle" id="dashMenu" aria-label="Buka atau tutup navigasi" aria-controls="dashSidebar" aria-expanded="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg><span class="sidebar-toggle-label">Sidebar</span></button>
@@ -832,6 +832,10 @@ body.flat-dashboard {font-family:'Avenir Next',Avenir,'Segoe UI',Arial,sans-seri
             Pilihan ini menentukan jadwal sesi dan ringkasan peserta yang
             ditampilkan.
           </p>
+        </section>
+        <section class="panel" id="programReportCard" style="margin:18px 0" aria-labelledby="programReportTitle">
+          <div class="sectionhead"><div><h2 id="programReportTitle">Laporan Evaluasi Program</h2><p class="muted" id="reportEligibility">Pilih program. Laporan hanya tersedia jika status program selesai.</p></div><button type="button" class="btn primary" id="openProgramReport" disabled aria-haspopup="dialog" aria-controls="programReportDialog">Laporan Program</button></div>
+          <p class="foot">PDF formal berisi ringkasan pelaksanaan, rekap sesi/kehadiran, aktivitas dan izin, grafik, JP/nilai perilaku yang tersedia, serta catatan tindak lanjut. Tidak mengubah data atau menjalankan hitung ulang JP.</p>
         </section>
         <section id="managePanel">
           <div class="panel">
@@ -1103,6 +1107,16 @@ body.flat-dashboard {font-family:'Avenir Next',Avenir,'Segoe UI',Arial,sans-seri
                 <p id="sessionFormMessage" class="foot" role="status"></p>
               </form>
  </dialog>
+    <dialog id="programReportDialog" class="creation-dialog" aria-labelledby="programReportDialogTitle">
+      <div class="creation-heading"><div><h2 id="programReportDialogTitle">Laporan Evaluasi Program</h2><p class="muted creation-context" id="reportProgramName"></p></div><button type="button" class="btn" id="closeProgramReport">Tutup</button></div>
+      <p>Susunan laporan: identitas dan ringkasan eksekutif; jadwal sesi; kehadiran peserta; aktivitas, perilaku dan izin; rekap JP/nilai; keterbatasan dan tindak lanjut; lampiran aktivitas.</p>
+      <p class="help">Grafik dan tabel menggunakan data yang tercatat saat laporan dibuat. Belum tercatat tidak otomatis berarti tidak hadir. Data sementara/pending ditandai. PDF adalah bahan evaluasi, bukan penetapan kelulusan.</p>
+      <p id="reportPreview" class="notice" role="status" aria-live="polite">Memuat pratinjau…</p>
+      <ul id="reportWarnings" class="foot"></ul>
+      <p class="foot">Pembuatan PDF memerlukan izin Google Docs dan Drive dari pemilik. Jika muncul permintaan otorisasi, jalankan fungsi <code>otorisasiLaporanProgram</code> sekali dari editor Apps Script dengan akun pemilik, lalu coba kembali. Dokumen sementara bersifat pribadi dan dipindahkan ke Sampah setelah ekspor.</p>
+      <div class="creation-actions"><button type="button" class="btn primary" id="generateProgramReport" disabled>Buat PDF</button><a class="btn primary" id="downloadProgramReport" hidden>Unduh PDF</a></div>
+      <p id="reportDownloadNote" class="foot"></p>
+    </dialog>
     <dialog id="dataEditDialog" style="width: min(780px, 96vw)">
       <form id="dataEditForm" class="dialog-body">
         <h2 id="dataEditTitle">Edit Data</h2>
@@ -1246,6 +1260,7 @@ body.flat-dashboard {font-family:'Avenir Next',Avenir,'Segoe UI',Arial,sans-seri
         });
       }
       function controls() {
+        updateReportControls();
         document
           .querySelectorAll(
             "#dataEditForm input,#dataEditForm select,#dataEditForm textarea,#dataEditAddBreak",
@@ -2130,6 +2145,46 @@ body.flat-dashboard {font-family:'Avenir Next',Avenir,'Segoe UI',Arial,sans-seri
           if (!saving) sessionPayload = null;
         }),
       );
+      let reportBusy=false, reportProgram='', reportSequence=0, reportURL='';
+      function reportReady() {
+        const p=managePrograms.find(p=>p.id===$("program").value);
+        return Boolean(p && String(p.status).trim().toLowerCase()==='selesai');
+      }
+      function updateReportControls() {
+        $("openProgramReport").disabled=!reportReady()||manageLoading||saving||reportBusy;
+        $("reportEligibility").textContent=reportReady()?'Program berstatus selesai. Laporan evaluasi dapat dibuat.':'Laporan terkunci: pilih program berstatus selesai.';
+      }
+      function clearReportDownload() {
+        $("downloadProgramReport").hidden=true;$("downloadProgramReport").removeAttribute('href');
+        if(reportURL)URL.revokeObjectURL(reportURL);reportURL='';
+      }
+      function reportWarnings(list) {
+        $("reportWarnings").replaceChildren();(list||[]).forEach(text=>{const li=document.createElement('li');li.textContent=text;$("reportWarnings").append(li);});
+      }
+      $("openProgramReport").addEventListener('click',async()=>{
+        if(!reportReady()||saving||manageLoading||reportBusy)return;
+        reportProgram=$("program").value;const seq=++reportSequence;
+        clearReportDownload();$("reportPreview").textContent='Memeriksa status program dan menyiapkan ringkasan…';$("reportDownloadNote").textContent='';reportWarnings([]);
+        $("reportProgramName").textContent=managePrograms.find(p=>p.id===reportProgram).nama;
+        $("generateProgramReport").disabled=true;reportBusy=true;$("closeProgramReport").disabled=true;updateReportControls();$("programReportDialog").showModal();
+        try {const r=await rpc('muatPratinjauLaporanProgram',reportProgram);if(seq!==reportSequence)return;if(!r||!r.sukses)throw Error('Pratinjau laporan tidak tersedia.');$("reportPreview").textContent=r.peserta+' peserta tercatat · '+r.sesi+' sesi · '+r.catatan+' catatan aktivitas. Snapshot '+r.waktu;reportWarnings(r.peringatan);$("generateProgramReport").disabled=false;}
+        catch(e){$("reportPreview").textContent=e.message||'Pratinjau gagal. Tutup dan coba lagi.';}
+        finally {reportBusy=false;$("closeProgramReport").disabled=false;updateReportControls();}
+      });
+      $("generateProgramReport").addEventListener('click',async()=>{
+        if(reportBusy||!reportProgram)return;
+        reportBusy=true;clearReportDownload();$("generateProgramReport").disabled=true;$("closeProgramReport").disabled=true;$("reportDownloadNote").textContent='Menyusun dokumen dan grafik. Tunggu sampai tautan Unduh PDF tersedia…';updateReportControls();
+        try {const r=await rpc('buatPDFLaporanProgram',reportProgram);if(!r||!r.sukses||r.mime!=='application/pdf'||!r.base64)throw Error('PDF belum tersedia.');
+          const raw=atob(r.base64),bytes=new Uint8Array(raw.length);for(let i=0;i<raw.length;i++)bytes[i]=raw.charCodeAt(i);
+          reportURL=URL.createObjectURL(new Blob([bytes],{type:'application/pdf'}));const a=$("downloadProgramReport");a.href=reportURL;a.download=r.nama;a.hidden=false;
+          $("reportDownloadNote").textContent='PDF siap. Klik Unduh PDF untuk menyimpan. Data diambil '+r.waktu+'.';reportWarnings(r.peringatan);
+        } catch(e){$("reportDownloadNote").textContent=e.message||'Pembuatan PDF gagal. Periksa izin dan coba lagi.';}
+        finally {reportBusy=false;$("generateProgramReport").disabled=false;$("closeProgramReport").disabled=false;updateReportControls();}
+      });
+      $("closeProgramReport").addEventListener('click',()=>{if(!reportBusy)$("programReportDialog").close();});
+      $("programReportDialog").addEventListener('cancel',e=>{if(reportBusy)e.preventDefault();});
+      $("programReportDialog").addEventListener('close',()=>{++reportSequence;clearReportDownload();});
+
       init();
     </script>
   <script id="flat-dashboard-interactions">
