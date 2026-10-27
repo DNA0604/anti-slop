@@ -1013,7 +1013,7 @@ body.flat-dashboard {font-family:'Avenir Next',Avenir,'Segoe UI',Arial,sans-seri
         </section>
       </div>
 <section class="panel deletion-recovery" id="deleteRecovery" style="margin-top:18px" aria-labelledby="deleteRecoveryTitle">
- <div class="sectionhead"><div><h2 id="deleteRecoveryTitle" tabindex="-1">Penghapusan tertunda</h2><p class="muted" id="deleteRecoveryStatus">Memeriksa transaksi penghapusan…</p></div><button type="button" class="btn" id="refreshDeleteRecovery">Periksa Transaksi</button></div>
+ <div class="sectionhead"><div><h2 id="deleteRecoveryTitle" tabindex="-1">Transaksi yang Perlu Diperiksa</h2><p class="muted" id="deleteRecoveryStatus">Memeriksa transaksi penghapusan…</p></div><button type="button" class="btn" id="refreshDeleteRecovery">Periksa Transaksi</button></div>
  <div id="deleteRecoveryItems"></div>
 </section>
     </main>
@@ -1032,7 +1032,7 @@ body.flat-dashboard {font-family:'Avenir Next',Avenir,'Segoe UI',Arial,sans-seri
  <form id="deleteDataForm">
   <div class="field"><label for="deleteDataReason">Alasan penghapusan</label><textarea id="deleteDataReason" required maxlength="2000" rows="3" placeholder="Contoh: program dibatalkan atau data uji tidak diperlukan"></textarea></div>
   <label class="delete-ack"><input id="deleteDataAgree" type="checkbox" required><span>Saya memahami seluruh data yang tercantum akan dihapus dari database operasional. Pemulihan otomatis belum tersedia.</span></label>
-  <div class="creation-actions"><button class="btn" type="button" id="checkDeletePending" hidden>Periksa Transaksi Tertunda</button><button type="submit" class="btn delete-danger" id="confirmDeleteData" disabled>Hapus Data Terkait</button></div>
+  <div class="creation-actions"><button class="btn" type="button" id="checkDeletePending" hidden>Periksa Rincian Transaksi</button><button type="submit" class="btn delete-danger" id="confirmDeleteData" disabled>Hapus Data Terkait</button></div>
  </form>
 </dialog>
 <dialog id="newProgramDetails" class="creation-dialog" aria-labelledby="newProgramDetailsTitle">
@@ -2259,16 +2259,25 @@ body.flat-dashboard {font-family:'Avenir Next',Avenir,'Segoe UI',Arial,sans-seri
         deleteContext=null;deleteRequest=null;$('deleteDataForm').reset();$('deleteDataCounts').replaceChildren();$('deleteDataPreserved').textContent='';$('deleteDataTarget').textContent=id;$('deleteDataMessage').textContent='Memeriksa relasi dan menghitung data terkait…';$('checkDeletePending').hidden=true;
         $('deleteDataDialog').showModal();saving=true;controls();updateDeleteControls();
         try{const r=pending||await rpc('pratinjauHapusDataIndex',jenis,id);if(!r||(!pending&&!r.sukses))throw Error('Pratinjau penghapusan tidak tersedia.');renderDeletePreview(r);}
-        catch(e){$('deleteDataMessage').textContent=e.message||'Pemeriksaan gagal. Tutup dan coba lagi.';}
+        catch(e){$('deleteDataMessage').textContent=e.message||'Pemeriksaan gagal. Tutup dan coba lagi.';$('checkDeletePending').hidden=false;}
         finally{saving=false;controls();updateDeleteControls();if(deleteContext)$(deleteContext.id_transaksi?'deleteDataAgree':'deleteDataReason').focus();}
       }
       async function loadPendingDeletes() {
         if(deleteChecking)return;deleteChecking=true;updateDeleteControls();
         try{
           const r=await rpc('muatPenghapusanTertundaIndex');if(!r||!r.sukses)throw Error('Status transaksi tidak tersedia.');
-          $('deleteRecoveryItems').replaceChildren();$('deleteRecovery').hidden=!r.transaksi.length;
-          $('deleteRecoveryStatus').textContent=r.transaksi.length+' transaksi belum selesai. Penambahan/perubahan data dikunci sampai transaksi ini ditutup.';
+          const others=r.transaksi_lain||[];
+          $('deleteRecoveryItems').replaceChildren();$('deleteRecovery').hidden=!r.transaksi.length&&!others.length;
+          $('deleteRecoveryStatus').textContent=r.transaksi.length+' penghapusan tertunda · '+others.length+' transaksi lain perlu diperiksa. '+(r.transaksi.length?'Penambahan/perubahan dikunci sampai penghapusan selesai.':'Penghapusan memeriksa hubungan transaksi dengan data yang dipilih.');
           r.transaksi.forEach(t=>{const div=document.createElement('div');div.className='delete-pending-item';const text=document.createElement('p');text.textContent=t.jenis+' '+t.id+' · '+t.nama+' · '+t.total+' baris · '+t.status;const b=document.createElement('button');b.type='button';b.className='btn';b.textContent='Periksa / lanjutkan';b.dataset.deleteTarget=t.id;b.addEventListener('click',()=>openDeleteData(t.jenis,t.id,t));div.append(text,b);$('deleteRecoveryItems').append(div);});
+          others.forEach(t=>{
+            const div=document.createElement('div');div.className='delete-pending-item';const info=document.createElement('div'),text=document.createElement('p'),detail=document.createElement('p');
+            text.textContent=t.jenis+' '+t.referensi+' · '+t.status+' · '+t.id_transaksi;
+            detail.className='foot';detail.textContent='Riwayat_Validasi baris '+t.baris+(t.programs&&t.programs.length?' · Program: '+t.programs.join(', '):'')+'. '+t.saran;
+            info.append(text,detail);const b=document.createElement('button');b.type='button';b.className='btn';b.textContent=t.page==='peserta'?'Buka Peserta Program':'Buka Pengelolaan';
+            b.addEventListener('click',()=>{if(saving||deleteConfirming)return;if(!navigationBase){$('deleteRecoveryStatus').textContent='Buka halaman terkait melalui menu Manajemen Pelatihan pada spreadsheet.';return;}window.open(navigationBase+'?page='+(t.page==='peserta'?'peserta':'pengelolaan')+(t.program?'&program='+encodeURIComponent(t.program):''),'_top');});
+            div.append(info,b);$('deleteRecoveryItems').append(div);
+          });
         }catch(e){$('deleteRecovery').hidden=false;$('deleteRecoveryStatus').textContent=e.message||'Pemeriksaan transaksi gagal. Coba lagi.';}
         finally{deleteChecking=false;updateDeleteControls();}
       }

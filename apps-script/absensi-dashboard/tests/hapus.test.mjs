@@ -115,3 +115,39 @@ test('complete backup with an interrupted PENDING marker can be verified and con
 test('oversized cascade is rejected before audit or source mutations',()=>{
  const h=harness(),t=h.sheets.get('Log_Absensi');for(let i=0;i<3000;i++)t.appendRow(t.header.map(k=>({id_log:'EXTRA'+i,id_sesi:'SES001',id_keikutsertaan:'KST001',id_token_qr:'T1'}[k]||'')));assert.throws(()=>h.preview(),/3.000/);assert.equal(h.deleted(),0);assert.equal(h.objects('Riwayat_Validasi').length,0);
 });
+
+function addAudit(h,values){h.sheets.get('Riwayat_Validasi').appendRow(auditHeader.map(k=>values[k]??''));}
+test('legacy rows with transaction IDs but no status do not create deletion locks or get rewritten',()=>{
+ const h=harness();addAudit(h,{id_transaksi_perubahan:'LAMA',jenis_data:'Sesi',id_referensi:'SES001',jenis_tindakan:'catatan_lama',status_transaksi:''});const before=plain(h.objects('Riwayat_Validasi'));assert.ok(h.preview().versi);assert.equal(h.c.muatPenghapusanTertundaIndex().jumlah_riwayat_lama,1);assert.deepEqual(plain(h.objects('Riwayat_Validasi')),before);assert.equal(h.deleted(),0);
+});
+test('normalized completed status remains completed when later historical rows omit a status',()=>{
+ const h=harness();for(const status of [' pending ',' selesai ',''])addAudit(h,{id_transaksi_perubahan:' TX-LAMA ',jenis_data:'Sesi',id_referensi:'SES001',status_transaksi:status});assert.ok(h.preview().versi);assert.equal(h.c.muatPenghapusanTertundaIndex().transaksi_lain.length,0);
+});
+test('blank rows never close an explicitly pending transaction; diagnostics retain the physical audit row',()=>{
+ const h=harness();h.sheets.get('Riwayat_Validasi').appendRow(auditHeader.map(()=>''));addAudit(h,{id_transaksi_perubahan:'TX-JP',jenis_data:'Sesi',id_referensi:'SES001',jenis_tindakan:'konfirmasi_jp',status_transaksi:' perlu_pemulihan ',nilai_sesudah:'{"jp_rencana":4}'});addAudit(h,{id_transaksi_perubahan:'TX-JP',jenis_data:'Sesi',id_referensi:'SES001',status_transaksi:''});assert.throws(()=>h.preview(),e=>/TX-JP/.test(e.message)&&/SES001/.test(e.message)&&/PERLU_PEMULIHAN/.test(e.message)&&/baris 3/.test(e.message));const r=h.c.muatPenghapusanTertundaIndex().transaksi_lain[0];assert.equal(r.baris,3);assert.equal(r.status,'PERLU_PEMULIHAN');assert.equal(r.program,'PRG001');assert.match(r.saran,/konfirmasi JP/);assert.equal(h.deleted(),0);
+});
+test('pending attendance in a different program no longer blocks deletion, even for a shared participant',()=>{
+ const h=harness();addAudit(h,{id_transaksi_perubahan:'TX-LAIN',jenis_data:'Kehadiran',id_referensi:'H3',jenis_tindakan:'hitung_jp_otomatis',status_transaksi:'PENDING',nilai_sesudah:'{"jp_diakui_presisi":2}'});assert.ok(h.apply('Program','PRG001').sukses);assert.deepEqual(h.objects('Program').map(r=>r.id_program),['PRG002']);assert.deepEqual(h.objects('Kehadiran').map(r=>r.id_kehadiran),['H3']);const other=h.c.muatPenghapusanTertundaIndex().transaksi_lain;assert.equal(other.length,1);assert.equal(other[0].id_transaksi,'TX-LAIN');assert.equal(other[0].status,'PENDING');
+});
+test('related-program transactions still block session/member deletion and show actionable recovery advice',()=>{
+ for(const [kind,id] of [['Sesi','SES001'],['Keikutsertaan','KST001']]){const h=harness();addAudit(h,{id_transaksi_perubahan:'IMPOR-PESERTA|request1234567890|0',jenis_data:'Impor_Peserta',id_referensi:'PRG001',jenis_tindakan:'impor_peserta_program',status_transaksi:'PENDING',nilai_sesudah:'{"baris_asal":[]}'});assert.throws(()=>h.preview(kind,id),/Pulihkan Impor Tertunda/);assert.equal(h.deleted(),0);const d=h.c.muatPenghapusanTertundaIndex().transaksi_lain[0];assert.equal(d.page,'peserta');assert.equal(d.program,'PRG001');}
+});
+test('pending import into another program still protects an unused identity scheduled for deletion',()=>{
+ const h=harness();addAudit(h,{id_transaksi_perubahan:'IM-P2',jenis_data:'Impor_Peserta',id_referensi:'PRG002',jenis_tindakan:'impor_peserta_program',status_transaksi:'PENDING',nilai_sesudah:JSON.stringify({writes:[{sheet:'Keikutsertaan',record:{id_peserta:'PST002',id_program:'PRG002',id_keikutsertaan:'KST999'}}]})});assert.throws(()=>h.preview('Peserta','PST002'),/IM-P2/);assert.equal(h.deleted(),0);
+});
+test('all writes in a multi-record audit are inspected rather than trusting only its root record',()=>{
+ const h=harness();addAudit(h,{id_transaksi_perubahan:'MULTI',jenis_data:'Sesi',id_referensi:'SES003',jenis_tindakan:'edit_data',status_transaksi:'PENDING',nilai_sesudah:JSON.stringify({writes:[{sheet:'Sesi',id:'SES001',after:{nama_sesi:'Baru'}}]})});assert.throws(()=>h.preview(),/Pulihkan Edit Tertunda/);assert.equal(h.deleted(),0);
+});
+test('unknown statuses, corrupted JSON and unresolvable references stay blocked without marking audits complete',()=>{
+ for(const values of [{status_transaksi:'STATUS_BARU'},{nilai_sesudah:'rusak'},{jenis_data:'TidakDikenal',id_referensi:'X'},{jenis_data:'Kehadiran',id_referensi:'HILANG'},{id_transaksi_perubahan:''}]){const h=harness();addAudit(h,{id_transaksi_perubahan:'UNKNOWN',jenis_data:'Program',id_referensi:'PRG002',jenis_tindakan:'edit_data',status_transaksi:'PENDING',...values});const before=plain(h.objects('Riwayat_Validasi'));assert.throws(()=>h.preview(),/transaksi belum selesai/);assert.deepEqual(plain(h.objects('Riwayat_Validasi')),before);assert.equal(h.deleted(),0);}
+});
+test('catalog-only transactions do not unnecessarily lock operational deletion',()=>{
+ const h=harness();addAudit(h,{id_transaksi_perubahan:'IND-NEW',jenis_data:'Indikator_Perilaku',id_referensi:'I999',jenis_tindakan:'tambah_indikator_perilaku',status_transaksi:'PENDING',nilai_sesudah:'{"data":[{"sheet":"Indikator_Perilaku","record":{"id_indikator":"I999"}}]}'});assert.ok(h.preview().versi);assert.equal(h.deleted(),0);
+});
+test('apply repeats scoped transaction checks after preview before any backup or deletion',()=>{
+ const h=harness(),p=h.preview();addAudit(h,{id_transaksi_perubahan:'NEW-AFTER-PREVIEW',jenis_data:'Kehadiran',id_referensi:'H1',jenis_tindakan:'hitung_jp_otomatis',status_transaksi:'PENDING'});assert.throws(()=>h.c.hapusDataIndex(h.payload(p)),/NEW-AFTER-PREVIEW/);assert.equal(h.deleted(),0);assert.equal(h.objects('Riwayat_Validasi').length,1);
+});
+
+test('deletion recovery and mutation guards use the same normalized latest explicit status',()=>{
+ const h=harness();h.apply('Sesi','SES001');const done=h.objects('Riwayat_Validasi').at(-1);addAudit(h,{...done,status_transaksi:' selesai '});addAudit(h,{...done,status_transaksi:''});assert.equal(h.pending().length,0);assert.doesNotThrow(()=>h.c.pastikanTidakAdaHapusTertunda_());assert.equal(h.c.transaksiHapus_().get(done.id_transaksi_perubahan).status_transaksi,'SELESAI');
+});

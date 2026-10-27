@@ -4,7 +4,7 @@ Snapshot: 24 October 2026, Asia/Jakarta. This snapshot is the latest source acce
 
 ## Current status
 The user confirmed the latest sidebar/navigation fix with: "nah, sudah normal ini".
-The creation-modal update is committed on ui/modal-penambahan-pelatihan. Beranda is committed on feat/beranda-pelatihan; the public QR page update is on ui/absensi-komdigi. Completed-program reports are committed on feat/laporan-program-pdf. Physical deletion with dependency previews/audit backups is committed on feat/hapus-data-pelatihan. Current branch ui/konfirmasi-hapus simplifies deletion to trash icons and a final confirmation popup without typed target IDs. These updates are locally validated and await deployment/user verification, including native Google Docs export.
+The creation-modal update is committed on ui/modal-penambahan-pelatihan. Beranda is committed on feat/beranda-pelatihan; the public QR page update is on ui/absensi-komdigi. Completed-program reports are committed on feat/laporan-program-pdf. Physical deletion with dependency previews/audit backups is committed on feat/hapus-data-pelatihan. The UI confirmation update is committed on ui/konfirmasi-hapus. Current branch fix/transaksi-penghapusan corrects false/global audit locks and adds actionable transaction diagnostics after the user reported deletion blocked by a generic unfinished-transaction error. These updates are locally validated and await deployment/user verification, including native Google Docs export.
 Continue from this source rather than rebuilding the project from scratch.
 
 ## Source of truth and files
@@ -112,6 +112,15 @@ DOM tests used all original inline scripts with a mocked Google bridge, desktop/
 - After reason/acknowledgement, Hapus Data Terkait opens a second native modal showing target name and scope. Default focus is Batal. Batal/Escape preserve the draft and send no mutation RPC; only Ya, Hapus Data / Ya, Lanjutkan starts the request. Confirmation state prevents duplicate submissions. Error/retry retains the same request payload and final confirmation is shown again on retry.
 - Preview failures leave form/confirmation disabled. Existing pending-transaction errors still require examination through the original recovery workflow; UI confirmation does not bypass server validation.
 - 44 existing Node tests plus local Chromium desktop/mobile checks pass with mocks. Sidebar/navigation unchanged. No Google deployment or production data changes.
+
+## Deletion transaction blocker fix — 27 October 2026
+- User reports generic Ada transaksi belum selesai... during deletion. Live spreadsheet audit rows are unavailable here; no specific live transaction has been identified or modified.
+- Confirmed code defects reproduced locally: any audit row with transaction ID and blank status was treated as unfinished; lower-case/padded terminal statuses failed comparison; unrelated programs were globally blocked by non-delete transactions.
+- Branch fix/transaksi-penghapusan replaces Hapus.gs, Pengelolaan.html and Peserta.html together. Latest explicit status is normalized; blank-status history neither opens nor closes an existing transaction. No automatic audit/data changes during diagnosis.
+- Non-delete blockers are scoped using selected/deleted IDs, related program IDs, stored table relationships and all references in before/after audit snapshots, including multi-record plans. Proven unrelated transactions do not block. Related/unknown/corrupt audit state stays blocked; pending deletion remains global. Apply repeats the check under ScriptLock after preview.
+- Recovery card renamed Transaksi yang Perlu Diperiksa and shows non-delete diagnostics: transaction/root/status/physical audit row, program, existing workflow advice and navigation only. Preview errors expose the specific blockers and a detail button. No force-complete, JP recovery or auto-repair endpoint added.
+- 55 Node tests (29 deletion + 26 prior) and mocked Chromium desktop/mobile checks pass. Added reproductions for legacy blank statuses, terminal normalization, related/unrelated program isolation, imports protecting unused identities, multi-write audits, malformed/unknown metadata, physical row numbers and post-preview checks. UI validates safe diagnostic text and zero mutation calls on failed preview.
+- Prior icons/no-ID-entry/final confirmation and sidebar/navigation preserved. Native Google services and the user's production failure still require confirmation after installing; no deployment or production writes performed.
 
 ## Remaining candidate work (not automatically authorized)
 - Real authentication and roles for the user account/settings/logout placeholders.

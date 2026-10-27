@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-10-27 — fix false/global transaction locks before deletion
+- Corrected latest-explicit audit status handling: legacy blank-status rows do not become new locks or overwrite a real status; terminal statuses normalize whitespace/case. Diagnostic reads preserve the audit unchanged.
+- Scoped non-delete blockers to relevant programs/IDs and audit-plan references; unrelated transactions no longer freeze all deletion. Unknown/corrupt/incomplete scope and active deletion transactions remain blocked. Apply repeats the check after preview.
+- Added specific blocker IDs/statuses/physical audit rows and existing recovery advice to errors; Pengelolaan/Peserta show a combined read-only transaction diagnostic card and navigation. Existing trash icons and final confirmation remain.
+- Added 11 backend reproductions/regressions (55 total passing) and browser diagnostic/error checks. Live spreadsheet rows were not available; no specific production transaction was changed and no deployment was performed.
+
 ## 2026-10-27 — simpler deletion confirmation and trash icons
 - Removed the typed target-ID field from initial and pending-delete dialogs in Pengelolaan/Peserta; selected IDs are supplied internally through the unchanged RPC payload.
 - Replaced table deletion text buttons with accessible inline trash icons and 44 px click areas.

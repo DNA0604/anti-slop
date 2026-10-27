@@ -13,23 +13,100 @@ function skemaHapus_() {
 function teksHapus_(v) { return String(v == null ? '' : v).trim(); }
 function nilaiHapus_(v) { return v instanceof Date ? {$date:v.toISOString()} : v; }
 function auditHapus_() {
-  return tabelIndex_('Riwayat_Validasi',['id_riwayat','jenis_data','id_referensi','jenis_tindakan','kolom_diubah','nilai_sebelum','nilai_sesudah','alasan_perubahan','diubah_oleh','waktu_perubahan','id_transaksi_perubahan','status_transaksi']);
+  const sheet=SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Riwayat_Validasi');if(!sheet)throw Error('Sheet Riwayat_Validasi tidak ditemukan.');
+  const values=sheet.getDataRange().getValues(),header=values[0].map(teksHapus_),required=['id_riwayat','jenis_data','id_referensi','jenis_tindakan','kolom_diubah','nilai_sebelum','nilai_sesudah','alasan_perubahan','diubah_oleh','waktu_perubahan','id_transaksi_perubahan','status_transaksi'];
+  if(required.some(k=>!header.includes(k))||new Set(header.filter(Boolean)).size!==header.filter(Boolean).length)throw Error('Header Riwayat_Validasi tidak sesuai.');
+  const records=[];values.slice(1).forEach((row,i)=>{if(!row.some(v=>v!==''&&v!=null))return;const r={__baris:i+2};header.forEach((h,c)=>{if(h)r[h]=row[c];});records.push(r);});return {header,records};
 }
 function transaksiHapus_() {
   const m=new Map();
-  auditHapus_().records.filter(r=>r.jenis_tindakan==='hapus_data').forEach(r=>m.set(teksHapus_(r.id_transaksi_perubahan),r));
+  auditHapus_().records.filter(r=>teksHapus_(r.jenis_tindakan).toLowerCase()==='hapus_data').forEach(r=>{const status=statusTransaksiHapus_(r.status_transaksi);if(status)m.set(teksHapus_(r.id_transaksi_perubahan)||'TANPA-ID-BARIS-'+r.__baris,Object.assign({},r,{status_transaksi:status}));});
   return m;
 }
 function pastikanTidakAdaHapusTertunda_() {
   if(Array.from(transaksiHapus_().values()).some(r=>!['SELESAI','DIBATALKAN'].includes(r.status_transaksi)))
     throw Error('Ada penghapusan belum selesai. Buka Pengelolaan atau Peserta → Penghapusan tertunda → Periksa / lanjutkan.');
 }
-function pastikanTransaksiSebelumHapus_() {
-  const m=new Map();
-  auditHapus_().records.filter(r=>r.jenis_tindakan!=='cadangan_hapus').forEach(r=>{if(r.id_transaksi_perubahan)m.set(teksHapus_(r.id_transaksi_perubahan),r);});
-  if(Array.from(m.values()).some(r=>!['SELESAI','DIBATALKAN'].includes(r.status_transaksi)))
-    throw Error('Ada transaksi belum selesai. Pulihkan transaksi/edit/impor atau penghapusan tertunda sebelum menghapus data.');
+/** Read-only audit classification. Blank legacy statuses are not transaction locks. */
+function statusTransaksiHapus_(v) { return teksHapus_(v).toUpperCase(); }
+function kelompokAuditTransaksiHapus_() {
+  const groups=new Map();let legacy=0;
+  auditHapus_().records.forEach(r=>{
+    if(teksHapus_(r.jenis_tindakan).toLowerCase()==='cadangan_hapus')return;
+    const tx=teksHapus_(r.id_transaksi_perubahan),status=statusTransaksiHapus_(r.status_transaksi);
+    if(!status){legacy++;return;}
+    const key=tx||'TANPA-ID-BARIS-'+r.__baris;
+    if(!groups.has(key))groups.set(key,{id:key,rows:[],row:r,status});
+    const g=groups.get(key);g.rows.push(r);g.row=r;g.status=status;
+  });
+  return {legacy,groups:Array.from(groups.values()).filter(g=>!['SELESAI','DIBATALKAN'].includes(g.status))};
 }
+function petaDataTransaksiHapus_() {
+  const maps={},schema=skemaHapus_();
+  Object.keys(schema).forEach(name=>maps[name]=new Map(tabelIndex_(name,[schema[name][0]]).records.map(r=>[teksHapus_(r[schema[name][0]]),r])));
+  return maps;
+}
+function cakupanAuditTransaksiHapus_(group,maps) {
+  const schema=skemaHapus_(),names=Object.keys(schema).concat(['Aturan_Penilaian','Indikator_Perilaku']),refKeys={};
+  Object.keys(schema).forEach(n=>refKeys[schema[n][0]]=n);
+  refKeys.id_aturan_penilaian='Aturan_Penilaian';refKeys.id_aturan_penilaian_aktif='Aturan_Penilaian';refKeys.id_indikator='Indikator_Perilaku';
+  const canonical=v=>names.find(n=>n.toLowerCase()===teksHapus_(v).toLowerCase())||(teksHapus_(v).toLowerCase()==='impor_peserta'?'Program':'');
+  const refs=new Map(),programs=new Set(),people=new Set();let invalid=group.rows.some(r=>!teksHapus_(r.id_transaksi_perubahan)),budget=20000;
+  function add(name,id){id=teksHapus_(id);if(name&&id)refs.set(name+'|'+id,{name,id});}
+  function scan(value,depth){
+    if(--budget<0||depth>20){invalid=true;return;}if(!value||typeof value!=='object')return;
+    if(Array.isArray(value)){value.forEach(v=>scan(v,depth+1));return;}
+    const name=canonical(value.sheet||value.jenis);if(name&&value.id)add(name,value.id);
+    Object.keys(value).forEach(k=>{if(refKeys[k]&&value[k]!=null&&typeof value[k]!=='object')add(refKeys[k],value[k]);if(value[k]&&typeof value[k]==='object')scan(value[k],depth+1);});
+  }
+  group.rows.forEach(r=>{
+    const name=canonical(r.jenis_data);if(!name||!teksHapus_(r.id_referensi))invalid=true;else add(name,r.id_referensi);
+    ['nilai_sebelum','nilai_sesudah'].forEach(key=>{const raw=teksHapus_(r[key]);if(!raw)return;try{const parsed=JSON.parse(raw);if(parsed!=null&&typeof parsed!=='object')invalid=true;else scan(parsed,0);}catch(e){invalid=true;}});
+  });
+  // Resolve parent programs from stored IDs too, including older flat JP/correction audits.
+  const queue=Array.from(refs.values()),seen=new Set();
+  for(let i=0;i<queue.length;i++){
+    const x=queue[i],key=x.name+'|'+x.id;if(seen.has(key))continue;seen.add(key);
+    if(x.name==='Program')programs.add(x.id);if(x.name==='Peserta')people.add(x.id);
+    const row=maps[x.name]&&maps[x.name].get(x.id);if(!row)continue;
+    Object.keys(refKeys).forEach(k=>{const id=teksHapus_(row[k]),name=refKeys[k];if(id&&!(name===x.name&&id===x.id)&&!seen.has(name+'|'+id))queue.push({name,id});});
+  }
+  const root=canonical(group.row.jenis_data),catalog=['Indikator_Perilaku','Aturan_Penilaian'].includes(root);
+  return {refs,programs,people,unknown:invalid||(!programs.size&&!people.size&&!catalog)};
+}
+function petunjukAuditTransaksiHapus_(g,scope) {
+  const action=teksHapus_(g.row.jenis_tindakan).toLowerCase(),program=scope.programs.size===1?Array.from(scope.programs)[0]:'',kind=teksHapus_(g.row.jenis_data),ref=teksHapus_(g.row.id_referensi);
+  let saran='Periksa Riwayat_Validasi dan data '+kind+' '+ref+'. Jangan mengubah status menjadi SELESAI tanpa verifikasi data.',page='pengelolaan';
+  if(action==='edit_data')saran='Buka Pengelolaan → Pulihkan Edit Tertunda. Sistem memeriksa nilai sebelum melanjutkan edit.';
+  else if(action==='impor_peserta_program'||kind==='Impor_Peserta'){page='peserta';saran='Buka Peserta Program'+(program?' untuk '+program:'')+' → Pulihkan Impor Tertunda.';}
+  else if(action==='tambah_sesi'||action==='pemulihan_pembuatan_sesi')saran='Buka Pengelolaan'+(program?' untuk '+program:'')+' → Periksa / Pulihkan Sesi.';
+  else if(/konfirmasi_jp|perubahan_jp/.test(action))saran='Transaksi konfirmasi JP sesi '+ref+' perlu diperiksa pada Riwayat_Validasi. Pemeriksaan ini tidak menjalankan perhitungan atau pemulihan otomatis.';
+  return {id_transaksi:g.id,jenis:kind,referensi:ref,tindakan:action,status:g.status,baris:g.row.__baris,programs:Array.from(scope.programs),program,page,saran,cakupan_tidak_diketahui:scope.unknown};
+}
+function periksaAuditSebelumHapus_(plan) {
+  const audit=kelompokAuditTransaksiHapus_();if(!audit.groups.length)return {legacy:audit.legacy,transaksi:[],blokir:[]};
+  const maps=petaDataTransaksiHapus_(),targets=new Set(),programs=new Set(),people=new Set();
+  if(plan)plan.tables.forEach(t=>t.rows.forEach(r=>{
+    targets.add(t.name+'|'+r.id);const row=Object.fromEntries(t.header.map((k,i)=>[k,r.values[i]]));
+    if(t.name==='Program')programs.add(r.id);if(row.id_program)programs.add(teksHapus_(row.id_program));
+    if(t.name==='Peserta')people.add(r.id);if(row.id_peserta)people.add(teksHapus_(row.id_peserta));
+  }));
+  const transaksi=audit.groups.map(g=>{
+    const scope=cakupanAuditTransaksiHapus_(g,maps),detail=petunjukAuditTransaksiHapus_(g,scope);
+    const deletion=g.rows.some(r=>teksHapus_(r.jenis_tindakan).toLowerCase()==='hapus_data');
+    const unknownStatus=!['PENDING','PERLU_PEMULIHAN','MENYIAPKAN'].includes(g.status);
+    detail.penghapusan=deletion;
+    detail.menghalangi=!plan||deletion||scope.unknown||unknownStatus||Array.from(scope.refs.keys()).some(k=>targets.has(k))||Array.from(scope.programs).some(id=>programs.has(id))||(!scope.programs.size&&Array.from(scope.people).some(id=>people.has(id)));
+    return detail;
+  });
+  return {legacy:audit.legacy,transaksi,blokir:transaksi.filter(t=>t.menghalangi)};
+}
+function pastikanTransaksiSebelumHapus_(plan) {
+  const r=periksaAuditSebelumHapus_(plan);if(!r.blokir.length)return;
+  const detail=r.blokir.slice(0,3).map(t=>t.jenis+' '+t.referensi+' — status '+t.status+'; transaksi '+t.id_transaksi+'; Riwayat_Validasi baris '+t.baris+'. '+t.saran).join('\n');
+  throw Error('Ada transaksi belum selesai yang terkait data ini atau belum dapat dipastikan cakupannya ('+r.blokir.length+').\n'+detail+'\nBuka kartu Transaksi yang Perlu Diperiksa untuk rincian.');
+}
+
 function bacaTabelHapus_(name,required) {
   const sheet=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(name);
   if(!sheet)throw Error('Sheet tidak ditemukan: '+name+'. Penghapusan dibatalkan.');
@@ -93,7 +170,7 @@ function ringkasanHapus_(plan) {
 }
 function pratinjauHapusDataIndex(jenis,id) {
   wajibPemilikIndex_();const lock=LockService.getScriptLock();lock.waitLock(30000);
-  try{pastikanTransaksiSebelumHapus_();const plan=rencanaHapus_(teksHapus_(jenis),teksHapus_(id));return Object.assign({sukses:true,versi:versiBarisIndex_(plan)},ringkasanHapus_(plan));}finally{lock.releaseLock();}
+  try{const plan=rencanaHapus_(teksHapus_(jenis),teksHapus_(id));pastikanTransaksiSebelumHapus_(plan);return Object.assign({sukses:true,versi:versiBarisIndex_(plan)},ringkasanHapus_(plan));}finally{lock.releaseLock();}
 }
 function batasNomorIdHapus_(prefix) {
   const ss=SpreadsheetApp.getActiveSpreadsheet(),v=PropertiesService.getScriptProperties().getProperty('BATAS_ID_HAPUS|'+ss.getId());
@@ -142,7 +219,7 @@ function hapusDataIndex(d) {
   try{
     const old=transaksiHapus_().get(tx);
     if(old){const meta=JSON.parse(old.nilai_sesudah);if(meta.signature!==signature)throw Error('ID permintaan sudah digunakan untuk isi berbeda.');if(old.status_transaksi==='SELESAI')return {sukses:true,pesan:'Penghapusan sudah selesai; tidak diulang.',jenis,id};throw Error('Permintaan sebelumnya belum selesai. Gunakan Penghapusan tertunda → Periksa / lanjutkan.');}
-    pastikanTransaksiSebelumHapus_();const plan=rencanaHapus_(jenis,id);if(versiBarisIndex_(plan)!==d.versi)throw Error('Data berubah sejak pratinjau. Tutup, muat ulang dan periksa dampak penghapusan kembali.');
+    const plan=rencanaHapus_(jenis,id);pastikanTransaksiSebelumHapus_(plan);if(versiBarisIndex_(plan)!==d.versi)throw Error('Data berubah sejak pratinjau. Tutup, muat ulang dan periksa dampak penghapusan kembali.');
     const raw=JSON.stringify(plan);if(raw.length>2000000)throw Error('Cadangan melebihi 2 juta karakter. Hapus per sesi/pendaftaran terlebih dahulu.');
     const parts=[];for(let at=0;at<raw.length;){let end=Math.min(at+16000,raw.length);const code=raw.charCodeAt(end-1);if(end<raw.length&&code>=0xD800&&code<=0xDBFF)end--;parts.push(raw.slice(at,end));at=end;}
     const meta=Object.assign(ringkasanHapus_(plan),{signature,versi:d.versi,bagian:parts.length,alasan});
@@ -154,7 +231,7 @@ function hapusDataIndex(d) {
   }finally{lock.releaseLock();}
 }
 function muatPenghapusanTertundaIndex() {
-  wajibPemilikIndex_();return {sukses:true,transaksi:Array.from(transaksiHapus_(),([tx,r])=>({tx,row:r})).filter(x=>!['SELESAI','DIBATALKAN'].includes(x.row.status_transaksi)).map(x=>Object.assign({id_transaksi:x.tx,status:x.row.status_transaksi},JSON.parse(x.row.nilai_sesudah)))};
+  wajibPemilikIndex_();const audit=periksaAuditSebelumHapus_(null);return {sukses:true,transaksi_lain:audit.transaksi.filter(t=>!t.penghapusan),jumlah_riwayat_lama:audit.legacy,transaksi:Array.from(transaksiHapus_(),([tx,r])=>({tx,row:r})).filter(x=>!['SELESAI','DIBATALKAN'].includes(x.row.status_transaksi)).map(x=>Object.assign({id_transaksi:x.tx,status:x.row.status_transaksi},JSON.parse(x.row.nilai_sesudah)))};
 }
 function lanjutkanPenghapusanIndex(d) {
   const petugas=wajibPemilikIndex_(),lock=LockService.getScriptLock();lock.waitLock(30000);
