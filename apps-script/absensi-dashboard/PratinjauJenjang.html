@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <base target="_top">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Pratinjau Pemetaan Jenjang</title>
+  <style>
+    :root{font-family:"Avenir Next",Avenir,"Segoe UI",Arial,sans-serif;color:#192e50;background:#f0f3f8;font-size:14px}
+    *{box-sizing:border-box}body{margin:0;padding:24px}button,input,select{font:inherit}button{cursor:pointer;border:1px solid #d9e1ed;background:white;color:#203960;border-radius:12px;padding:11px 16px;min-height:44px;font-weight:600}button.primary{background:#203960;color:white;border-color:#203960}button:disabled{opacity:.5;cursor:wait}button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #d99616;outline-offset:3px}
+    h1{font-size:25px;line-height:1.25;margin:8px 0}h2{font-size:18px;margin:0 0 12px}h3{font-size:15px;margin:20px 0 10px}p{line-height:1.65;margin:8px 0}.muted{color:#61718b}.eyebrow{text-transform:uppercase;letter-spacing:.12em;font-size:11px;font-weight:700;color:#61718b}.header{display:flex;justify-content:space-between;align-items:center;gap:20px;margin-bottom:20px}.actions{display:flex;gap:8px;flex-wrap:wrap}.card{padding:24px;background:white;border:1px solid #dce3ef;border-radius:22px;margin-bottom:18px;min-width:0}.notice{background:#e9eff8;border-radius:12px;padding:14px 18px;line-height:1.6}.error{background:#fff0f1;color:#9d2938;border:1px solid #efc6cd}.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:18px 0}.stat{border:1px solid #dce3ef;background:white;border-radius:18px;padding:18px}.stat strong{font-size:28px;display:block;margin:5px 0}.toolbar{display:flex;gap:12px;margin:18px 0}.field{flex:1;min-width:0}label{display:block;font-weight:600;font-size:12px;margin-bottom:7px}input,select{width:100%;min-height:44px;padding:10px 12px;border:1px solid #d5deec;border-radius:12px;background:white;color:#192e50}.scroll{overflow:auto;border:1px solid #e0e6ef;border-radius:14px}table{border-collapse:collapse;width:100%;text-align:left;font-size:13px}th,td{padding:14px;vertical-align:top;border-bottom:1px solid #e5ebf4}th{background:#f4f6fa;font-size:11px;text-transform:uppercase;letter-spacing:.03em;color:#526685}tr:last-child td{border-bottom:0}td{overflow-wrap:anywhere}.program-table{min-width:790px}.badge{display:inline-block;font-size:12px;line-height:1.4;border-radius:8px;padding:6px 9px;background:#edf2f9;color:#304c72}.badge.block{background:#fff0f1;color:#9d2938}.badge.review{background:#fff5de;color:#785512}.sub{display:block;font-size:12px;color:#61718b;margin-top:5px}.empty{padding:24px;text-align:center;color:#61718b}.pager{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:14px}.metadata{overflow-wrap:anywhere;font-size:12px}.finding{padding:14px 0;border-bottom:1px solid #e4eaf2}.finding:last-child{border:0}.finding p{margin:5px 0}.finding b{font-size:12px}.counts{display:flex;flex-wrap:wrap;gap:10px;margin:16px 0}.counts span{border-radius:9px;background:#f0f3f8;padding:9px 12px}.details-grid>section,.dialog-head>div{min-width:0}.details-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}dialog{width:min(1000px,calc(100vw - 24px));max-height:90vh;border:1px solid #dce3ef;border-radius:22px;padding:24px;color:#192e50}dialog::backdrop{background:#192e5080}.dialog-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;position:sticky;top:-24px;background:white;padding:10px 0;z-index:1}.detail-table{min-width:350px}#detailFindings{margin-top:20px}#result[hidden],#error[hidden],#loading[hidden]{display:none}.list-limit{font-size:12px;color:#61718b}.footer{font-size:12px;color:#61718b;margin:20px 0}.break{overflow-wrap:anywhere}
+    @media(max-width:650px){body{padding:14px}.header{align-items:flex-start;flex-direction:column}.card{padding:18px}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.toolbar,.details-grid{display:flex;flex-direction:column}.pager{flex-wrap:wrap}.actions{width:100%}.actions button{flex:1}h1{font-size:22px}dialog{padding:18px}.dialog-head{top:-18px}.metadata{font-size:11px}}
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div><div class="eyebrow">Persiapan Program · Jenjang · Sesi</div><h1>Pratinjau Pemetaan Jenjang</h1><p class="muted">Periksa penempatan data lama sebelum struktur Jenjang dikembangkan.</p></div>
+    <div class="actions"><button id="reload" class="primary" type="button">Muat Ulang</button><button id="close" type="button">Tutup</button></div>
+  </header>
+  <div class="notice">Panel ini <strong>hanya membaca data</strong>. Usulan belum menjadi keputusan penempatan. Tidak ada data, ID, rumus, atau status yang diubah.</div>
+  <p id="loading" role="status" aria-live="polite">Sedang membaca dan memeriksa hubungan data…</p>
+  <p id="error" class="notice error" role="alert" hidden></p>
+  <main id="result" hidden>
+    <div class="stats" aria-label="Ringkasan sumber">
+      <div class="stat">Program<strong id="programCount"></strong><span class="muted">Termasuk program selesai</span></div>
+      <div class="stat">Sesi<strong id="sessionCount"></strong><span class="muted">Seluruh sesi tercatat</span></div>
+      <div class="stat">Keikutsertaan<strong id="memberCount"></strong><span class="muted">Semua status pendaftaran</span></div>
+      <div class="stat">Masalah data<strong id="issueCount"></strong><span class="muted">Temuan yang perlu diperiksa</span></div>
+    </div>
+    <section class="card">
+      <h2>Usulan per Program</h2><p class="muted">Satu isian Jenjang lama dapat diusulkan sebagai satu Jenjang. Data yang kosong, ambigu, atau sudah memiliki struktur baru perlu ditinjau dahulu.</p>
+      <div class="toolbar"><div class="field"><label for="search">Cari program, ID, atau Jenjang</label><input id="search" type="search" placeholder="Ketik untuk mencari"></div><div class="field"><label for="filter">Status pemeriksaan</label><select id="filter"><option value="">Semua status</option><option value="usulan_tunggal">Usulan satu Jenjang</option><option value="perlu_jenjang">Perlu penetapan Jenjang</option><option value="perlu_pemetaan">Perlu pemetaan manual</option><option value="periksa_migrasi">Periksa migrasi sebelumnya</option><option value="terhalang">Terhalang masalah data</option></select></div></div>
+      <div class="scroll"><table class="program-table"><thead><tr><th scope="col">Program / Jenjang Lama</th><th scope="col">Sesi / Peserta</th><th scope="col">Usulan</th><th scope="col">Status Pemeriksaan</th><th scope="col">Tindakan</th></tr></thead><tbody id="programRows"></tbody></table></div>
+      <div class="pager"><span id="pageInfo" role="status"></span><div class="actions"><button id="prev" type="button">Sebelumnya</button><button id="next" type="button">Berikutnya</button></div></div>
+    </section>
+    <section class="card"><h2>Temuan dan Catatan Pemeriksaan</h2><p id="findingInfo" class="muted"></p><div id="findings"></div><div class="pager"><span id="findingPage" role="status"></span><div class="actions"><button id="prevFinding" type="button">Temuan Sebelumnya</button><button id="nextFinding" type="button">Temuan Berikutnya</button></div></div></section>
+    <section class="card"><h2>Sumber Pratinjau</h2><p id="source" class="metadata"></p><p id="version" class="metadata"></p><p id="notes" class="muted"></p><p id="legacy" class="muted"></p><p class="notice">Langkah sesudah pemeriksaan adalah menyusun pemetaan yang sudah ditinjau pada salinan database. Panel ini belum menerapkan migrasi atau memeriksa hasil penghitungan JP.</p></section>
+  </main>
+  <dialog id="detailDialog" aria-labelledby="detailTitle"><div class="dialog-head"><div><h2 id="detailTitle">Rincian Program</h2><p id="detailMeta" class="muted break"></p></div><button id="closeDetail" type="button" autofocus>Tutup</button></div><p id="detailState" class="notice"></p><div id="detailCounts" class="counts"></div><div class="details-grid"><section><h3>Sesi yang Tercatat</h3><div class="scroll"><table class="detail-table"><thead><tr><th scope="col">Sesi</th><th scope="col">Baris / Jenjang Tercatat</th></tr></thead><tbody id="detailSessions"></tbody></table></div><div class="pager"><span id="sessionsPage"></span><div><button id="prevSession" type="button" aria-label="Sesi sebelumnya">←</button> <button id="nextSession" type="button" aria-label="Sesi berikutnya">→</button></div></div></section><section><h3>Peserta yang Tercatat</h3><div class="scroll"><table class="detail-table"><thead><tr><th scope="col">Peserta / Keikutsertaan</th><th scope="col">Status / Baris / Jenjang</th></tr></thead><tbody id="detailMembers"></tbody></table></div><div class="pager"><span id="membersPage"></span><div><button id="prevMember" type="button" aria-label="Peserta sebelumnya">←</button> <button id="nextMember" type="button" aria-label="Peserta berikutnya">→</button></div></div></section></div><section id="detailFindings"><h3>Temuan Terkait Program</h3><p id="detailFindingInfo" class="list-limit"></p><div id="detailFindingRows"></div></section></dialog>
+  <p class="footer">Monitoring Pelatihan Pegawai · Tahap 1 · Akses khusus pemilik spreadsheet.</p>
+  <script>
+  (function () {
+    'use strict';
+    const $ = id => document.getElementById(id);
+    const labels = {usulan_tunggal:'Usulan satu Jenjang',perlu_jenjang:'Perlu penetapan Jenjang',perlu_pemetaan:'Perlu pemetaan manual',periksa_migrasi:'Periksa migrasi sebelumnya',terhalang:'Terhalang masalah data'};
+    let data = null, page = 0, findingPage = 0, selected = null, sessionPage = 0, memberPage = 0, opener = null, busy = false;
+    const size = 20;
+    function node(tag,text,className) {const e=document.createElement(tag);if(text!=null)e.textContent=String(text);if(className)e.className=className;return e;}
+    function cell(text,sub) {const e=node('td',text);if(sub)e.append(node('span',sub,'sub'));return e;}
+    function empty(body,cols,text) {const row=node('tr'),c=node('td',text,'empty');c.colSpan=cols;row.append(c);body.append(row);}
+    function badge(state) {return node('span',labels[state]||state,'badge'+(state==='terhalang'?' block':state==='usulan_tunggal'?'':' review'));}
+    function paginate(items,p,info,prev,next) {const max=Math.max(0,Math.ceil(items.length/size)-1);p=Math.max(0,Math.min(p,max));$(info).textContent=items.length?'Halaman '+(p+1)+' / '+(max+1)+' · '+items.length+' baris':'0 baris';$(prev).disabled=p===0;$(next).disabled=p===max;return {page:p,items:items.slice(p*size,(p+1)*size)};}
+    function renderPrograms() {
+      if(!data)return;
+      const q=$('search').value.trim().toLocaleLowerCase('id'),state=$('filter').value;
+      const filtered=data.program.filter(p=>(!state||p.status===state)&&[p.nama,p.id,p.jenjang_lama,p.usulan].join(' ').toLocaleLowerCase('id').includes(q));
+      const paged=paginate(filtered,page,'pageInfo','prev','next');page=paged.page;
+      $('programRows').replaceChildren();
+      paged.items.forEach(p=>{const row=node('tr');row.append(cell(p.nama||'(nama belum diisi)',(p.id||'ID kosong')+' · baris '+p.baris+' · '+(p.status_program||'status belum diisi')));row.firstChild.append(node('span','Jenjang lama: '+(p.jenjang_lama||'Belum diisi'),'sub'));row.append(cell(p.jumlah_sesi+' sesi',p.jumlah_keikutsertaan+' keikutsertaan · '+p.jumlah_terdaftar+' terdaftar'));row.append(cell(p.usulan||'Perlu diperiksa'));const c=node('td');c.append(badge(p.status));row.append(c);const action=node('td'),b=node('button','Lihat Rincian');b.type='button';b.setAttribute('aria-label','Lihat rincian '+(p.nama||p.id));b.addEventListener('click',()=>openDetail(p,b));action.append(b);row.append(action);$('programRows').append(row);});
+      if(!filtered.length)empty($('programRows'),5,data.program.length?'Tidak ada program yang cocok.':'Belum ada program tercatat.');
+    }
+    function finding(f) {const e=node('div',null,'finding');e.append(node('b',(f.tingkat==='masalah'?'Masalah':'Perlu ditinjau')+' · '+f.sheet+' baris '+f.baris+(f.id?' · '+f.id:'')),node('p',f.pesan),node('p',f.saran,'muted'));return e;}
+    function renderFindings() {if(!data)return;const p=paginate(data.temuan,findingPage,'findingPage','prevFinding','nextFinding');findingPage=p.page;$('findings').replaceChildren(...p.items.map(finding));if(!data.temuan.length)$('findings').append(node('p','Tidak ditemukan masalah hubungan data dalam cakupan pemeriksaan ini. Usulan tetap perlu ditinjau pengelola.','muted'));}
+    function renderDetails() {
+      const p=selected;if(!p)return;
+      const s=paginate(p.sesi,sessionPage,'sessionsPage','prevSession','nextSession');sessionPage=s.page;
+      const m=paginate(p.peserta,memberPage,'membersPage','prevMember','nextMember');memberPage=m.page;
+      $('detailSessions').replaceChildren();s.items.forEach(x=>{const r=node('tr');r.append(cell(x.nama,x.id),cell('Baris '+x.baris,x.jenjang||'Belum ada ID Jenjang'));$('detailSessions').append(r);});if(!p.sesi.length)empty($('detailSessions'),2,'Belum ada sesi.');
+      $('detailMembers').replaceChildren();m.items.forEach(x=>{const r=node('tr');r.append(cell(x.nama,x.id_peserta+' · '+x.id),cell(x.status||'Status kosong','Baris '+x.baris+' · '+(x.jenjang||'Belum ada ID Jenjang')));$('detailMembers').append(r);});if(!p.peserta.length)empty($('detailMembers'),2,'Belum ada keikutsertaan.');
+    }
+    function openDetail(p,button) {selected=p;opener=button;sessionPage=memberPage=0;$('detailTitle').textContent=p.nama||'Program tanpa nama';$('detailMeta').textContent=(p.id||'ID kosong')+' · Program baris '+p.baris+' · Jenjang lama: '+(p.jenjang_lama||'Belum diisi');$('detailState').replaceChildren(badge(p.status),node('p',p.pesan));$('detailCounts').replaceChildren(node('span',p.jumlah_sesi+' sesi'),node('span',p.jumlah_keikutsertaan+' keikutsertaan'),node('span',p.masalah+' masalah terkait'),node('span',p.masalah_global+' masalah global'));
+      const issues=data.temuan.filter(f=>!f.program.length||(p.id&&f.program.includes(p.id)));$('detailFindingRows').replaceChildren(...issues.slice(0,50).map(finding));$('detailFindingInfo').textContent='Menampilkan '+Math.min(50,issues.length)+' temuan terkait/global dari daftar temuan yang tersedia. Daftar utama memuat hingga '+data.batas_temuan+' temuan; jumlah masalah selalu dihitung dari seluruh data.';renderDetails();$('detailDialog').showModal();}
+    function load() {
+      if(busy)return;busy=true;data=null;selected=null;if($('detailDialog').open)$('detailDialog').close();$('result').hidden=true;$('error').hidden=true;$('loading').hidden=false;$('reload').disabled=true;
+      function fail(error) {busy=false;$('reload').disabled=false;$('loading').hidden=true;$('error').textContent=error&&error.message?error.message:'Pratinjau gagal dimuat. Coba Muat Ulang.';$('error').hidden=false;}
+      try {google.script.run.withSuccessHandler(result=>{try{if(!result||result.sukses!==true||result.hanya_baca!==true)throw Error('Hasil pratinjau tidak lengkap. Muat ulang kembali.');data=result;page=findingPage=0;$('programCount').textContent=data.ringkasan.program;$('sessionCount').textContent=data.ringkasan.sesi;$('memberCount').textContent=data.ringkasan.keikutsertaan;$('issueCount').textContent=data.ringkasan.masalah;$('source').textContent=data.sumber+' · '+data.waktu+' ('+data.zona+')';$('version').textContent='Sidik sumber: '+data.versi+' · Informasi pembanding, bukan persetujuan migrasi.';$('notes').textContent=data.catatan;$('legacy').textContent=data.ringkasan.peserta_tanpa_program+' identitas peserta belum terhubung ke program. '+data.ringkasan.riwayat_status_kosong+' baris riwayat berstatus kosong tidak dianggap transaksi baru.';$('findingInfo').textContent='Menampilkan '+data.temuan.length+' dari '+data.jumlah_temuan+' temuan. '+data.ringkasan.masalah_global+' masalah global memengaruhi seluruh usulan. Batas tampilan '+data.batas_temuan+' temuan; perhitungan status tetap mencakup seluruh data.';renderPrograms();renderFindings();$('result').hidden=false;busy=false;$('reload').disabled=false;$('loading').hidden=true;}catch(e){data=null;$('result').hidden=true;fail(e);}}).withFailureHandler(fail).muatPratinjauPemetaanJenjang();}catch(e){fail(e);}
+    }
+    $('reload').addEventListener('click',load);$('close').addEventListener('click',()=>{if(window.google&&google.script&&google.script.host)google.script.host.close();});
+    $('search').addEventListener('input',()=>{page=0;renderPrograms();});$('filter').addEventListener('change',()=>{page=0;renderPrograms();});
+    [['prev',-1],['next',1]].forEach(([id,d])=>$(id).addEventListener('click',()=>{page+=d;renderPrograms();}));
+    [['prevFinding',-1],['nextFinding',1]].forEach(([id,d])=>$(id).addEventListener('click',()=>{findingPage+=d;renderFindings();}));
+    [['prevSession',-1],['nextSession',1]].forEach(([id,d])=>$(id).addEventListener('click',()=>{sessionPage+=d;renderDetails();}));
+    [['prevMember',-1],['nextMember',1]].forEach(([id,d])=>$(id).addEventListener('click',()=>{memberPage+=d;renderDetails();}));
+    $('closeDetail').addEventListener('click',()=>$('detailDialog').close());$('detailDialog').addEventListener('close',()=>{if(opener&&opener.isConnected)opener.focus();});
+    if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',load,{once:true});else load();
+  }());
+  </script>
+</body>
+</html>

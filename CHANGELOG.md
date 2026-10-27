@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-10-27 — read-only Jenjang mapping preview
+- Added optional PemetaanJenjang.gs and PratinjauJenjang.html: owner-only spreadsheet dialog with legacy Jenjang proposals, session/membership details, review states, physical-row diagnostics, search/filter/pagination and source fingerprint.
+- Reads under ScriptLock; validates key relationships/duplicates, partial Jenjang references and latest explicit transaction status. Missing/oversized sources fail instead of producing partial counts. Unknown program references are global blockers; blank-status audit rows do not reopen/close transactions.
+- No migration/apply/write/export endpoint, new sheets/columns, auth implementation or Google deployment. The ten accepted application files, formulas, deletion, sidebar/navigation and manifest are unchanged. Two added files are included in the source snapshot.
+- Added 26 meaningful backend tests (81 total), mocked Chromium checks at desktop/320/390/768 px, installation/validation guide and simulated-data preview images. Live Google dialog/authorization/data checks remain for the separate project copy.
+
 ## 2026-10-27 — stage 1 Jenjang and organizer access design
 - Reviewed the current program/session/membership, QR, recap/report and deletion relationships; recorded the approved Program → Jenjang → Sesi and two-role direction, personal Gmail constraint and separate access spreadsheet.
 - Added Indonesian stage-1 design with a minimal target schema, legacy-data mapping cases, ambiguity/transaction safeguards, staged migration/recovery, affected flows, access matrix and acceptance checks.

@@ -19,7 +19,7 @@ Current code stores only Program.jenjang text; Sesi and Keikutsertaan have progr
 
 Most organizers use personal Gmail. Authentication requires server-verified Google identity; Session.getActiveUser email in execute-as-owner deployments and a whitelist alone are insufficient. No auth protocol/client/setup has been implemented. Prove login in a test HTMLService deployment before broad access refactoring; scope reads/writes/exports/uploads/recovery in the server and reject unavailable access configuration. Public QR remains a distinct flow.
 
-Stage 1 source review/design is complete; live-data inventory and mapping remain pending because spreadsheet data is unavailable here. Next implementation unit: read-only mapping preview with local tests, intended for a separate spreadsheet/project copy. No production edits/deployment/migration or new Google spreadsheet have occurred.
+Stage 1 source review/design and read-only preview implementation are complete; live-data inventory and mapping remain pending because spreadsheet data is unavailable here. The additive PemetaanJenjang.gs + PratinjauJenjang.html panel is intended for a separate spreadsheet/project copy, opened by running bukaPratinjauPemetaanJenjang in the bound editor and returning to the sheet. No web app deployment or replacement of the accepted ten files is needed. Every opener/load requires the existing owner check; muatPratinjauPemetaanJenjang holds ScriptLock while reading, checks IDs/relationships/explicit transaction states and existing partial Jenjang structures, and returns only mapping metadata/participant names+IDs, not NIP/QR/evidence/audit payloads. It never writes sheets/properties/audit or applies a migration. See tests/PEMETAAN_JENJANG_VALIDATION.md for limits, installation and 26 new backend + mocked Chromium checks (81 Node tests total). Ten original file hashes remain unchanged; the snapshot now includes the two optional preview files. Next: user reviews the preview on a Google copy before any mapping/migration work. No production edits/deployment/migration or new Google spreadsheet have occurred.
 
 ## Source of truth and files
 Directory: apps-script/absensi-dashboard/.
@@ -36,7 +36,7 @@ Directory: apps-script/absensi-dashboard/.
 Files named with (1) in uploads were normalized for Apps Script. Use the exact names above.
 
 The app is bound to a spreadsheet with its existing sheets. This handoff contains source, not the live spreadsheet or its data. No fresh schema migration is needed for these UI changes.
-The existing appsscript.json from the original branch is a reference. Keep the deployed project's real manifest, OAuth scopes, permissions and deployment settings. SOURCE_SNAPSHOT.json records SHA-256 hashes for the current ten HTML/GS application files. Report export requires Docs and Drive authorization; preserve existing explicit scopes when adding those permissions.
+The existing appsscript.json from the original branch is a reference. Keep the deployed project's real manifest, OAuth scopes, permissions and deployment settings. SOURCE_SNAPSHOT.json records SHA-256 hashes for the ten accepted HTML/GS application files plus the two additive optional Jenjang-preview files. Report export requires Docs and Drive authorization; preserve existing explicit scopes when adding those permissions.
 
 ## Functional scope already built
 - Categories: Manajerial, Sosial Kultural, Teknis; programs can have jenjang and multiple sessions.

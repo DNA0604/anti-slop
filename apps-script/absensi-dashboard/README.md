@@ -15,7 +15,9 @@ See SOURCE_SNAPSHOT.json for SHA-256 hashes of the ten current HTML/GS source fi
 
 ## Pengembangan bertahap: Jenjang dan akses panitia
 
-Lihat [rancangan tahap 1](docs/TAHAP_1_JENJANG_AKSES.md) untuk struktur Program → Jenjang → Sesi, pemetaan data lama dan pembagian akses panitia. Ini dokumen rancangan berdasarkan pemeriksaan kode; migrasi/login belum dibuat dan data spreadsheet sebenarnya belum dipetakan. Tidak ada file Apps Script yang perlu diganti atau deployment baru untuk tahap dokumentasi ini.
+Lihat [rancangan tahap 1](docs/TAHAP_1_JENJANG_AKSES.md) untuk struktur Program → Jenjang → Sesi, pemetaan data lama dan pembagian akses panitia. Migrasi/login belum dibuat dan data spreadsheet sebenarnya belum dipetakan.
+
+Pratinjau baca saja kini tersedia sebagai **dua file tambahan**, PemetaanJenjang.gs dan PratinjauJenjang.html. Pada **salinan spreadsheet/proyek**, tambahkan Script `PemetaanJenjang` dan HTML `PratinjauJenjang`, salin isi lengkap keduanya, simpan lalu jalankan **bukaPratinjauPemetaanJenjang** dari editor Apps Script dengan akun pemilik. Kembali ke tab spreadsheet untuk melihat panel. Sepuluh file aplikasi lama tidak perlu diganti, tidak menambah sheet/kolom dan tidak perlu deployment baru. Panduan lengkap, arti status, batas dan pemeriksaan: [PEMETAAN_JENJANG_VALIDATION.md](tests/PEMETAAN_JENJANG_VALIDATION.md).
 
 ## Memasang halaman Beranda
 

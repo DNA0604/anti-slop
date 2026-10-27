@@ -2,7 +2,7 @@
 
 Tanggal: 27 Oktober 2026, Asia/Jakarta.
 
-Status: pemeriksaan kode dan rancangan awal selesai. Isi spreadsheet sebenarnya belum tersedia di lingkungan ini; pemetaan per program belum dijalankan. Dokumen ini bukan migrasi atau fitur yang sudah terpasang. Sepuluh file aplikasi tetap memakai versi yang diterima pengguna, ae1622a.
+Status: pemeriksaan kode dan rancangan awal selesai; alat pratinjau baca saja telah dibuat dan diuji lokal sebagai dua file tambahan. Isi spreadsheet sebenarnya belum tersedia di lingkungan ini; pemetaan per program belum dijalankan. Migrasi dan login belum dibuat/terpasang. Sepuluh file aplikasi sebelumnya tetap memakai versi yang diterima pengguna, ae1622a.
 
 ## Gambaran untuk pengelola
 
@@ -141,6 +141,6 @@ Protokol login belum ditentukan. Lakukan pembuktian login Gmail pribadi dan veri
 
 ## Hasil tahap ini dan langkah terdekat
 
-Yang telah selesai: pemeriksaan struktur pada kode, pencatatan keputusan pengguna, skema sasaran dan aturan pemetaan/validasi di atas. Belum ada perubahan aplikasi, login, spreadsheet akses, kolom baru atau migrasi.
+Yang telah selesai: pemeriksaan struktur pada kode, pencatatan keputusan pengguna, skema sasaran dan aturan pemetaan/validasi di atas, serta alat pratinjau **PemetaanJenjang.gs + PratinjauJenjang.html** dengan pengujian lokal. Belum ada perubahan sepuluh file aplikasi lama, login, spreadsheet akses, kolom baru atau migrasi.
 
-Langkah kerja berikutnya: membuat alat pratinjau pemetaan Jenjang yang hanya membaca data serta pengujian lokalnya. Setelah itu pengelola dapat melihat daftar program dan usulan penempatannya pada salinan database. Pengguna belum perlu menyalin kode atau melakukan deployment untuk dokumen ini.
+Langkah berikutnya: pasang dua file pratinjau pada salinan proyek dan buka panel dari fungsi editor **bukaPratinjauPemetaanJenjang**. Pengelola dapat melihat daftar program dan usulan penempatannya tanpa menulis data. Lihat [panduan pemasangan/validasi](../tests/PEMETAAN_JENJANG_VALIDATION.md). Hasil peninjauan salinan menjadi dasar penyusunan rencana pemetaan berikutnya; panel belum menyimpan keputusan atau menerapkan migrasi. Deployment website tidak diperlukan untuk pratinjau ini.
