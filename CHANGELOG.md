@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-10-27 — select the deployed URL for Google login proof
+- User reported Google Drive opening failure and supplied a Manage deployments URL different from the panel target. Added owner-editable canonical /exec URL in Akses.gs; saved callback overrides automatic service discovery and drives the test link, authorization and code exchange consistently. No user URL hardcoded.
+- Preserve existing directory/credentials, reject invalid host/path/query URLs, hide the old link during unsaved edits, and reject pending login states after callback changes. Only Akses.gs must be replaced for an installed stage 3. Update OAuth redirect URI and the selected deployment version on a copy.
+- Passed 149 backend tests (4 new regressions) and generated-panel Chromium desktop/mobile checks including callback save/link consistency. Google live deployment/permissions/consent/storage remain unverified; no Google data or deployment changed.
+
 ## 2026-10-27 — separate organizer access directory and Google identity proof
 - Added one Script Akses.gs with embedded owner panel: separate-spreadsheet setup/bootstrap, account roles/status, multi-Jenjang assignments, audit/versioned idempotent writes and pending recovery. No operational data copied or application permissions broadened.
 - Added optional Google identity proof using server code exchange with PKCE/state/nonce/browser binding and userinfo checks, active-directory/sub matching and valid scope filtering; client secret stays in server properties. The proof issues no main-app session and does not activate staff RBAC/login placeholders.

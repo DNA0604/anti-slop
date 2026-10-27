@@ -16,6 +16,32 @@ test('assignment revocation retains history and no physical account/assignment d
 test('partial access write and lost final audit are recovered idempotently without duplicating accounts',()=>{const t=ready();let fail=true;t.access.fault(e=>{if(fail&&e.name==='Riwayat_Akses'&&e.op==='before'&&e.values[0].at(-1)==='SELESAI'){fail=false;throw Error('audit interrupted');}});assert.throws(()=>t.addUser(),/belum selesai/);assert.equal(t.users().length,2);assert.equal(t.c.muatManajemenAksesPanitia().tertunda.length,1);t.access.fault(()=>{});t.c.pulihkanTransaksiAksesPanitia();assert.equal(t.users().length,2);assert.equal(t.c.muatManajemenAksesPanitia().tertunda.length,0);});
 test('recovery refuses an externally modified pending row',()=>{const t=ready();t.access.fault(e=>{if(e.name==='Pengguna'&&e.op==='after')throw Error('lost response');});assert.throws(()=>t.addUser(),/belum selesai/);t.access.fault(()=>{});const user=t.access.records('Pengguna').find(u=>u.email_google==='petugas@gmail.com');t.access.patch('Pengguna',user.id_pengguna,'id_pengguna',{nama:'Edit eksternal'});assert.throws(()=>t.c.pulihkanTransaksiAksesPanitia(),/berubah di luar/);});
 test('Google configuration never returns or audits the Client Secret',()=>{const t=oauth(),data=t.c.muatManajemenAksesPanitia();assert.equal(data.login.siap,true);assert.equal(data.login.client_id,'client-test.apps.googleusercontent.com');assert.ok(!JSON.stringify(data).includes('CLIENT_SECRET_TEST'));assert.ok(!JSON.stringify(t.access.store).includes('CLIENT_SECRET_TEST'));});
+test('owner-selected deployment is used consistently for panel, authorization and code exchange even when service URL differs',()=>{
+ const t=oauth(),selected='https://script.google.com/macros/s/SELECTED_DEPLOYMENT/exec';
+ t.c.simpanKonfigurasiLoginGoogle({client_id:'client-test.apps.googleusercontent.com',callback:selected});
+ t.c.ScriptApp.getService=()=>({getUrl:()=> 'https://script.google.com/macros/s/OTHER_DEPLOYMENT/exec'});
+ assert.equal(t.c.muatManajemenAksesPanitia().login.callback,selected);
+ const flow=t.start();assert.equal(new URL(flow.url).searchParams.get('redirect_uri'),selected);t.finish(flow);
+ assert.equal(t.fetches[0].opts.payload.redirect_uri,selected);assert.equal(t.fetches[0].opts.payload.client_secret,'CLIENT_SECRET_TEST');
+});
+test('deployment configuration rejects non-Google URLs, dev links and extra parameters before saving',()=>{
+ const t=oauth(),before=t.c.konfigurasiGoogleAkses_();
+ for(const callback of ['', 'https://evil.invalid/exec','https://script.google.com.evil.invalid/macros/s/X/exec','http://script.google.com/macros/s/X/exec','https://script.google.com/macros/s/X/dev','https://script.google.com/macros/s/X/exec?page=uji-login','https://script.google.com/macros/s/X/exec#fragment']){
+  assert.throws(()=>t.c.simpanKonfigurasiLoginGoogle({client_id:'client-test.apps.googleusercontent.com',callback}),/Web app URL/);
+  assert.deepEqual(plain(t.c.konfigurasiGoogleAkses_()),plain(before));
+ }
+});
+test('changing selected callback invalidates pending logins before network exchange',()=>{
+ const t=oauth(),flow=t.start();t.c.simpanKonfigurasiLoginGoogle({client_id:'client-test.apps.googleusercontent.com',callback:'https://script.google.com/macros/s/NEW_DEPLOYMENT/exec'});
+ assert.throws(()=>t.finish(flow),/Konfigurasi akses berubah/);assert.equal(t.fetches.length,0);
+});
+test('existing saved callback survives automatic service changes and explicit URL works without auto discovery',()=>{
+ const t=oauth(),saved=t.c.konfigurasiGoogleAkses_().callback;
+ t.c.ScriptApp.getService=()=>({getUrl:()=>null});assert.equal(t.c.callbackGoogleAkses_(),saved);t.finish(t.start());
+ const n=ready();n.c.ScriptApp.getService=()=>({getUrl:()=>null});
+ n.c.simpanKonfigurasiLoginGoogle({client_id:'client-test.apps.googleusercontent.com',client_secret:'CLIENT_SECRET_TEST',callback:'https://script.google.com/macros/s/MANUAL_DEPLOYMENT/exec'});
+ assert.equal(new URL(n.start().url).searchParams.get('redirect_uri'),'https://script.google.com/macros/s/MANUAL_DEPLOYMENT/exec');
+});
 test('OAuth state/nonce/PKCE bind to server config and a browser-only secret absent from auth URL',()=>{const t=oauth(),a=t.start(),url=new URL(a.url),record=JSON.parse(t.cache.get('GOOGLE-AKSES|'+a.state));assert.equal(url.hostname,'accounts.google.com');assert.equal(url.searchParams.get('code_challenge_method'),'S256');assert.equal(url.searchParams.get('nonce'),record.nonce);assert.ok(!a.url.includes(a.browser_key));assert.ok(!a.url.includes(record.verifier));assert.ok(!a.url.includes('CLIENT_SECRET_TEST'));});
 test('personal Gmail login works when Session active-user email is unavailable and does not create an app session',()=>{const t=oauth();t.h.c.Session={getActiveUser:()=>({getEmail:()=> ''})};const a=t.start(),r=t.finish(a);assert.equal(r.email,'owner@test.invalid');assert.equal(r.peran,'admin_pelatihan');assert.equal(r.pembatasan_aplikasi_aktif,false);assert.equal(r.tujuan,'uji_identitas');assert.ok(!JSON.stringify(r).includes('SERVER_ONLY_ACCESS_TOKEN'));assert.equal(t.access.records('Pengguna')[0].google_sub,'112233445566778899001');assert.equal(t.fetches.length,2);assert.ok(t.fetches.every(f=>f.opts.followRedirects===false&&f.opts.validateHttpsCertificates===true));});
 test('wrong browser secret, expired state and replay cannot reach the Google token endpoint',()=>{for(const kind of ['browser','expired','replay']){const t=oauth(),a=t.start();if(kind==='expired'){const p=JSON.parse(t.cache.get('GOOGLE-AKSES|'+a.state));p.expires=Date.now()-1;t.cache.set('GOOGLE-AKSES|'+a.state,JSON.stringify(p));}if(kind==='replay')t.finish(a);const count=t.fetches.length;assert.throws(()=>t.finish(a,kind==='browser'?{browser_key:'f'.repeat(64)}:{}),/browser|kedaluwarsa|sudah dipakai/);assert.equal(t.fetches.length,count);}});

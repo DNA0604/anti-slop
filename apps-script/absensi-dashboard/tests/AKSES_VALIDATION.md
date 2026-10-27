@@ -1,6 +1,6 @@
 # Tahap 3 — Manajemen Akses Panitia dan uji identitas Google
 
-Tanggal: 27 Oktober 2026, Asia/Jakarta. Paket: branch **feat/manajemen-akses-panitia**.
+Tanggal: 27 Oktober 2026, Asia/Jakarta. Paket terbaru: branch **fix/url-uji-login-deployment** (lanjutan feat/manajemen-akses-panitia).
 
 ## Batas tahap ini
 
@@ -46,9 +46,9 @@ File akses dan editor Apps Script dibatasi pada pengelola tepercaya. Panitia tid
 Bagian ini memerlukan konfigurasi Google Cloud milik pengelola. Jika belum ada OAuth Client, pendataan akun/penugasan pada bagian A tetap dapat digunakan terlebih dahulu.
 
 1. Buat/perbarui deployment web app **proyek salinan** dengan Code.gs/Akses.gs versi ini. Jalankan sebagai pemilik dan atur agar akun Google panitia yang diuji dapat membuka URL tersebut. Jangan mengubah deployment utama untuk percobaan ini.
-2. Buka panel Manajemen Akses Panitia. Bagian Uji Login menampilkan **URL callback /exec** dari proyek. Gunakan URL persis itu, tanpa `?page=uji-login` atau tambahan parameter, pada **Authorized redirect URIs** OAuth Client.
+2. Dari **Deploy → Manage deployments**, salin **Web app URL** deployment salinan yang sedang dipakai. Pastikan deployment milik proyek ini dan URL dapat dibuka. Buka panel Manajemen Akses Panitia → Uji Login, lalu tempel pada **URL deployment web app (/exec)**. Gunakan URL persis yang sama, tanpa `?page=uji-login` atau tambahan parameter, pada **Authorized redirect URIs** OAuth Client. URL otomatis Apps Script dapat menunjuk deployment lain; kolom ini dapat diubah pemilik dan URL tersimpan menjadi acuan tombol, authorize dan pertukaran kode. Bentuk domain/path diperiksa server, tetapi kepemilikan/izin/versi deployment harus diperiksa pengelola.
 3. Di Google Cloud, gunakan OAuth Client jenis **Web application**. Untuk Gmail pribadi, audience harus mengizinkan pengguna eksternal; bila aplikasi masih Testing, tambahkan email panitia sebagai test user. Siapkan informasi consent screen yang diminta Google. Ikuti pengaturan terbaru di konsol Google.
-4. Masukkan **Client ID dan Client Secret melalui panel pemilik**. Jangan mengirim secret melalui chat, menaruhnya di GitHub/HTML atau pada spreadsheet. Secret tersimpan di ScriptProperties dan tidak dimuat kembali ke panel. Kosong saat penyimpanan ulang mempertahankan secret hanya jika Client ID sama.
+4. Masukkan **Client ID dan Client Secret melalui panel pemilik**, lalu simpan bersama URL deployment. Jangan mengirim secret melalui chat, menaruhnya di GitHub/HTML atau pada spreadsheet. Secret tersimpan di ScriptProperties dan tidak dimuat kembali ke panel. Kosong saat penyimpanan ulang mempertahankan secret hanya jika Client ID sama.
 5. Klik **Buka Uji Login**. Pada tab uji, pilih **Siapkan Login Google**, lalu klik **Lanjutkan ke Google**. Google dibuka pada tab uji yang sama. Setelah memilih akun, callback kembali ke proyek dan memeriksa secret sementara dari penyimpanan sesi browser tersebut.
 6. Hasil yang diharapkan: nama/email Google terverifikasi, peran yang tercatat serta penugasan Jenjang aktif/valid. Akun tidak dikenal/nonaktif ditolak; petugas tanpa penugasan ditampilkan tanpa cakupan. Berhasil di sini **belum memberikan akses ke halaman operasional**.
 7. Jika muncul sesi browser tidak ditemukan, jangan memasukkan email/token secara manual sebagai jalan pintas. Mulai uji baru pada tab yang sama dan periksa dukungan penyimpanan sesi/origin iframe HTMLService pada deployment sebenarnya. Pemilik perlu mengonfirmasi alur ini berfungsi sebelum tahap pembatasan aplikasi dilanjutkan.
@@ -64,6 +64,12 @@ Rujukan konfigurasi:
 - https://developers.google.com/identity/protocols/oauth2/web-server
 - https://developers.google.com/identity/openid-connect/openid-connect
 - https://developers.google.com/apps-script/guides/html/restrictions
+
+## Jika tombol uji membuka halaman Google Drive yang gagal
+
+Bandingkan URL pada panel dengan Web app URL dari Manage deployments. Jika berbeda, gunakan paket fix/url-uji-login-deployment: **ganti Akses.gs saja** bila paket tahap 3 sudah terpasang. Simpan, refresh spreadsheet, isi URL /exec yang benar pada kolom baru dan simpan konfigurasi. Client ID tetap diperlukan; Client Secret boleh kosong bila Client ID tidak berubah dan secret sebelumnya sudah tersimpan. Perbarui Authorized redirect URIs OAuth Client agar sama persis. Selanjutnya edit deployment salinan yang dipilih → pilih New version → Deploy, dengan mempertahankan URL deployment itu. Mulai uji baru; state dari konfigurasi sebelumnya ditolak.
+
+Bila URL benar masih gagal dibuka, periksa status/izin deployment dan coba satu akun Google pada profil terpisah. Perbedaan URL yang ditemukan pengguna membuktikan ketidaksesuaian target tombol; tes lokal tidak dapat memastikan semua penyebab halaman error Google Drive. Tidak ada URL deployment pengguna yang ditanam dalam kode.
 
 ## Izin dan konfigurasi server
 
@@ -86,8 +92,8 @@ node --test apps-script/absensi-dashboard/tests/*.test.mjs
 python apps-script/absensi-dashboard/tests/browser/akses_browser.py
 ```
 
-145 tes backend (113 sebelumnya + 32 akses): pemilik, file terpisah/bootstrap berulang, header tidak ditimpa, normalisasi email, stale/idempotensi, root tetap aktif, multi-Jenjang, pencabutan, audit/recovery/konflik, secret tidak bocor, state/nonce/PKCE/browser-key, identitas tanpa Session email atau konteks spreadsheet aktif, klaim Google salah/kedaluwarsa/replay, email nonaktif/tidak dikenal, subject berubah/duplikat, cakupan orphan, perubahan konfigurasi, error jaringan, header direorder/subject panjang, dan prioritas QR/rute callback.
+149 tes backend (113 sebelumnya + 36 akses): pemilik, file terpisah/bootstrap berulang, header tidak ditimpa, normalisasi email, stale/idempotensi, root tetap aktif, multi-Jenjang, pencabutan, audit/recovery/konflik, secret tidak bocor, state/nonce/PKCE/browser-key, identitas tanpa Session email atau konteks spreadsheet aktif, klaim Google salah/kedaluwarsa/replay, email nonaktif/tidak dikenal, subject berubah/duplikat, cakupan orphan, perubahan konfigurasi, error jaringan, header direorder/subject panjang, prioritas QR/rute callback, perbedaan URL service/deployment, validasi URL /exec, URL tersimpan saat deteksi otomatis berubah/tidak tersedia dan pembatalan state saat callback diganti.
 
-Chromium menggunakan panel HTML yang benar-benar dihasilkan Akses.gs dengan bridge Google tiruan: konfigurasi, tambah/edit akun, status, penugasan, tampilan secret, reload gagal, teks berbahaya, desktop/mobile, persiapan login pada tab sama, callback berbasis penyimpanan browser dan kegagalan storage yang menutup alur. Semua identitas/gambar preview memakai **data uji**.
+Chromium menggunakan panel HTML yang benar-benar dihasilkan Akses.gs dengan bridge Google tiruan: konfigurasi URL deployment dan tautan setelah simpan, tambah/edit akun, status, penugasan, tampilan secret, reload gagal, teks berbahaya, desktop/mobile, persiapan login pada tab sama, callback berbasis penyimpanan browser dan kegagalan storage yang menutup alur. Semua identitas/gambar preview memakai **data uji**.
 
 Sumber aplikasi lama selain tambahan menu/rute pada Code.gs tetap identik dengan versi Jenjang satu file. Database operasional, formula JP/perilaku, halaman QR, sidebar dan fitur hapus tidak berubah. Uji Google pada bagian A/B dan verifikasi kuota/izin masih perlu dilakukan pada salinan. Jangan menyatakan RBAC aplikasi sudah aktif hanya karena direktori atau hasil uji identitas telah tersedia.

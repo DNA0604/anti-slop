@@ -15,7 +15,9 @@ See SOURCE_SNAPSHOT.json for SHA-256 hashes of all 14 current HTML/GS source fil
 
 ## Tahap 3: akun panitia pada spreadsheet terpisah
 
-Paket terbaru: **feat/manajemen-akses-panitia**. Tambahkan satu Script **Akses.gs** dan ganti **Code.gs** dari branch yang sama; seluruh file Jenjang satu paket dan halaman lain tetap. Simpan, refresh spreadsheet salinan, lalu buka **Manajemen Pelatihan → Manajemen Akses Panitia**. Isi tautan/ID file akses terpisah atau buat file baru melalui panel, kemudian data akun dan penugasan Jenjang.
+Paket terbaru: **fix/url-uji-login-deployment** (melanjutkan feat/manajemen-akses-panitia). Tambahkan satu Script **Akses.gs** dan ganti **Code.gs** dari branch yang sama; seluruh file Jenjang satu paket dan halaman lain tetap. Simpan, refresh spreadsheet salinan, lalu buka **Manajemen Pelatihan → Manajemen Akses Panitia**. Isi tautan/ID file akses terpisah atau buat file baru melalui panel, kemudian data akun dan penugasan Jenjang.
+
+Jika tahap 3 sudah terpasang, perbaikan URL ini cukup mengganti **Akses.gs**. Pada Uji Login, isi **URL deployment web app (/exec)** dari Manage deployments, daftarkan URL sama pada OAuth Client, simpan konfigurasi dan perbarui versi deployment salinan yang sama. URL tersimpan digunakan oleh tombol uji dan callback; jangan mengandalkan deteksi otomatis jika berbeda.
 
 Tersedia konfigurasi dan halaman uji identitas Google untuk Gmail pribadi. **Pendaftaran akun/uji Google belum membuka akses petugas pada aplikasi utama**; sesi dan pembatasan semua endpoint masih tahap berikutnya. Client ID/Secret diisi pemilik pada panel setelah menyiapkan OAuth Client dan deployment salinan, tidak melalui chat atau file kode.
 
