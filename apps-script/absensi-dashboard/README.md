@@ -13,6 +13,12 @@ Preview files and Hasil-Pengujian.txt inherited from the older UI branch are his
 
 See SOURCE_SNAPSHOT.json for SHA-256 hashes of all 14 current HTML/GS source files, including the Jenjang preparation tools.
 
+## Perapian transisi halaman
+
+Paket terbaru: **ui/transisi-halaman-panitia**, melanjutkan paket tahap 4. Jika tahap 4 sudah dipasang, cukup ganti **Akses.gs**, simpan, lalu perbarui deployment yang sama ke **New version** dan muat ulang web app. Akun, penugasan, OAuth, aktivasi login dan migrasi Jenjang tetap dipakai.
+
+Saat sesi diperiksa, tampil indikator pemuatan sesuai halaman tanpa tombol login. Setelah valid, panel menghilang perlahan; sesi yang kedaluwarsa tetap meminta login, kegagalan sementara menawarkan Coba Lagi. Animasi sidebar dan seluruh file HTML tetap. Ini merapikan transisi, tidak menghilangkan pemuatan ulang halaman atau waktu proses Google Apps Script.
+
 ## Tahap 4: login aplikasi dan akses peran/Jenjang
 
 Paket terbaru: **feat/login-dan-cakupan-panitia**. Jika tahap 3 sudah terpasang dan uji identitas kedua peran berhasil, ganti **Akses.gs, Code.gs, Hapus.gs, Laporan.gs, Jenjang.gs, PemetaanJenjang.gs dan Index.html** bersama. Pertahankan file lainnya, konfigurasi OAuth, direktori akun dan hasil migrasi Jenjang.

@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-10-27 — neutral loading transition with sidebar animation preserved
+- User Admin video shows existing-session navigation and logout display. Startup checks had shown a login button while pending; replaced that display with a page-specific spinner/skeleton and short fade, with reduced-motion support. Login appears for missing/expired sessions, retry for temporary failures/held access, and a Beranda link for a denied page.
+- Only Akses.gs application source changes. Sidebar/navigation HTML and all server session/permission functions remain identical to ed7d655; no SPA or cached-identity shortcut. Retry preserves page context without copying token/code parameters, and expiry cancels an in-progress fade so protected data stays covered.
+- Passed existing 196 backend tests and expanded Chromium desktop/mobile/slow/error/reduced-motion/expiry checks plus prior application navigation/sidebar/logout flows. Replace Akses.gs and update the same deployment version; no new files, migration, configuration or agent Google deployment.
+
 ## 2026-10-27 — application login and role/Jenjang enforcement (opt-in)
 - Added Google-backed application sessions, logout/expiry, live account/assignment checks, a fixed RPC gateway and direct operational endpoint guards. Shared server-injected bridge preserves page contracts; sidebar shows verified identity, role-specific menus and Admin access management. Native owner controls activation/OAuth and retains recovery access.
 - Scoped staff dashboards, statistics, session/participant/profile/JP/behavior reads and QR/evidence/leave/behavior writes. Admin retains full operational features. Staff corrections are audited requests reviewed by Admin with stale/relationship checks, original scans preserved and receipt confirmation without duplicate writes; uncertain transactions remain blocked for review.

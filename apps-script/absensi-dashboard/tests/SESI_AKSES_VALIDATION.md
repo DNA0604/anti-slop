@@ -2,6 +2,14 @@
 
 Paket: **feat/login-dan-cakupan-panitia**, 27 Oktober 2026, Asia/Jakarta. Melanjutkan perbaikan URL dan hasil uji identitas Admin/Petugas yang sudah ditunjukkan pengguna. Fitur baru **belum diaktifkan pada Google oleh agent**.
 
+## Perbaikan transisi setelah tahap 4 terpasang
+
+Branch **ui/transisi-halaman-panitia**: ganti **Akses.gs saja**, simpan, perbarui deployment yang sama ke versi baru dan muat ulang. Tidak mengulangi tujuh-file pemasangan bila tahap 4 sudah lengkap, tidak mengubah OAuth/aktivasi, dan tidak mengulang migrasi/pendataan akun.
+
+Selama pemeriksaan sesi, panel hanya menampilkan indikator pemuatan sesuai halaman. Tombol login muncul setelah sesi dinyatakan tidak tersedia/kedaluwarsa. Gangguan sementara menawarkan Coba Lagi, dengan konteks program/Jenjang/sesi/profil tetap dibawa; halaman khusus Admin yang ditolak menawarkan kembali ke Beranda. Konten tetap tertutup sebelum validasi dan saat sesi berakhir. Animasi spinner/fade mengikuti preferensi reduced-motion. Sidebar dan animasinya tetap identik dengan paket sebelumnya; tidak ada SPA atau penyimpanan identitas yang dipercaya sebagai otorisasi.
+
+Pengujian browser diperluas dengan callback verifikasi yang ditahan, koneksi gagal, akses ditahan, kedaluwarsa saat fade, konteks retry tanpa token/code, desktop/mobile dan reduced motion, sambil mempertahankan uji navigasi/sidebar/logout yang lama. Video pengguna mengonfirmasi alur Admin pada versi sebelumnya; perbaikan visual ini masih perlu dicoba pada deployment pengguna. Waktu proses Google Apps Script/jaringan tetap ada.
+
 ## Pemasangan pada proyek salinan yang sudah berjalan
 
 Ganti isi lengkap **tujuh file berikut dari branch yang sama**:
