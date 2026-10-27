@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-10-27 — deletion feature accepted and completed
+- User confirmed implementing/deploying the latest update, running tests with the expected results, and declaring the deletion feature complete.
+- Accepted application source: ae1622a on fix/transaksi-penghapusan, including trash icons, final confirmation without typed IDs and the transaction-blocker fix.
+- Recorded user verification separately from prior local/mock checks. This acceptance does not claim exhaustive testing of unrelated features or native Google Docs export. Documentation only; no application changes or new deployment needed.
+
 ## 2026-10-27 — fix false/global transaction locks before deletion
 - Corrected latest-explicit audit status handling: legacy blank-status rows do not become new locks or overwrite a real status; terminal statuses normalize whitespace/case. Diagnostic reads preserve the audit unchanged.
 - Scoped non-delete blockers to relevant programs/IDs and audit-plan references; unrelated transactions no longer freeze all deletion. Unknown/corrupt/incomplete scope and active deletion transactions remain blocked. Apply repeats the check after preview.
