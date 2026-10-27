@@ -4,7 +4,7 @@ Snapshot: 24 October 2026, Asia/Jakarta. This snapshot is the latest source acce
 
 ## Current status
 The user confirmed the latest sidebar/navigation fix with: "nah, sudah normal ini".
-The creation-modal update is committed on ui/modal-penambahan-pelatihan. Beranda is committed on feat/beranda-pelatihan; the public QR page update is on ui/absensi-komdigi. Completed-program reports are committed on feat/laporan-program-pdf. Current branch feat/hapus-data-pelatihan adds physical deletion with dependency previews and audit backups. These updates are locally validated and await deployment/user verification, including native Google Docs export.
+The creation-modal update is committed on ui/modal-penambahan-pelatihan. Beranda is committed on feat/beranda-pelatihan; the public QR page update is on ui/absensi-komdigi. Completed-program reports are committed on feat/laporan-program-pdf. Physical deletion with dependency previews/audit backups is committed on feat/hapus-data-pelatihan. Current branch ui/konfirmasi-hapus simplifies deletion to trash icons and a final confirmation popup without typed target IDs. These updates are locally validated and await deployment/user verification, including native Google Docs export.
 Continue from this source rather than rebuilding the project from scratch.
 
 ## Source of truth and files
@@ -98,12 +98,20 @@ DOM tests used all original inline scripts with a mocked Google bridge, desktop/
 ## Program/session/participant deletion — 27 October 2026
 - Branch feat/hapus-data-pelatihan continues all previous changes. Install new Script Hapus.gs and replace Code.gs, Laporan.gs, Pengelolaan.html and Peserta.html together. No new sheets/columns or deletion-specific scopes.
 - Physical cascade deletion for Program and Sesi; remove one Keikutsertaan with attendance/notes/logs without removing the person or another program. Peserta identity can only be removed with zero memberships, through the new whole-database identity search card (including orphan/unregistered people).
-- Only owner can preview/delete/continue. Preview counts + reason + typed exact ID + explicit acknowledgement; hash checked again under ScriptLock. Completed status does not prevent deletion. No automatic status cancellation/finalization is introduced.
+- Only owner can preview/delete/continue. Preview counts + reason + explicit acknowledgement + final confirmation popup; no typed ID field. Target IDs are supplied internally with the unchanged RPC payload and hash checked again under ScriptLock. Completed status does not prevent deletion. No automatic status cancellation/finalization is introduced.
 - Full header/value/date/formula plan is saved as JSON string chunks in existing Riwayat_Validasi and verified before source deletion. Audit, rule versions, indicator catalog, person masters during program/membership deletion and Drive evidence files remain. This is not personal-data erasure and there is no automatic restore UI.
-- Child-first deletion with repeat-safe recovery; incomplete staging closes without source deletion. Pending deletion locks all existing ScriptLock mutation paths and report snapshot reads. Recovery card auto-loads in Pengelolaan/Peserta; typed ID/acknowledgement required again. Existing unfinished transactions, duplicate IDs, conflicting cross-program relations and references in unknown sheets block deletion. External changes to remaining data or backups stop continuation.
+- Child-first deletion with repeat-safe recovery; incomplete staging closes without source deletion. Pending deletion locks all existing ScriptLock mutation paths and report snapshot reads. Recovery card auto-loads in Pengelolaan/Peserta; acknowledgement/final confirmation required again, without typed ID. Existing unfinished transactions, duplicate IDs, conflicting cross-program relations and references in unknown sheets block deletion. External changes to remaining data or backups stop continuation.
 - Numeric IDs PRG/SES/KST/PST/JDA retired by deletion are reserved in ScriptProperties BATAS_ID_HAPUS|<spreadsheet-id>; legacy/current generators honor these maxima. Preserve this property and audit history. Five legacy admin mutations now also check owner.
 - Limits 3,000 operational rows and 2 million serialized-plan characters per deletion; Google limits may be lower. Use per-session/membership deletion for large programs. Direct manual Sheets edits are not coordinated by ScriptLock and must be avoided while running.
 - 44 Node tests (18 deletion + 26 previous) and desktop/mobile mocked browser checks pass. Production deletion, quotas, Google serialization/formulas and deployed auth require verification on a separate spreadsheet/project copy; no real deletions/deployment performed here.
+
+## Deletion confirmation UI revision — 27 October 2026
+- Branch ui/konfirmasi-hapus: only replace Pengelolaan.html and Peserta.html if the prior deletion feature is already installed. Backend files, schemas, scopes and mutation rules are byte-preserved for this revision.
+- Removed typed target-ID input from both initial and pending-delete dialogs. Matching ID is supplied from the selected target using the existing konfirmasi payload, not a new RPC contract.
+- Table deletion buttons are compact inline SVG trash icons (44 px click target), with title/aria-label/keyboard support; final action buttons retain text.
+- After reason/acknowledgement, Hapus Data Terkait opens a second native modal showing target name and scope. Default focus is Batal. Batal/Escape preserve the draft and send no mutation RPC; only Ya, Hapus Data / Ya, Lanjutkan starts the request. Confirmation state prevents duplicate submissions. Error/retry retains the same request payload and final confirmation is shown again on retry.
+- Preview failures leave form/confirmation disabled. Existing pending-transaction errors still require examination through the original recovery workflow; UI confirmation does not bypass server validation.
+- 44 existing Node tests plus local Chromium desktop/mobile checks pass with mocks. Sidebar/navigation unchanged. No Google deployment or production data changes.
 
 ## Remaining candidate work (not automatically authorized)
 - Real authentication and roles for the user account/settings/logout placeholders.

@@ -770,7 +770,11 @@ body.flat-dashboard {font-family:'Avenir Next',Avenir,'Segoe UI',Arial,sans-seri
 <style>#downloadProgramReport[hidden]{display:none!important}#programReportDialog ul{overflow-wrap:anywhere}</style><style>
 .flat-dashboard .delete-danger{color:#a12b3b;border-color:#e1b6bf;background:#fff7f8}
 .flat-dashboard .delete-danger:hover:not(:disabled){background:#fbe8ec;color:#852032;border-color:#c77a89}
-.flat-dashboard #confirmDeleteData{background:#a12b3b;color:white;border-color:#a12b3b}
+.flat-dashboard #confirmDeleteData,.flat-dashboard #approveFinalDelete{background:#a12b3b;color:white;border-color:#a12b3b}
+.flat-dashboard .action.delete-icon{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;min-width:44px;min-height:44px;padding:0;margin-left:6px;vertical-align:middle;flex-shrink:0}
+.flat-dashboard .delete-icon svg{display:block;width:20px;height:20px;pointer-events:none}
+.flat-dashboard #deleteFinalDialog{max-width:480px}
+.flat-dashboard .delete-final-copy{line-height:1.7;overflow-wrap:anywhere}
 .flat-dashboard .delete-ack{display:flex;align-items:flex-start;gap:10px;margin:16px 0;line-height:1.6;font-weight:500}
 .flat-dashboard .delete-ack input{width:20px;min-height:20px;height:20px;flex:0 0 20px;margin-top:3px}
 .flat-dashboard .delete-counts{padding-left:22px;line-height:1.8;overflow-wrap:anywhere}
@@ -1013,6 +1017,12 @@ body.flat-dashboard {font-family:'Avenir Next',Avenir,'Segoe UI',Arial,sans-seri
  <div id="deleteRecoveryItems"></div>
 </section>
     </main>
+<dialog id="deleteFinalDialog" class="creation-dialog delete-final-dialog" aria-labelledby="deleteFinalTitle" aria-describedby="deleteFinalDescription deleteFinalWarning">
+ <h2 id="deleteFinalTitle">Yakin ingin menghapus data ini?</h2>
+ <p id="deleteFinalDescription" class="delete-final-copy"></p>
+ <p id="deleteFinalWarning" class="foot">Data terkait yang tercantum pada ringkasan akan ikut dihapus. Pemulihan otomatis belum tersedia.</p>
+ <div class="creation-actions"><button type="button" class="btn" id="cancelFinalDelete" autofocus>Batal</button><button type="button" class="btn delete-danger" id="approveFinalDelete">Ya, Hapus Data</button></div>
+</dialog>
 <dialog id="deleteDataDialog" class="creation-dialog" aria-labelledby="deleteDataTitle" aria-describedby="deleteDataDescription">
  <div class="creation-heading"><div><h2 id="deleteDataTitle">Hapus Data</h2><p class="muted creation-context" id="deleteDataTarget"></p></div><button type="button" class="btn" id="closeDeleteData">Tutup</button></div>
  <p id="deleteDataDescription">Periksa seluruh data terkait sebelum melanjutkan. Penghapusan mengubah rekap dan laporan berikutnya.</p>
@@ -1021,7 +1031,6 @@ body.flat-dashboard {font-family:'Avenir Next',Avenir,'Segoe UI',Arial,sans-seri
  <p class="foot" id="deleteDataPreserved"></p>
  <form id="deleteDataForm">
   <div class="field"><label for="deleteDataReason">Alasan penghapusan</label><textarea id="deleteDataReason" required maxlength="2000" rows="3" placeholder="Contoh: program dibatalkan atau data uji tidak diperlukan"></textarea></div>
-  <div class="field"><label for="deleteDataConfirm">Ketik ID target: <strong id="deleteDataExpected"></strong></label><input id="deleteDataConfirm" required autocomplete="off" spellcheck="false"></div>
   <label class="delete-ack"><input id="deleteDataAgree" type="checkbox" required><span>Saya memahami seluruh data yang tercantum akan dihapus dari database operasional. Pemulihan otomatis belum tersedia.</span></label>
   <div class="creation-actions"><button class="btn" type="button" id="checkDeletePending" hidden>Periksa Transaksi Tertunda</button><button type="submit" class="btn delete-danger" id="confirmDeleteData" disabled>Hapus Data Terkait</button></div>
  </form>
@@ -2216,39 +2225,42 @@ body.flat-dashboard {font-family:'Avenir Next',Avenir,'Segoe UI',Arial,sans-seri
       $("programReportDialog").addEventListener('close',()=>{++reportSequence;clearReportDownload();});
 
       // Shared deletion workflow; all text from the database uses textContent.
-      let deleteContext=null, deleteRequest=null, deleteChecking=false;
+      let deleteContext=null, deleteRequest=null, deleteChecking=false, deleteConfirming=false, finalDeleteResolve=null;
       function updateDeleteControls() {
-        const busy=saving||Boolean(importRun)||deleteChecking;
+        const busy=saving||Boolean(importRun)||deleteChecking||deleteConfirming;
         document.querySelectorAll('[data-delete-target]').forEach(b=>b.disabled=busy);
         $('refreshDeleteRecovery').disabled=busy;
-        $('closeDeleteData').disabled=saving;
-        ['deleteDataReason','deleteDataConfirm','deleteDataAgree'].forEach(id=>$(id).disabled=saving||Boolean(deleteRequest));
+        $('closeDeleteData').disabled=saving||deleteConfirming;
+        ['deleteDataReason','deleteDataAgree'].forEach(id=>$(id).disabled=saving||deleteConfirming||!deleteContext||Boolean(deleteRequest));
         if(deleteContext&&deleteContext.id_transaksi)$('deleteDataReason').disabled=true;
-        $('confirmDeleteData').disabled=saving||!deleteContext||(!$('deleteDataAgree').checked)||$('deleteDataConfirm').value.trim()!==deleteContext.id||!$('deleteDataReason').value.trim();
-        $('checkDeletePending').disabled=saving;
+        $('confirmDeleteData').disabled=saving||deleteConfirming||!deleteContext||(!$('deleteDataAgree').checked)||!$('deleteDataReason').value.trim();
+        $('checkDeletePending').disabled=saving||deleteConfirming;
       }
       function deleteButton(jenis,id,label) {
-        const b=document.createElement('button');b.type='button';b.className='action delete-danger';b.textContent=label||'Hapus';b.dataset.deleteTarget=id;
+        const b=document.createElement('button');b.type='button';b.className='action delete-danger delete-icon';b.dataset.deleteTarget=id;
+        const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+        Object.entries({viewBox:'0 0 24 24',width:'20',height:'20',fill:'none',stroke:'currentColor','stroke-width':'1.8','stroke-linecap':'round','stroke-linejoin':'round','aria-hidden':'true',focusable:'false'}).forEach(([k,v])=>svg.setAttribute(k,v));
+        ['M4 7h16','M10 11v6M14 11v6','M5 7l1 13h12l1-13','M9 7V4h6v3'].forEach(d=>{const path=document.createElementNS('http://www.w3.org/2000/svg','path');path.setAttribute('d',d);svg.append(path);});b.append(svg);b.title=(label||'Hapus')+' '+id;
         b.setAttribute('aria-label',(label||'Hapus')+' '+id);b.disabled=saving||Boolean(importRun);
         b.addEventListener('click',()=>openDeleteData(jenis,id));return b;
       }
       function renderDeletePreview(r) {
         deleteContext=r;$('deleteDataTarget').textContent=r.nama+' · '+r.id;
-        $('deleteDataExpected').textContent=r.id;$('deleteDataCounts').replaceChildren();
+        $('deleteDataCounts').replaceChildren();
         (r.jumlah||[]).forEach(x=>{const li=document.createElement('li');li.textContent=x.sheet.replace(/_/g,' ')+': '+x.jumlah+' baris';$('deleteDataCounts').append(li);});
         $('deleteDataPreserved').textContent=r.catatan||'';
         $('deleteDataMessage').textContent=(r.id_transaksi?'Lanjutkan transaksi yang sebelumnya sudah dikonfirmasi. ':'')+'Total '+r.total+' baris dalam cakupan penghapusan.';
         if(r.id_transaksi){$('deleteDataReason').value=r.alasan;$('confirmDeleteData').textContent='Periksa / Lanjutkan Penghapusan';}
         else $('confirmDeleteData').textContent='Hapus Data Terkait';
-        updateDeleteControls();$('deleteDataConfirm').focus();
+        updateDeleteControls();
       }
       async function openDeleteData(jenis,id,pending=null) {
-        if(saving||importRun||deleteChecking)return;
-        deleteContext=null;deleteRequest=null;$('deleteDataForm').reset();$('deleteDataCounts').replaceChildren();$('deleteDataExpected').textContent='';$('deleteDataPreserved').textContent='';$('deleteDataTarget').textContent=id;$('deleteDataMessage').textContent='Memeriksa relasi dan menghitung data terkait…';$('checkDeletePending').hidden=true;
+        if(saving||importRun||deleteChecking||deleteConfirming)return;
+        deleteContext=null;deleteRequest=null;$('deleteDataForm').reset();$('deleteDataCounts').replaceChildren();$('deleteDataPreserved').textContent='';$('deleteDataTarget').textContent=id;$('deleteDataMessage').textContent='Memeriksa relasi dan menghitung data terkait…';$('checkDeletePending').hidden=true;
         $('deleteDataDialog').showModal();saving=true;controls();updateDeleteControls();
         try{const r=pending||await rpc('pratinjauHapusDataIndex',jenis,id);if(!r||(!pending&&!r.sukses))throw Error('Pratinjau penghapusan tidak tersedia.');renderDeletePreview(r);}
         catch(e){$('deleteDataMessage').textContent=e.message||'Pemeriksaan gagal. Tutup dan coba lagi.';}
-        finally{saving=false;controls();updateDeleteControls();if(deleteContext)$('deleteDataConfirm').focus();}
+        finally{saving=false;controls();updateDeleteControls();if(deleteContext)$(deleteContext.id_transaksi?'deleteDataAgree':'deleteDataReason').focus();}
       }
       async function loadPendingDeletes() {
         if(deleteChecking)return;deleteChecking=true;updateDeleteControls();
@@ -2260,11 +2272,33 @@ body.flat-dashboard {font-family:'Avenir Next',Avenir,'Segoe UI',Arial,sans-seri
         }catch(e){$('deleteRecovery').hidden=false;$('deleteRecoveryStatus').textContent=e.message||'Pemeriksaan transaksi gagal. Coba lagi.';}
         finally{deleteChecking=false;updateDeleteControls();}
       }
+      function askFinalDelete(target) {
+        const pending=Boolean(target.id_transaksi);
+        $('deleteFinalTitle').textContent=pending?'Lanjutkan penghapusan data ini?':'Yakin ingin menghapus data ini?';
+        $('deleteFinalDescription').textContent=(pending?'Anda akan melanjutkan penghapusan “':'Anda akan menghapus “')+target.nama+'”. Ringkasan mencakup '+target.total+' baris data terkait. Pastikan pilihan dan alasan penghapusan sudah benar.';
+        $('approveFinalDelete').textContent=pending?'Ya, Lanjutkan':'Ya, Hapus Data';
+        return new Promise(resolve=>{
+          finalDeleteResolve=resolve;deleteConfirming=true;controls();updateDeleteControls();
+          $('deleteFinalDialog').showModal();$('cancelFinalDelete').focus();
+        });
+      }
+      function finishFinalDelete(approved) {
+        if(!finalDeleteResolve)return;
+        const resolve=finalDeleteResolve;finalDeleteResolve=null;
+        if($('deleteFinalDialog').open)$('deleteFinalDialog').close();
+        deleteConfirming=false;controls();updateDeleteControls();resolve(approved);
+      }
+      $('cancelFinalDelete').addEventListener('click',()=>finishFinalDelete(false));
+      $('approveFinalDelete').addEventListener('click',()=>finishFinalDelete(true));
+      $('deleteFinalDialog').addEventListener('cancel',e=>{e.preventDefault();finishFinalDelete(false);});
+      $('deleteFinalDialog').addEventListener('close',()=>{if(!$('deleteFinalDialog').open)finishFinalDelete(false);});
       $('deleteDataForm').addEventListener('input',updateDeleteControls);
       $('deleteDataForm').addEventListener('submit',async e=>{
-        e.preventDefault();if(saving||!deleteContext||$('confirmDeleteData').disabled)return;
+        e.preventDefault();if(saving||deleteConfirming||!deleteContext||$('confirmDeleteData').disabled)return;
         const target=deleteContext,selected=$('program').value;
-        if(!deleteRequest)deleteRequest=target.id_transaksi?{id_transaksi:target.id_transaksi,konfirmasi:$('deleteDataConfirm').value.trim(),setuju:$('deleteDataAgree').checked}:{jenis:target.jenis,id:target.id,versi:target.versi,alasan:$('deleteDataReason').value.trim(),konfirmasi:$('deleteDataConfirm').value.trim(),setuju:$('deleteDataAgree').checked,id_permintaan:requestIdKelola()};
+        if(!await askFinalDelete(target)){if($('deleteDataDialog').open)$('confirmDeleteData').focus();return;}
+        if(deleteContext!==target||!$('deleteDataDialog').open)return;
+        if(!deleteRequest)deleteRequest=target.id_transaksi?{id_transaksi:target.id_transaksi,konfirmasi:target.id,setuju:$('deleteDataAgree').checked}:{jenis:target.jenis,id:target.id,versi:target.versi,alasan:$('deleteDataReason').value.trim(),konfirmasi:target.id,setuju:$('deleteDataAgree').checked,id_permintaan:requestIdKelola()};
         saving=true;controls();updateDeleteControls();$('deleteDataMessage').textContent='Menyimpan cadangan dan memproses penghapusan. Tunggu hingga status terkonfirmasi…';
         try{
           const r=await rpc(target.id_transaksi?'lanjutkanPenghapusanIndex':'hapusDataIndex',deleteRequest);if(!r||!r.sukses)throw Error('Penghapusan belum terkonfirmasi.');
@@ -2272,11 +2306,11 @@ body.flat-dashboard {font-family:'Avenir Next',Avenir,'Segoe UI',Arial,sans-seri
         }catch(err){$('deleteDataMessage').textContent=(err.message||'Hasil penghapusan belum terkonfirmasi.')+' Jangan membuat permintaan baru sebelum memeriksa Penghapusan tertunda.';$('checkDeletePending').hidden=false;}
         finally{saving=false;controls();updateDeleteControls();await loadPendingDeletes();}
       });
-      $('closeDeleteData').addEventListener('click',()=>{if(!saving)$('deleteDataDialog').close();});
-      $('deleteDataDialog').addEventListener('cancel',e=>{if(saving)e.preventDefault();});
+      $('closeDeleteData').addEventListener('click',()=>{if(!saving&&!deleteConfirming)$('deleteDataDialog').close();});
+      $('deleteDataDialog').addEventListener('cancel',e=>{if(saving||deleteConfirming)e.preventDefault();});
       $('deleteDataDialog').addEventListener('close',()=>{deleteContext=null;deleteRequest=null;});
       $('refreshDeleteRecovery').addEventListener('click',loadPendingDeletes);
-      $('checkDeletePending').addEventListener('click',async()=>{if(saving)return;$('deleteDataDialog').close();await loadPendingDeletes();if(!$('deleteRecovery').hidden)$('deleteRecoveryTitle').focus();});
+      $('checkDeletePending').addEventListener('click',async()=>{if(saving||deleteConfirming)return;$('deleteDataDialog').close();await loadPendingDeletes();if(!$('deleteRecovery').hidden)$('deleteRecoveryTitle').focus();});
       async function refreshAfterDelete(selected){
         sessionPayload=null;programPayload=null;await reloadPrograms(selected);await changeProgram();
       }

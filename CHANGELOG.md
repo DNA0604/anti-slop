@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-10-27 — simpler deletion confirmation and trash icons
+- Removed the typed target-ID field from initial and pending-delete dialogs in Pengelolaan/Peserta; selected IDs are supplied internally through the unchanged RPC payload.
+- Replaced table deletion text buttons with accessible inline trash icons and 44 px click areas.
+- Added a final native confirmation popup with target/scope, Batal as initial focus, and explicit Ya, Hapus Data / Ya, Lanjutkan. Cancel/Escape preserve the form without a delete request; repeated submissions are guarded and retry payloads remain stable.
+- Preserved backend access, stale-data, pending-transaction and audit protections; only two HTML files need replacement after the previous deletion feature. Mocked browser checks cover keyboard, cancellation, confirmation, errors/retry and mobile layout.
+
 ## 2026-10-27 — program/session/participant deletion
 - Added owner-only Hapus.gs: dependency preview, confirmation/reason, child-first physical cascade, verified chunked backups in existing audit sheet, request idempotency and resumable pending deletion.
 - Pengelolaan exposes Hapus program/Hapus sesi; Peserta exposes Hapus dari program and a separate whole-database identity search including participants without memberships. Identity deletion requires zero memberships; shared people/other programs are protected.

@@ -1,6 +1,6 @@
 # Validasi penghapusan — 27 Oktober 2026, Asia/Jakarta
 
-Implementasi: feat/hapus-data-pelatihan. Tidak ada deployment, penghapusan spreadsheet Google, perubahan data produksi, atau operasi Drive yang dilakukan dari lingkungan ini.
+Implementasi backend: feat/hapus-data-pelatihan; revisi UI: ui/konfirmasi-hapus. Tidak ada deployment, penghapusan spreadsheet Google, perubahan data produksi, atau operasi Drive yang dilakukan dari lingkungan ini.
 
 ## Backend lokal
 
@@ -11,7 +11,7 @@ Perintah: `node --test apps-script/absensi-dashboard/tests/*.test.mjs`.
 - Penolakan non-pemilik sebelum pembacaan/penulisan pada endpoint baru dan lima fungsi mutasi lama.
 - Pratinjau tanpa penulisan; cascade program/sesi/keikutsertaan, menjaga identitas bersama dan data program lain.
 - Penghapusan identitas hanya setelah seluruh pendaftaran dilepas; pencarian identitas tanpa program.
-- Konfirmasi ID/persetujuan/alasan/request/version, perubahan setelah pratinjau dan retry idempoten.
+- Kesesuaian ID payload/persetujuan/alasan/request/version, perubahan setelah pratinjau dan retry idempoten.
 - Penolakan ID duplikat, sheet hilang, referensi sheet tambahan, relasi lintas program dan konflik log-token/catatan-kehadiran.
 - Snapshot lengkap sebelum penghapusan; tipe tanggal, formula dan Unicode panjang dalam beberapa bagian cadangan.
 - Kegagalan sebelum/di tengah penghapusan, respons penghapusan ambigu, pelepasan lock dan penguncian penulisan selama pending.
@@ -28,7 +28,10 @@ Chromium dengan HTML aktual dan google.script.run tiruan pada 1440 px dan 390 px
 
 - Tombol program/sesi/keikutsertaan membuka dialog dengan ringkasan relasi.
 - Teks menyerupai HTML tetap teks dan tidak dijalankan.
-- Alasan/ID/persetujuan diperlukan; ID salah tidak mengaktifkan konfirmasi.
+- Tidak ada isian ID target. Alasan/persetujuan tetap diperlukan.
+- Ikon sampah memiliki tooltip/label, dapat dibuka melalui keyboard, dan menggantikan teks tombol pada tabel.
+- Pop-up terakhir menampilkan target/cakupan, fokus awal Batal. Batal/Escape tidak mengirim RPC penghapusan dan mempertahankan isian; hanya persetujuan akhir mengirim RPC.
+- Pop-up juga diperlukan pada retry dan kelanjutan transaksi; payload ID internal tetap cocok dengan backend.
 - Escape/tutup diblokir saat permintaan; preview error tidak mengaktifkan hapus.
 - Error jaringan mempertahankan ID permintaan dan payload saat retry.
 - Transaksi parsial tampil di kartu, konfirmasi ulang melanjutkan, daftar dan pilihan program disegarkan setelah berhasil.
@@ -44,10 +47,10 @@ Sintaks GS dan JavaScript inline diperiksa (placeholder template server AdminQR 
 
 ## Pemeriksaan pada salinan proyek sebelum penggunaan nyata
 
-1. Pasang Hapus.gs, Code.gs, Laporan.gs, Pengelolaan.html, Peserta.html bersama pada salinan spreadsheet terikat/proyek Apps Script terpisah; pastikan akun pemilik dan manifest proyek yang benar.
+1. Jika fitur hapus sudah terpasang, revisi ini cukup mengganti Pengelolaan.html dan Peserta.html. Untuk pemasangan awal pasang Hapus.gs, Code.gs, Laporan.gs, Pengelolaan.html, Peserta.html bersama pada salinan spreadsheet terikat/proyek Apps Script terpisah; pastikan akun pemilik dan manifest proyek yang benar.
 2. Buat dua program dengan peserta yang sama, sesi/jeda, token/log, kehadiran, serta catatan izin/perilaku. Tambahkan satu identitas tanpa program. Catat seluruh ID/jumlah dan unduh laporan sebelum percobaan.
 3. Coba hapus sesi, satu pendaftaran, identitas tanpa program, lalu satu program. Verifikasi seluruh relasi terpilih dihapus dan seluruh data program lain/identitas bersama tetap utuh. Bandingkan Beranda, Monitoring, Profil, CSV/PDF setelah muat ulang.
 4. Periksa cadangan dan status SELESAI di Riwayat_Validasi. Pastikan file bukti, katalog indikator dan aturan penilaian tidak dihapus. Tidak ada UI pemulihan otomatis; salinan spreadsheet tetap merupakan cadangan untuk pengujian ini.
-5. Coba konfirmasi salah, perubahan sejak pratinjau dan akun non-pemilik. Verifikasi QR sesi yang dihapus ditolak dan QR sesi lain tetap bekerja. Pastikan ID tertinggi yang sudah dihapus tidak digunakan ulang saat membuat data baru.
+5. Coba Batal/Escape pada pop-up, persetujuan yang belum dicentang, perubahan sejak pratinjau dan akun non-pemilik. Verifikasi QR sesi yang dihapus ditolak dan QR sesi lain tetap bekerja. Pastikan ID tertinggi yang sudah dihapus tidak digunakan ulang saat membuat data baru.
 6. Pada salinan saja, simulasikan kegagalan layanan/permintaan dan periksa kartu transaksi tertunda. Hentikan pengeditan manual selama proses. Perubahan/kerusakan snapshot di luar transaksi memerlukan pemeriksaan manual, bukan paksaan penghapusan.
 7. Setelah hasil salinan sesuai, pemasangan pada proyek nyata tetap dilakukan oleh pengelola; pertahankan URL deployment lama saat memperbarui versi. Lingkungan ini tidak melakukan langkah tersebut.
