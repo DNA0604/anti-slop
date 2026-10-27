@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-10-27 — application login and role/Jenjang enforcement (opt-in)
+- Added Google-backed application sessions, logout/expiry, live account/assignment checks, a fixed RPC gateway and direct operational endpoint guards. Shared server-injected bridge preserves page contracts; sidebar shows verified identity, role-specific menus and Admin access management. Native owner controls activation/OAuth and retains recovery access.
+- Scoped staff dashboards, statistics, session/participant/profile/JP/behavior reads and QR/evidence/leave/behavior writes. Admin retains full operational features. Staff corrections are audited requests reviewed by Admin with stale/relationship checks, original scans preserved and receipt confirmation without duplicate writes; uncertain transactions remain blocked for review.
+- Unified server database fallback across GS modules. Active login uses selected deployment for new QR/navigation links while public attendance remains token-based. Fixed Monitoring correction buttons remaining disabled after data loading. Seven complete existing application files require replacement; no new sheets/files or migrations. Activation checks package features before switching on.
+- Passed 196 Node tests (47 new), 57 script syntax/ID checks and Chromium checks of actual injected HTML plus prior directory/Jenjang suites, plus installation/role/recovery documentation and synthetic previews. Previous identity-only login is user-verified; new application sessions and permission enforcement still require Google-copy checks. Agent did not deploy, activate or modify live Google data.
+
 ## 2026-10-27 — user verifies Admin and Petugas Google identity results
 - User screenshots after the URL correction show a verified Admin Pelatihan and a separate verified Petugas Kelas Pelatihan assigned to Pelatihan Sosial Kultural 1 · Jenjang 1. Record successful user-observed login/role/scope display for these two paths; no personal account identifiers copied into the repository.
 - Main-app sessions and server-side role/Jenjang enforcement remain the next stage. Rejection/revocation and broader live regression checks are not established by these screenshots. Documentation-only update; no code replacement, deployment or Google data changes performed by the agent.

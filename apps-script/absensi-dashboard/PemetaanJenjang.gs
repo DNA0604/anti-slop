@@ -40,7 +40,7 @@ function muatPratinjauPemetaanJenjang() {
 
 /** Private reader; caller holds ScriptLock and performs the owner check. */
 function bacaSnapshotPratinjauJenjang_() {
-    const ss = SpreadsheetApp.getActiveSpreadsheet(), spec = skemaPratinjauJenjang_(), tables = {};
+    const ss = databasePelatihan_(), spec = skemaPratinjauJenjang_(), tables = {};
     let cells = 0, rows = 0, size = 0;
     const fingerprints = [];
     Object.keys(spec).forEach(name => {

@@ -1,17 +1,17 @@
 /** Struktur operasional Jenjang. Identitas/aturan penilaian tetap pada model lama. */
 function bacaMentahJenjang_(name, optional) {
-  const sheet=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(name);
+  const sheet=databasePelatihan_().getSheetByName(name);
   if(!sheet){if(optional)return null;throw Error('Sheet '+name+' belum tersedia.');}
   const values=sheet.getDataRange().getValues(),header=(values[0]||[]).map(v=>String(v==null?'':v).trim());
   if(new Set(header.filter(Boolean)).size!==header.filter(Boolean).length)throw Error('Header duplikat pada '+name+'.');
   return {header,records:values.slice(1).filter(row=>row.some(v=>v!==''&&v!=null)).map(row=>Object.fromEntries(header.map((h,i)=>[h,row[i]])))};
 }
-function kunciMigrasiJenjang_(){return 'MIGRASI_JENJANG|'+SpreadsheetApp.getActiveSpreadsheet().getId();}
+function kunciMigrasiJenjang_(){return 'MIGRASI_JENJANG|'+databasePelatihan_().getId();}
 function statusMigrasiJenjang_(){const raw=PropertiesService.getScriptProperties().getProperty(kunciMigrasiJenjang_());return raw?JSON.parse(raw):null;}
 function pastikanMigrasiJenjangSiap_(){
   const state=statusMigrasiJenjang_();
   if(state&&!['SELESAI','DIBATALKAN'].includes(state.status))throw Error('Migrasi Jenjang belum selesai. Buka menu Persiapan Struktur Jenjang pada salinan spreadsheet untuk memeriksa / melanjutkan.');
-  if(SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Jenjang')&&(!state||state.status!=='SELESAI'||state.schema!==1))throw Error('Versi struktur Jenjang belum terverifikasi. Periksa rencana migrasi dan properti proyek salinan; jangan menambah kolom secara manual.');
+  if(databasePelatihan_().getSheetByName('Jenjang')&&(!state||state.status!=='SELESAI'||state.schema!==1))throw Error('Versi struktur Jenjang belum terverifikasi. Periksa rencana migrasi dan properti proyek salinan; jangan menambah kolom secara manual.');
 }
 function konteksJenjang_(idProgram,idJenjang,wajib) {
   pastikanMigrasiJenjangSiap_();
@@ -32,8 +32,10 @@ function konteksJenjang_(idProgram,idJenjang,wajib) {
 }
 function kolomJenjang_(idProgram,idJenjang){const c=konteksJenjang_(idProgram,idJenjang,true);return c.aktif?{id_jenjang:c.id}:{};}
 function namaJenjangProgram_(idProgram,legacy){const c=konteksJenjang_(idProgram,'',false);return c.aktif?c.daftar.map(j=>j.nama).join(', '):String(legacy||'');}
-function muatJenjangProgramIndex(idProgram){wajibPemilikIndex_();pastikanProgramPeserta_(idProgram);return Object.assign({sukses:true},konteksJenjang_(idProgram,'',false));}
+function muatJenjangProgramIndex(idProgram){
+  if(typeof wajibEndpointAkses_==='function')wajibEndpointAkses_('muatJenjangProgramIndex');wajibPemilikIndex_();pastikanProgramPeserta_(idProgram);const scope=konteksJenjang_(idProgram,'',false);if(typeof petugasDalamKonteksAkses_==='function'&&petugasDalamKonteksAkses_())scope.daftar=scope.daftar.filter(j=>dalamJenjangAkses_({id_program:idProgram,id_jenjang:j.id}));return Object.assign({sukses:true},scope);}
 function tambahJenjangProgramIndex(d){
+  if(typeof wajibEndpointAkses_==='function')wajibEndpointAkses_('tambahJenjangProgramIndex');
   wajibPemilikIndex_();d=d||{};const p=String(d.id_program||'').trim(),nama=String(d.nama||'').trim(),request=String(d.id_permintaan||'').trim();
   if(!nama||nama.length>100||nama.startsWith('=')||!/^[a-zA-Z0-9_-]{16,100}$/.test(request))throw Error('Nama Jenjang / ID permintaan tidak valid.');
   const lock=LockService.getScriptLock();lock.waitLock(30000);
@@ -86,7 +88,7 @@ function muatPersiapanStrukturJenjang(){
   wajibPemilikIndex_();const lock=LockService.getScriptLock();lock.waitLock(30000);
   try{
     const state=statusMigrasiJenjang_();
-    if(state&&!['DIBATALKAN'].includes(state.status))return {sukses:true,status:state.status,transaksi:state.tx,pesan:state.status==='SELESAI'?'Struktur Jenjang sudah selesai disiapkan.':'Ada persiapan/migrasi yang perlu diperiksa dan dilanjutkan.',sumber:SpreadsheetApp.getActiveSpreadsheet().getName()};
+    if(state&&!['DIBATALKAN'].includes(state.status))return {sukses:true,status:state.status,transaksi:state.tx,pesan:state.status==='SELESAI'?'Struktur Jenjang sudah selesai disiapkan.':'Ada persiapan/migrasi yang perlu diperiksa dan dilanjutkan.',sumber:databasePelatihan_().getName()};
     const r=bacaSnapshotPratinjauJenjang_();
     if(r.ringkasan.struktur_baru)throw Error('Sudah ada struktur Jenjang. Migrasi awal tidak boleh dijalankan ulang atau menimpa data.');
     return {sukses:true,status:'BELUM_DIMIGRASI',versi:r.versi,sumber:r.sumber,masalah:r.ringkasan.masalah,
@@ -95,7 +97,7 @@ function muatPersiapanStrukturJenjang(){
   }finally{lock.releaseLock();}
 }
 function tulisAuditMigrasiJenjang_(state,status,payload,backup){
-  const sheet=SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Riwayat_Validasi'),h=sheet.getDataRange().getValues()[0].map(v=>String(v).trim());
+  const sheet=databasePelatihan_().getSheetByName('Riwayat_Validasi'),h=sheet.getDataRange().getValues()[0].map(v=>String(v).trim());
   const row={id_riwayat:'RV-'+Utilities.getUuid(),jenis_data:'Program',id_referensi:'STRUKTUR_JENJANG',jenis_tindakan:backup?'cadangan_migrasi_jenjang':'migrasi_jenjang',kolom_diubah:'Jenjang;Sesi.id_jenjang;Keikutsertaan.id_jenjang',nilai_sebelum:backup?JSON.stringify(payload.chunk):'',nilai_sesudah:JSON.stringify(backup?{bagian:payload.bagian}:payload||{}),alasan_perubahan:'Persiapan Jenjang pada salinan database, dikonfirmasi pengelola.',diubah_oleh:Session.getActiveUser().getEmail(),waktu_perubahan:new Date(),id_transaksi_perubahan:state.tx,status_transaksi:status};
   const required=Object.keys(row);if(required.some(k=>!h.includes(k)))throw Error('Header audit migrasi belum lengkap.');
   sheet.appendRow(h.map(k=>row[k]===undefined?'':row[k]));SpreadsheetApp.flush();
@@ -129,7 +131,7 @@ function mulaiMigrasiJenjang(d){
     if(snapshot.ringkasan.masalah||snapshot.ringkasan.struktur_baru||snapshot.program.some(p=>!['usulan_tunggal','perlu_jenjang'].includes(p.status)))throw Error('Pemetaan terhalang masalah data/kelompok ambigu/struktur sebelumnya. Periksa pratinjau baca saja.');
     const mapping=new Map();d.pemetaan.forEach(r=>{const id=String(r.id_program||'').trim(),nama=String(r.nama_jenjang||'').trim();if(mapping.has(id)||!nama||nama.length>100||nama.startsWith('='))throw Error('Nama/pasangan pemetaan Jenjang tidak valid.');mapping.set(id,nama);});
     if(mapping.size!==snapshot.program.length||snapshot.program.some(p=>!mapping.has(p.id)))throw Error('Pemetaan harus mencakup tepat seluruh program pada pratinjau.');
-    const ss=SpreadsheetApp.getActiveSpreadsheet(),tables={};
+    const ss=databasePelatihan_(),tables={};
     ['Program','Sesi','Keikutsertaan'].forEach(n=>{const range=ss.getSheetByName(n).getDataRange();tables[n]={values:range.getValues(),formulas:range.getFormulas()};});
     if(tables.Sesi.values.length+tables.Keikutsertaan.values.length>5002)throw Error('Migrasi awal mendukung maksimal 5.000 baris sesi dan keikutsertaan.');
     const now=new Date(),jenjang=[['id_jenjang','id_program','nama_jenjang','created_at','updated_at']],ids={};let nomor=batasNomorIdHapus_('JEN');
@@ -145,7 +147,7 @@ function mulaiMigrasiJenjang(d){
   }finally{lock.releaseLock();}
 }
 function periksaSumberMigrasiJenjang_(plan,final){
-  const ss=SpreadsheetApp.getActiveSpreadsheet();
+  const ss=databasePelatihan_();
   Object.keys(plan.tables).forEach(name=>{
     const old=plan.tables[name],sheet=ss.getSheetByName(name);if(!sheet)throw Error('Sumber migrasi hilang: '+name);
     const range=sheet.getDataRange(),values=range.getValues(),formulas=range.getFormulas(),width=old.values[0].length;
@@ -162,7 +164,7 @@ function periksaSumberMigrasiJenjang_(plan,final){
 }
 /** Caller owns ScriptLock. Every replay accepts only blank or exactly planned new cells. */
 function lanjutRencanaMigrasiJenjang_(state){
-  const plan=muatCadanganMigrasiJenjang_(state),ss=SpreadsheetApp.getActiveSpreadsheet();
+  const plan=muatCadanganMigrasiJenjang_(state),ss=databasePelatihan_();
   periksaSumberMigrasiJenjang_(plan,false);
   state.status='PENDING';simpanStatusMigrasiJenjang_(state);tulisAuditMigrasiJenjang_(state,'PENDING',{hash:state.hash});
   const sheet=ss.getSheetByName('Jenjang')||ss.insertSheet('Jenjang');sheet.getRange(1,1,plan.jenjang.length,5).setValues(plan.jenjang);SpreadsheetApp.flush();

@@ -1910,6 +1910,9 @@ body.flat-dashboard {font-family:'Avenir Next',Avenir,'Segoe UI',Arial,sans-seri
       });
 
       function controls() {
+        document.querySelectorAll('#tableBody button[data-kehadiran]').forEach(b => {
+          b.disabled = !b.dataset.kehadiran || loading || saving || publishing;
+        });
         $("refreshIzin").disabled = !$("sesi").value || izinLoading || saving;
         $("openQR").disabled =
           !currentSession || loading || saving || publishing;
@@ -2225,7 +2228,8 @@ body.flat-dashboard {font-family:'Avenir Next',Avenir,'Segoe UI',Arial,sans-seri
             const b = document.createElement("button");
             b.type = "button";
             b.className = "action";
-            b.textContent = label;
+            b.textContent = window.panitiaIdentity && window.panitiaIdentity.peran === 'petugas_kelas' ? 'Ajukan koreksi' : label;
+            b.dataset.kehadiran = p.id_kehadiran || '';
             b.disabled = !p.id_kehadiran || loading || saving;
             b.title = p.id_kehadiran
               ? ""
@@ -2392,7 +2396,8 @@ body.flat-dashboard {font-family:'Avenir Next',Avenir,'Segoe UI',Arial,sans-seri
         $("saveEdit").disabled = false;
         $("dialogMessage").textContent = "";
         $("dialogTitle").textContent =
-          kind === "izin" ? "Catat Izin Sesi" : "Lengkapi / Koreksi Waktu";
+          kind === "izin" ? "Catat Izin Sesi" : window.panitiaIdentity && window.panitiaIdentity.peran === 'petugas_kelas' ? 'Ajukan Koreksi Waktu' : "Lengkapi / Koreksi Waktu";
+        $("saveEdit").textContent = kind !== 'izin' && window.panitiaIdentity && window.panitiaIdentity.peran === 'petugas_kelas' ? 'Kirim Pengajuan' : 'Simpan';
         $("dialogPerson").textContent = p.nama + " · " + currentSession.nama;
         $("startLabel").textContent =
           kind === "izin" ? "Mulai izin" : "Datang terverifikasi";

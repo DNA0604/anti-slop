@@ -20,12 +20,12 @@ export function harness(options={}){
  let lastPending;
  function setup(){return h.c.siapkanManajemenAksesPanitia({spreadsheet:bookId,konfirmasi:true});}
  function google(){return h.c.simpanKonfigurasiLoginGoogle({client_id:'client-test.apps.googleusercontent.com',client_secret:'CLIENT_SECRET_TEST'});}
- function start(){const r=plain(h.c.mulaiUjiLoginGoogle());lastPending=JSON.parse(cache.get('GOOGLE-AKSES|'+r.state));return r;}
+ function start(app=false){const r=plain(app?h.c.mulaiLoginAplikasiPanitia():h.c.mulaiUjiLoginGoogle());lastPending=JSON.parse(cache.get('GOOGLE-AKSES|'+r.state));return r;}
  function finish(r,extra={}){return h.c.verifikasiUjiLoginGoogle({state:r.state,browser_key:r.browser_key,code:'authorization_code_test',...extra});}
  function addUser(patch={}){return h.c.simpanPenggunaPanitia({nama:'Petugas Uji',email:'petugas@gmail.com',peran:'petugas_kelas',status:'aktif',id_permintaan:'new_user_access_request_001',...patch});}
  function users(){return plain(h.c.muatManajemenAksesPanitia()).pengguna;}
  function deny(){h.c.Session={getActiveUser:()=>({getEmail:()=>options.emptyIdentity?'':'stranger@test.invalid'})};}
  const baselineMain=plain(h.store);
- return {h,c:h.c,access,bookId,calls,cache,fetches,baselineMain,setup,google,start,finish,addUser,users,deny,created:()=>createCount,
+ return {h,c:h.c,access,bookId,calls,cache,fetches,baselineMain,setup,google,start,finish,startApp:()=>start(true),finishApp:(r,extra={})=>h.c.selesaikanCallbackLoginPanitia({state:r.state,browser_key:r.browser_key,code:'authorization_code_test',...extra}),addUser,users,deny,created:()=>createCount,
   provider(o={}){if(o.profile)profile={...profile,...o.profile};if(o.claims)claimsPatch=o.claims;if(o.token)tokenPatch=o.token;if(o.tokenStatus)tokenStatus=o.tokenStatus;if(o.profileStatus)profileStatus=o.profileStatus;if(o.afterToken)afterToken=o.afterToken;if(o.networkFail)networkFail=true;}};
 }

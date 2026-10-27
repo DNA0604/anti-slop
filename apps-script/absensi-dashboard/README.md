@@ -13,6 +13,14 @@ Preview files and Hasil-Pengujian.txt inherited from the older UI branch are his
 
 See SOURCE_SNAPSHOT.json for SHA-256 hashes of all 14 current HTML/GS source files, including the Jenjang preparation tools.
 
+## Tahap 4: login aplikasi dan akses peran/Jenjang
+
+Paket terbaru: **feat/login-dan-cakupan-panitia**. Jika tahap 3 sudah terpasang dan uji identitas kedua peran berhasil, ganti **Akses.gs, Code.gs, Hapus.gs, Laporan.gs, Jenjang.gs, PemetaanJenjang.gs dan Index.html** bersama. Pertahankan file lainnya, konfigurasi OAuth, direktori akun dan hasil migrasi Jenjang.
+
+Simpan, perbarui versi deployment salinan yang sama, refresh spreadsheet, lalu buka **Manajemen Pelatihan → Manajemen Akses Panitia → Login Aplikasi Utama → Aktifkan Login Aplikasi**. Aktivasi awal nonaktif. Beranda kemudian meminta login Google; Admin dapat mengelola fitur operasional dan akun, petugas hanya mengakses Jenjang penugasan serta mengajukan koreksi untuk ditinjau Admin. Logout dan kedaluwarsa sesi sudah diterapkan pada paket ini; belum diaktifkan/dideploy pada Google oleh agent.
+
+[Panduan lengkap pemasangan tujuh file, aktivasi, hak akses dan pengajuan koreksi](tests/SESI_AKSES_VALIDATION.md). Tidak ada file/tab baru atau migrasi ulang. [Panduan tahap 3](tests/AKSES_VALIDATION.md) tetap menjadi acuan penyiapan awal direktori/OAuth.
+
 ## Tahap 3: akun panitia pada spreadsheet terpisah
 
 Paket terbaru: **fix/url-uji-login-deployment** (melanjutkan feat/manajemen-akses-panitia). Tambahkan satu Script **Akses.gs** dan ganti **Code.gs** dari branch yang sama; seluruh file Jenjang satu paket dan halaman lain tetap. Simpan, refresh spreadsheet salinan, lalu buka **Manajemen Pelatihan → Manajemen Akses Panitia**. Isi tautan/ID file akses terpisah atau buat file baru melalui panel, kemudian data akun dan penugasan Jenjang.

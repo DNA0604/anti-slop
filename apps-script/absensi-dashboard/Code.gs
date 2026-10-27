@@ -1,3 +1,5 @@
+/** Sumber server tetap; ID database tidak diterima dari browser. */
+function databasePelatihan_(){const active=SpreadsheetApp.getActiveSpreadsheet();if(active)return active;if(typeof databaseAkses_==='function')return databaseAkses_();throw Error('Database pelatihan tidak tersedia pada konteks ini.');}
 function doGet(e) {
   const parameter =
     e && e.parameter ? e.parameter : {};
@@ -9,6 +11,11 @@ function doGet(e) {
   if (!token && typeof keluaranHalamanAkses_ === 'function') {
     const halamanAkses = keluaranHalamanAkses_(parameter);
     if (halamanAkses) return halamanAkses;
+  }
+
+  if (!token && String(parameter.page || '').trim()==='akses' && typeof keluaranAplikasiPanitia_==='function') {
+    const halaman = keluaranAplikasiPanitia_('ManajemenAkses','Manajemen Akses Panitia');
+    if (halaman) return halaman;
   }
 
   let namaFile = "Beranda";
@@ -39,6 +46,10 @@ function doGet(e) {
     judul = "Absensi Pelatihan";
   }
 
+  if (!token && typeof keluaranAplikasiPanitia_ === 'function') {
+    const aplikasi = keluaranAplikasiPanitia_(namaFile, judul);
+    if (aplikasi) return aplikasi;
+  }
   return HtmlService
     .createHtmlOutputFromFile(namaFile)
     .setTitle(judul)
@@ -49,7 +60,8 @@ function doGet(e) {
 }
 
 function ujiRelasiDatabase() {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  if(typeof wajibEndpointAkses_==='function')wajibEndpointAkses_('ujiRelasiDatabase');
+  const ss = databasePelatihan_();
 
   function bacaSheet(namaSheet) {
     const sheet = ss.getSheetByName(namaSheet);
@@ -113,6 +125,7 @@ function ujiRelasiDatabase() {
 
 
 function generateIdPeserta(dataPeserta) {
+  if(typeof wajibEndpointAkses_==='function')wajibEndpointAkses_('generateIdPeserta');
   let nomorTerbesar = batasNomorIdHapus_("PST");
 
   dataPeserta.forEach(id => {
@@ -130,6 +143,7 @@ function generateIdPeserta(dataPeserta) {
 }
 
 function tambahPeserta(data) {
+  if(typeof wajibEndpointAkses_==='function')wajibEndpointAkses_('tambahPeserta');
   wajibPemilikIndex_();
   if (!data || typeof data !== "object") {
     throw new Error("Data peserta tidak valid.");
@@ -152,7 +166,7 @@ function tambahPeserta(data) {
 
   try {
     pastikanTidakAdaHapusTertunda_();
-    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const ss = databasePelatihan_();
     const sheet = ss.getSheetByName("Peserta");
 
     if (!sheet) {
@@ -237,6 +251,7 @@ function tambahPeserta(data) {
 }
 
 function tambahKeikutsertaan(data) {
+  if(typeof wajibEndpointAkses_==='function')wajibEndpointAkses_('tambahKeikutsertaan');
   wajibPemilikIndex_();
   if (!data || typeof data !== "object") {
     throw new Error("Data keikutsertaan tidak valid.");
@@ -254,7 +269,7 @@ function tambahKeikutsertaan(data) {
 
   try {
     pastikanTidakAdaHapusTertunda_();
-    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const ss = databasePelatihan_();
 
     function bacaTabel(namaSheet, kolomWajib) {
       const sheet = ss.getSheetByName(namaSheet);
@@ -385,6 +400,7 @@ function tambahKeikutsertaan(data) {
 }
 
 function tambahSesi(data) {
+  if(typeof wajibEndpointAkses_==='function')wajibEndpointAkses_('tambahSesi');
   wajibPemilikIndex_();
   if (!data || typeof data !== "object") {
     throw new Error("Data sesi tidak valid.");
@@ -436,7 +452,7 @@ function tambahSesi(data) {
 
   try {
     pastikanTidakAdaHapusTertunda_();
-    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const ss = databasePelatihan_();
     const sheetProgram = ss.getSheetByName("Program");
     const sheetSesi = ss.getSheetByName("Sesi");
 
@@ -553,6 +569,7 @@ function tambahSesi(data) {
 }
 
 function tambahJedaSesi(data) {
+  if(typeof wajibEndpointAkses_==='function')wajibEndpointAkses_('tambahJedaSesi');
   wajibPemilikIndex_();
   const idSesi = String(data?.id_sesi || "").trim();
   const mulai = String(data?.jam_mulai_jeda || "").trim();
@@ -627,7 +644,7 @@ function tambahJedaSesi(data) {
 
   try {
     pastikanTidakAdaHapusTertunda_();
-    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const ss = databasePelatihan_();
     const sheetSesi = ss.getSheetByName("Sesi");
     const sheetJeda = ss.getSheetByName("Jeda_Sesi");
 
@@ -719,7 +736,8 @@ function tambahJedaSesi(data) {
 }
 
 function hitungUsulanJPSesi(idSesi) {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  if(typeof wajibEndpointAkses_==='function')wajibEndpointAkses_('hitungUsulanJPSesi');
+  const ss = databasePelatihan_();
 
   function bacaTabel(namaSheet, kolomWajib) {
     const sheet = ss.getSheetByName(namaSheet);
@@ -823,6 +841,7 @@ function hitungUsulanJPSesi(idSesi) {
 }
 
 function konfirmasiJPSesi(data) {
+  if(typeof wajibEndpointAkses_==='function')wajibEndpointAkses_('konfirmasiJPSesi');
   wajibPemilikIndex_();
   if (!data || typeof data !== "object") {
     throw new Error("Data konfirmasi JP tidak valid.");
@@ -848,7 +867,7 @@ function konfirmasiJPSesi(data) {
 
   try {
     pastikanTidakAdaHapusTertunda_();
-    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const ss = databasePelatihan_();
     const sheetSesi = ss.getSheetByName("Sesi");
     const sheetAudit = ss.getSheetByName("Riwayat_Validasi");
 
@@ -1140,7 +1159,8 @@ function konfirmasiJPSesi(data) {
 }
 
 function periksaTransaksiJPSesi(idSesi) {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  if(typeof wajibEndpointAkses_==='function')wajibEndpointAkses_('periksaTransaksiJPSesi');
+  const ss = databasePelatihan_();
   const sheet = ss.getSheetByName("Riwayat_Validasi");
 
   if (!sheet) {
@@ -1338,7 +1358,8 @@ function evaluasiKonsistensiJP(nilaiAktual, nilaiLama, nilaiBaru) {
 }
 
 function periksaKonsistensiJPSesi(idSesi) {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  if(typeof wajibEndpointAkses_==='function')wajibEndpointAkses_('periksaKonsistensiJPSesi');
+  const ss = databasePelatihan_();
   const sheetSesi = ss.getSheetByName("Sesi");
   const sheetAudit = ss.getSheetByName("Riwayat_Validasi");
 
@@ -1775,7 +1796,8 @@ function ujiDiagnostikPemulihanJP() {
 
 
 function periksaPemulihanJPSesi(idSesi) {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  if(typeof wajibEndpointAkses_==='function')wajibEndpointAkses_('periksaPemulihanJPSesi');
+  const ss = databasePelatihan_();
   const sesi = ss.getSheetByName("Sesi");
   const audit = ss.getSheetByName("Riwayat_Validasi");
 
@@ -1937,6 +1959,7 @@ function periksaPemulihanJPSesi(idSesi) {
 }
 
 function ujiPeriksaPemulihanJP() {
+  if(typeof wajibEndpointAkses_==='function')wajibEndpointAkses_('ujiPeriksaPemulihanJP');
   const hasil = periksaPemulihanJPSesi("SES001");
   Logger.log(JSON.stringify(hasil, null, 2));
 }
@@ -1964,7 +1987,7 @@ function buatTokenQR_(idSesi, jenisScan, berlakuMenit) {
 
   try {
     pastikanTidakAdaHapusTertunda_();
-    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const ss = databasePelatihan_();
     const sheetSesi = ss.getSheetByName("Sesi");
     const sheetToken = ss.getSheetByName("Token_QR");
 
@@ -2145,7 +2168,7 @@ function validasiTokenQR(tokenMentah) {
     };
   }
 
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const ss = databasePelatihan_();
   const sheet = ss.getSheetByName("Token_QR");
 
   if (!sheet) {
@@ -2456,7 +2479,7 @@ function ujiIntegrasiTokenQR_() {
 
 function buatURLAbsensiQR_(idSesi, jenisScan, berlakuMenit) {
   // Ambil alamat Web App dari deployment.
-  const urlWebApp = "https://script.google.com/macros/s/AKfycbyyhgxNmQ8OQmo5vpzwV5-iQyo5XkKa_rPtc5MiZaJ9qGjp9bQtzoI5nTi-_UCfMwBdiA/exec";
+  const urlWebApp = typeof aplikasiPanitiaAktif_==='function'&&aplikasiPanitiaAktif_()?callbackGoogleAkses_():"https://script.google.com/macros/s/AKfycbyyhgxNmQ8OQmo5vpzwV5-iQyo5XkKa_rPtc5MiZaJ9qGjp9bQtzoI5nTi-_UCfMwBdiA/exec";
 
   if (!urlWebApp) {
     throw new Error(
@@ -2557,6 +2580,7 @@ function ujiURLAbsensiQRAsli_() {
 }
 
 function periksaIdentitasGoogle() {
+  if(typeof wajibEndpointAkses_==='function')wajibEndpointAkses_('periksaIdentitasGoogle');
   const emailAktif =
     Session.getActiveUser().getEmail();
 
@@ -2573,7 +2597,8 @@ function periksaIdentitasGoogle() {
 }
 
 function ambilDataProgramSesiQR() {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  if(typeof wajibEndpointAkses_==='function')wajibEndpointAkses_('ambilDataProgramSesiQR');
+  const ss = databasePelatihan_();
 
   const sheetProgram = ss.getSheetByName("Program");
   const sheetSesi = ss.getSheetByName("Sesi");
@@ -2639,6 +2664,7 @@ function ambilDataProgramSesiQR() {
 }
 
 function ujiAmbilDataProgramSesiQR() {
+  if(typeof wajibEndpointAkses_==='function')wajibEndpointAkses_('ujiAmbilDataProgramSesiQR');
   const hasil = ambilDataProgramSesiQR();
 
   const programDitemukan = hasil.program.some(
@@ -2703,6 +2729,8 @@ function onOpen() {
 }
 
 function bukaAdminQR() {
+  wajibPemilikIndex_();
+  if(typeof aplikasiPanitiaAktif_==='function'&&aplikasiPanitiaAktif_()){databasePelatihan_();SpreadsheetApp.getUi().showModalDialog(keluaranPanelAplikasi_('Index').setWidth(1100).setHeight(780),'Monitoring dan QR');return;}
   const template =
     HtmlService.createTemplateFromFile("AdminQR");
 
@@ -2831,7 +2859,7 @@ function cariPesertaAbsensi(token, kataKunci) {
     );
   }
 
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const ss = databasePelatihan_();
 
   function bacaSheet(nama) {
     const sheet = ss.getSheetByName(nama);
@@ -2904,6 +2932,7 @@ function cariPesertaAbsensi(token, kataKunci) {
 }
 
 function terbitkanQRAbsensiDariGenerator(idSesi, jenisScan, berlakuMenit) {
+  if(typeof wajibEndpointAkses_==='function')wajibEndpointAkses_('terbitkanQRAbsensiDariGenerator');
   wajibPemilikIndex_();
   idSesi = String(idSesi || "").trim();
   jenisScan = String(jenisScan || "").trim();
@@ -2940,7 +2969,7 @@ function simpanAbsensiPeserta(data) {
   lock.waitLock(30000);
   try {
     pastikanTidakAdaHapusTertunda_();
-    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const ss = databasePelatihan_();
     function tabel(nama, wajib) {
       const sheet = ss.getSheetByName(nama);
       if (!sheet) throw new Error('Sheet tidak ditemukan: ' + nama);
@@ -3038,7 +3067,7 @@ function simpanAbsensiPeserta(data) {
 
 /** Pelengkapan absensi dari menu spreadsheet; fungsi privat tidak dipanggil halaman peserta. */
 function lengkapiAbsensiManual_() {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const ss = databasePelatihan_();
   const ui = SpreadsheetApp.getUi();
   const sheet = ss.getActiveSheet();
   if (sheet.getName() !== 'Kehadiran' || !sheet.getActiveRange() || sheet.getActiveRange().getRow() < 2 || sheet.getActiveRange().getNumRows() !== 1) {
@@ -3107,7 +3136,7 @@ function simpanKoreksiAbsensiManual_(data) {
   lock.waitLock(30000);
   try {
     pastikanTidakAdaHapusTertunda_();
-    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const ss = databasePelatihan_();
     function baca(nama, wajib) {
       const sheet = ss.getSheetByName(nama);
       if (!sheet) throw new Error('Sheet tidak ditemukan: ' + nama);
@@ -3145,8 +3174,8 @@ function simpanKoreksiAbsensiManual_(data) {
     ['durasi_aktual_menit','durasi_diakui_menit','menit_terlambat','menit_pengurang_jp','jp_diakui_presisi','usulan_durasi_diakui_menit','usulan_jp_diakui_presisi'].forEach(h=>{if(k.header.includes(h)) perubahan[h]='';});
     const sebelum={},sesudah={};
     Object.keys(perubahan).forEach(h=>{sebelum[h]=item.row[ix(h)];sesudah[h]=perubahan[h];row[ix(h)]=perubahan[h];});
-    const transaksi = Utilities.getUuid();
-    const email = Session.getActiveUser().getEmail();
+    const transaksi = data.id_transaksi || Utilities.getUuid();
+    const email = wajibPemilikIndex_();
     function audit(status) {
       const r={id_riwayat:'RV-'+Utilities.getUuid(),jenis_data:'Kehadiran',id_referensi:data.id,
         jenis_tindakan:'koreksi_absensi_manual',kolom_diubah:JSON.stringify(Object.keys(perubahan)),
@@ -3172,7 +3201,7 @@ function simpanKoreksiAbsensiManual_(data) {
 
 /** Catat rentang izin dari Kehadiran, tanpa menetapkan poin perilaku. */
 function catatIzinSesi_() {
-  const ss=SpreadsheetApp.getActiveSpreadsheet(), ui=SpreadsheetApp.getUi();
+  const ss=databasePelatihan_(), ui=SpreadsheetApp.getUi();
   const sheet=ss.getActiveSheet(), pilihan=sheet.getActiveRange();
   if(sheet.getName()!=='Kehadiran'||!pilihan||pilihan.getRow()<2||pilihan.getNumRows()!==1){
     ui.alert('Buka Kehadiran lalu pilih satu baris peserta.');return;
@@ -3202,7 +3231,7 @@ function simpanIzinSesi_(d){
   const lock=LockService.getScriptLock();lock.waitLock(30000);
   try{
     pastikanTidakAdaHapusTertunda_();
-    const ss=SpreadsheetApp.getActiveSpreadsheet(),text=v=>String(v==null?'':v).trim();
+    const ss=databasePelatihan_(),text=v=>String(v==null?'':v).trim();
     function baca(nama,wajib){
       const sheet=ss.getSheetByName(nama);if(!sheet)throw new Error('Sheet tidak ditemukan: '+nama);
       const v=sheet.getDataRange().getValues(),h=v[0].map(x=>text(x));
@@ -3249,7 +3278,7 @@ function simpanIzinSesi_(d){
     const perubahan={status_perhitungan_ulang:'menunggu_perhitungan',alasan_perhitungan_ulang:'Penambahan rentang izin '+catatan.id_catatan,updated_at:now};
     ['durasi_aktual_menit','durasi_diakui_menit','menit_terlambat','menit_pengurang_jp','jp_diakui_presisi','usulan_durasi_diakui_menit','usulan_jp_diakui_presisi'].forEach(x=>{if(k.h.includes(x))perubahan[x]='';});
     const before={},next=old.slice();Object.keys(perubahan).forEach(x=>{before[x]=old[ik(x)];next[ik(x)]=perubahan[x];});
-    const email=Session.getActiveUser().getEmail();
+    const email=wajibPemilikIndex_();
     function audit(st){
       const r={id_riwayat:'RV-'+Utilities.getUuid(),jenis_data:'Kehadiran',id_referensi:d.id,jenis_tindakan:'tambah_izin_sesi',kolom_diubah:JSON.stringify(Object.keys(perubahan).concat(['Catatan_Perilaku'])),nilai_sebelum:JSON.stringify({kehadiran:before,catatan:null}),nilai_sesudah:JSON.stringify({kehadiran:perubahan,catatan:catatan}),alasan_perubahan:d.alasan,bukti_pendukung:d.bukti,diubah_oleh:d.petugas+(email?' ('+email+')':''),waktu_perubahan:new Date(),id_transaksi_perubahan:tx,status_transaksi:st};
       a.sheet.appendRow(a.h.map(x=>r[x]===undefined?'':r[x]));SpreadsheetApp.flush();
@@ -3270,7 +3299,8 @@ function simpanIzinSesi_(d){
 
 /** Endpoint Index: pemeriksaan pemilik dilakukan pada setiap permintaan. */
 function wajibPemilikIndex_() {
-  const ss=SpreadsheetApp.getActiveSpreadsheet();
+  if(typeof konteksSesiPanitia_!=='undefined'&&konteksSesiPanitia_)return konteksSesiPanitia_.email;
+  const ss=databasePelatihan_();
   const email=String(Session.getActiveUser().getEmail()||'').trim().toLowerCase();
   const owner=ss.getOwner();
   const pemilik=owner?String(owner.getEmail()||'').trim().toLowerCase():'';
@@ -3279,7 +3309,7 @@ function wajibPemilikIndex_() {
 }
 function bukaPanelPengelolaan_(){
   wajibPemilikIndex_();
-  SpreadsheetApp.getUi().showModalDialog(HtmlService.createHtmlOutputFromFile('Pengelolaan').setWidth(1100).setHeight(780),'Pengelolaan Pelatihan');
+  SpreadsheetApp.getUi().showModalDialog(keluaranPanelAplikasi_('Pengelolaan').setWidth(1100).setHeight(780),'Pengelolaan Pelatihan');
 }
 function sesuaiJenjang_(s,k){
   const txt=v=>String(v==null?'':v).trim();
@@ -3291,7 +3321,7 @@ function sesuaiJenjang_(s,k){
 function kolomJenjangData_(p,j){return typeof kolomJenjang_==='function'?kolomJenjang_(p,j):{};}
 function tabelIndex_(nama,wajib){
   if(typeof pastikanMigrasiJenjangSiap_==='function')pastikanMigrasiJenjangSiap_();
-  const sheet=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(nama);
+  const sheet=databasePelatihan_().getSheetByName(nama);
   if(!sheet)throw new Error('Sheet tidak ditemukan: '+nama);
   const v=sheet.getDataRange().getValues(),h=v[0].map(x=>String(x).trim());
   wajib.forEach(x=>{if(!h.includes(x))throw new Error('Kolom '+x+' tidak ditemukan di '+nama);});
@@ -3301,6 +3331,7 @@ function tabelIndex_(nama,wajib){
 }
 function versiBarisIndex_(row){return Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256,JSON.stringify(row),Utilities.Charset.UTF_8).map(b=>('0'+(b&255).toString(16)).slice(-2)).join('');}
 function muatAwalIndex(){
+  if(typeof wajibEndpointAkses_==='function')wajibEndpointAkses_('muatAwalIndex');
   wajibPemilikIndex_();
   const data=ambilDataProgramSesiQR();
   if(typeof bacaMentahJenjang_==='function'){const j=bacaMentahJenjang_('Jenjang',true),names=new Map((j?j.records:[]).map(j=>[String(j.id_jenjang).trim(),String(j.nama_jenjang)]));data.sesi=data.sesi.map(s=>Object.assign({},s,{nama_sesi:String(s.nama_sesi)+(names.has(s.id_jenjang)?' · '+names.get(s.id_jenjang):'')}));}
@@ -3308,12 +3339,13 @@ function muatAwalIndex(){
     .map(p=>({id_program:String(p.id_program||'').trim(),nama_program:String(p.nama_program||'').trim(),kategori_pelatihan:String(p.kategori_pelatihan||'').trim(),jenjang:typeof namaJenjangProgram_==='function'?namaJenjangProgram_(p.id_program,p.jenjang):String(p.jenjang||'').trim()}))
     .filter(p=>p.id_program);
   if(typeof bacaMentahJenjang_==='function'){const j=bacaMentahJenjang_('Jenjang',true);data.struktur_jenjang=Boolean(j);data.jenjang=j?j.records.map(r=>({id:String(r.id_jenjang),id_program:String(r.id_program),nama:String(r.nama_jenjang)})):[];}
-  return {sukses:true,zona_waktu:SpreadsheetApp.getActiveSpreadsheet().getSpreadsheetTimeZone(),data:data,navigasi:navigasiPelatihan_()};
+  return (typeof saringAwalPanitia_==='function'?saringAwalPanitia_:v=>v)({sukses:true,zona_waktu:databasePelatihan_().getSpreadsheetTimeZone(),data:data,navigasi:navigasiPelatihan_()});
 }
 function muatKehadiranIndex(idSesi){
+  if(typeof wajibEndpointAkses_==='function')wajibEndpointAkses_('muatKehadiranIndex');
   wajibPemilikIndex_();
   idSesi=String(idSesi||'').trim();
-  const ss=SpreadsheetApp.getActiveSpreadsheet(),zona=ss.getSpreadsheetTimeZone();
+  const ss=databasePelatihan_(),zona=ss.getSpreadsheetTimeZone();
   const sesi=tabelIndex_('Sesi',['id_sesi','id_program','nama_sesi','tanggal_sesi','jam_mulai','jam_selesai']).records.filter(s=>String(s.id_sesi).trim()===idSesi);
   if(sesi.length!==1)throw new Error('Sesi tidak ditemukan atau duplikat.');
   const s=sesi[0];
@@ -3351,7 +3383,8 @@ function dataKoreksiIndex_(d){
   return {id:String(d.id_kehadiran).trim(),snapshot:JSON.stringify(matches[0]),row:matches[0],header:t.header};
 }
 function simpanKoreksiIndex(d){
-  const email=wajibPemilikIndex_(),base=dataKoreksiIndex_(d),zona=SpreadsheetApp.getActiveSpreadsheet().getSpreadsheetTimeZone();
+  if(typeof wajibEndpointAkses_==='function')wajibEndpointAkses_('simpanKoreksiIndex');
+  const email=wajibPemilikIndex_(),base=dataKoreksiIndex_(d),zona=databasePelatihan_().getSpreadsheetTimeZone();
   const alasan=String(d.alasan||'').trim(),dasar=String(d.dasar||'').trim();
   if(!alasan||!dasar)throw new Error('Alasan dan dasar verifikasi wajib diisi.');
   const perubahan={};
@@ -3363,10 +3396,11 @@ function simpanKoreksiIndex(d){
   const pulang=perubahan.waktu_pulang_terverifikasi||val('waktu_pulang_terverifikasi')||val('waktu_pulang');
   [datang,pulang].filter(Boolean).forEach(x=>{if(!(x instanceof Date)||isNaN(x.getTime()))throw new Error('Waktu kehadiran tersimpan tidak valid. Periksa format sel.');});
   if(datang&&pulang&&pulang<=datang)throw new Error('Waktu pulang harus setelah waktu datang.');
-  return {sukses:true,pesan:simpanKoreksiAbsensiManual_({id:base.id,snapshot:base.snapshot,perubahan:perubahan,alasan:alasan,dasar:dasar,petugas:email})};
+  return {sukses:true,pesan:simpanKoreksiAbsensiManual_({id:base.id,snapshot:base.snapshot,perubahan:perubahan,alasan:alasan,dasar:dasar,petugas:email,id_transaksi:typeof konteksSesiPanitia_!=='undefined'&&konteksSesiPanitia_&&konteksSesiPanitia_.koreksi_tx||''})};
 }
 function simpanIzinIndex(d){
-  const email=wajibPemilikIndex_(),base=dataKoreksiIndex_(d),zona=SpreadsheetApp.getActiveSpreadsheet().getSpreadsheetTimeZone();
+  if(typeof wajibEndpointAkses_==='function')wajibEndpointAkses_('simpanIzinIndex');
+  const email=wajibPemilikIndex_(),base=dataKoreksiIndex_(d),zona=databasePelatihan_().getSpreadsheetTimeZone();
   const mulai=parseWaktuAbsensiManual_(String(d.mulai||'').replace('T',' '),zona),selesai=parseWaktuAbsensiManual_(String(d.selesai||'').replace('T',' '),zona);
   return {sukses:true,pesan:simpanIzinSesi_({id:base.id,snapshot:base.snapshot,mulai:mulai,selesai:selesai,alasan:String(d.alasan||'').trim(),bukti:buktiDenganLampiran_(d.dasar,d.id_bukti,'IZIN|'+base.id),petugas:email})};
 }
@@ -3402,13 +3436,14 @@ function waktuJadwalJP_(tanggal,jam,zona) {
   return parseWaktuAbsensiManual_(t+' '+j,zona).getTime();
 }
 function hitungJPSesiIndex(idSesi) {
+  if(typeof wajibEndpointAkses_==='function')wajibEndpointAkses_('hitungJPSesiIndex');
   wajibPemilikIndex_();blokirEditTertunda_();
   const petugas=wajibPemilikIndex_();
   const lock=LockService.getScriptLock();lock.waitLock(30000);
   try {
     pastikanTidakAdaHapusTertunda_();
     idSesi=String(idSesi||'').trim();
-    const ss=SpreadsheetApp.getActiveSpreadsheet(),zona=ss.getSpreadsheetTimeZone(),txt=v=>String(v==null?'':v).trim();
+    const ss=databasePelatihan_(),zona=ss.getSpreadsheetTimeZone(),txt=v=>String(v==null?'':v).trim();
     const s=tabelIndex_('Sesi',['id_sesi','tanggal_sesi','jam_mulai','jam_selesai']);
     const found=s.records.filter(r=>txt(r.id_sesi)===idSesi);if(found.length!==1)throw new Error('Sesi tidak ditemukan atau duplikat.');
     const sesi=found[0],mulai=waktuJadwalJP_(sesi.tanggal_sesi,sesi.jam_mulai,zona),selesai=waktuJadwalJP_(sesi.tanggal_sesi,sesi.jam_selesai,zona);
@@ -3482,19 +3517,20 @@ function hitungJPSesiIndex(idSesi) {
 
 /** Rekap dibaca langsung dari sumber; tidak membuat sheet baru. */
 function muatRekapJPProgramIndex(idProgram){
+  if(typeof wajibEndpointAkses_==='function')wajibEndpointAkses_('muatRekapJPProgramIndex');
   wajibPemilikIndex_();blokirEditTertunda_();
   wajibPemilikIndex_();
   idProgram=String(idProgram||'').trim();
   const txt=v=>String(v==null?'':v).trim();
   const program=tabelIndex_('Program',['id_program','nama_program']).records.filter(p=>txt(p.id_program)===idProgram);
   if(program.length!==1)throw new Error('Program tidak ditemukan atau duplikat.');
-  const zona=SpreadsheetApp.getActiveSpreadsheet().getSpreadsheetTimeZone();
-  const sesi=tabelIndex_('Sesi',['id_sesi','id_program','tanggal_sesi','jam_mulai','jam_selesai','status_jp']).records.filter(s=>txt(s.id_program)===idProgram);
+  const zona=databasePelatihan_().getSpreadsheetTimeZone();
+  const sesi=tabelIndex_('Sesi',['id_sesi','id_program','tanggal_sesi','jam_mulai','jam_selesai','status_jp']).records.filter(s=>txt(s.id_program)===idProgram&&(typeof dalamJenjangAkses_!=='function'||dalamJenjangAkses_(s)));
   const jeda=tabelIndex_('Jeda_Sesi',['id_sesi','jam_mulai_jeda','jam_selesai_jeda']).records;
   const k=tabelIndex_('Kehadiran',['id_kehadiran','id_sesi','id_keikutsertaan','waktu_datang','waktu_pulang','waktu_datang_terverifikasi','waktu_pulang_terverifikasi','durasi_diakui_menit','jp_diakui_presisi','status_perhitungan_ulang']).records;
   const catatan=tabelIndex_('Catatan_Perilaku',['id_catatan','id_sesi','id_kehadiran','id_keikutsertaan','waktu_mulai_izin','waktu_selesai_izin','status_pengurangan_jp']).records;
   const peserta=tabelIndex_('Peserta',['id_peserta','nama_pegawai']).records;
-  const ikut=tabelIndex_('Keikutsertaan',['id_program','id_peserta','id_keikutsertaan','unit_kerja_saat_pelatihan','status_keikutsertaan']).records.filter(t=>txt(t.id_program)===idProgram);
+  const ikut=tabelIndex_('Keikutsertaan',['id_program','id_peserta','id_keikutsertaan','unit_kerja_saat_pelatihan','status_keikutsertaan']).records.filter(t=>txt(t.id_program)===idProgram&&(typeof dalamJenjangAkses_!=='function'||dalamJenjangAkses_(t)));
   const levelNames=new Map((typeof konteksJenjang_==='function'?konteksJenjang_(idProgram,'',false).daftar:[]).map(j=>[j.id,j.nama]));
   const audit=tabelIndex_('Riwayat_Validasi',['jenis_data','id_referensi','id_transaksi_perubahan','status_transaksi']).records;
   const transactions=new Map();audit.filter(a=>a.jenis_data==='Kehadiran'&&a.id_transaksi_perubahan).forEach(a=>transactions.set(a.id_transaksi_perubahan,{id:txt(a.id_referensi),status:a.status_transaksi}));
@@ -3563,8 +3599,9 @@ function muatRekapJPProgramIndex(idProgram){
 }
 
 function muatCatatanPerilakuIndex(idSesi){
+  if(typeof wajibEndpointAkses_==='function')wajibEndpointAkses_('muatCatatanPerilakuIndex');
   wajibPemilikIndex_();idSesi=String(idSesi||'').trim();
-  const txt=v=>String(v==null?'':v).trim(),zona=SpreadsheetApp.getActiveSpreadsheet().getSpreadsheetTimeZone();
+  const txt=v=>String(v==null?'':v).trim(),zona=databasePelatihan_().getSpreadsheetTimeZone();
   const s=tabelIndex_('Sesi',['id_sesi','id_program']).records.filter(r=>txt(r.id_sesi)===idSesi);
   if(s.length!==1)throw new Error('Pilih sesi yang valid.');
   const indikator=tabelIndex_('Indikator_Perilaku',['id_indikator','kode_indikator','definisi_indikator','jenis_indikator','status_indikator']).records;
@@ -3578,6 +3615,7 @@ function muatCatatanPerilakuIndex(idSesi){
   return {sukses:true,zona_waktu:zona,waktu_sekarang:Utilities.formatDate(new Date(),zona,'yyyy-MM-dd HH:mm:ss'),indikator:indikator.filter(i=>txt(i.status_indikator).toLowerCase()==='aktif'&&txt(i.kode_indikator)!=='IZIN_SESI').map(i=>({id:txt(i.id_indikator),kode:txt(i.kode_indikator),definisi:txt(i.definisi_indikator),jenis:txt(i.jenis_indikator)})),catatan:data.map(c=>{const i=imap.get(txt(c.id_indikator))||{};const refs=hadir.filter(k=>txt(k.id_keikutsertaan)===txt(c.id_keikutsertaan));const datang=refs.length===1?(refs[0].waktu_datang_terverifikasi||refs[0].waktu_datang):null;return {id:txt(c.id_catatan),id_tugas:txt(c.id_tugas),durasi_kejadian:c.durasi_kejadian_menit===''||c.durasi_kejadian_menit==null?null:Number(c.durasi_kejadian_menit),waktu_datang_pembanding:waktu(datang),versi:versiBarisIndex_(c),alasan_validasi:txt(c.alasan_validasi),divalidasi_oleh:txt(c.divalidasi_oleh),divalidasi_pada:waktu(c.divalidasi_pada),id_keikutsertaan:txt(c.id_keikutsertaan),nama:links.get(txt(c.id_keikutsertaan))||'(relasi peserta tidak sesuai program)',indikator:txt(i.definisi_indikator)||txt(c.id_indikator),kode:txt(i.kode_indikator),jenis:txt(i.jenis_indikator),waktu:waktu(c.waktu_kejadian),keterangan:txt(c.keterangan),bukti:txt(c.bukti_pendukung),sumber:txt(c.sumber_catatan),status:txt(c.status_validasi)||'belum_divalidasi',poin:c.poin_disahkan===''||c.poin_disahkan==null?null:Number(c.poin_disahkan),mulai_izin:waktu(c.waktu_mulai_izin),selesai_izin:waktu(c.waktu_selesai_izin),durasi_izin_menit:c.waktu_mulai_izin instanceof Date&&c.waktu_selesai_izin instanceof Date&&c.waktu_selesai_izin>c.waktu_mulai_izin?(c.waktu_selesai_izin-c.waktu_mulai_izin)/60000:null,status_pengurangan_jp:txt(c.status_pengurangan_jp)};}).sort((a,b)=>b.waktu.localeCompare(a.waktu))};
 }
 function simpanCatatanPerilakuIndex(d){
+  if(typeof wajibEndpointAkses_==='function')wajibEndpointAkses_('simpanCatatanPerilakuIndex');
   const petugas=wajibPemilikIndex_(),txt=v=>String(v==null?'':v).trim();
   if(!d)throw new Error('Data catatan tidak tersedia.');
   const idSesi=txt(d.id_sesi),idIkut=txt(d.id_keikutsertaan),idInd=txt(d.id_indikator),alasan=txt(d.keterangan),bukti=buktiDenganLampiran_(d.bukti,d.id_bukti,'PERILAKU|'+txt(d.id_sesi)+'|'+txt(d.id_keikutsertaan)),request=txt(d.id_permintaan);
@@ -3586,7 +3624,7 @@ function simpanCatatanPerilakuIndex(d){
   const lock=LockService.getScriptLock();lock.waitLock(30000);
   try{
     pastikanTidakAdaHapusTertunda_();
-    const ss=SpreadsheetApp.getActiveSpreadsheet(),zona=ss.getSpreadsheetTimeZone();
+    const ss=databasePelatihan_(),zona=ss.getSpreadsheetTimeZone();
     const sesi=tabelIndex_('Sesi',['id_sesi','id_program','tanggal_sesi','jam_mulai']).records.filter(s=>txt(s.id_sesi)===idSesi);
     if(sesi.length!==1)throw new Error('Sesi tidak ditemukan atau duplikat.');
     const ikut=tabelIndex_('Keikutsertaan',['id_keikutsertaan','id_program','status_keikutsertaan']).records.filter(k=>txt(k.id_keikutsertaan)===idIkut&&txt(k.id_program)===txt(sesi[0].id_program)&&sesuaiJenjang_(sesi[0],k));
@@ -3644,13 +3682,14 @@ function simpanCatatanPerilakuIndex(d){
 }
 
 function simpanValidasiPerilakuIndex(d){
+  if(typeof wajibEndpointAkses_==='function')wajibEndpointAkses_('simpanValidasiPerilakuIndex');
   const petugas=wajibPemilikIndex_(),txt=v=>String(v==null?'':v).trim();
   if(!d||!txt(d.id_catatan)||!txt(d.versi)||!['disetujui','ditolak'].includes(d.keputusan)||!txt(d.alasan)||!/^[a-zA-Z0-9_-]{16,100}$/.test(txt(d.id_permintaan)))throw new Error('Data validasi tidak lengkap. Keputusan dan alasan wajib diisi.');
   if(txt(d.alasan).length>2000)throw new Error('Alasan maksimal 2000 karakter.');
   const lock=LockService.getScriptLock();lock.waitLock(30000);
   try{
     pastikanTidakAdaHapusTertunda_();
-    const ss=SpreadsheetApp.getActiveSpreadsheet();
+    const ss=databasePelatihan_();
     const t=tabelIndex_('Catatan_Perilaku',['id_catatan','id_keikutsertaan','id_sesi','status_validasi','alasan_validasi','divalidasi_oleh','divalidasi_pada','updated_at']);
     const records=t.records.filter(c=>txt(c.id_catatan)===txt(d.id_catatan));if(records.length!==1)throw new Error('Catatan tidak ditemukan atau duplikat.');
     const c=records[0];
@@ -3705,11 +3744,12 @@ function toleransiTerlambatPerilaku_(idProgram){
   const a=rows.length===1?bacaAturanPerilaku_(rows[0]):null;return a?a.cfg.perhitungan.toleransi_terlambat_menit:10;
 }
 function simpanAturanPerilakuProgramIndex(d){
+  if(typeof wajibEndpointAkses_==='function')wajibEndpointAkses_('simpanAturanPerilakuProgramIndex');
   const petugas=wajibPemilikIndex_();if(!d)throw new Error('Data aturan belum tersedia.');validasiKonfigurasiPerilaku_(d.cfg);
   const id=String(d.id_program||'').trim(),lock=LockService.getScriptLock();lock.waitLock(30000);
   try{
     pastikanTidakAdaHapusTertunda_();
-    const ss=SpreadsheetApp.getActiveSpreadsheet(),p=tabelIndex_('Program',['id_program','id_aturan_penilaian_aktif','updated_at']);
+    const ss=databasePelatihan_(),p=tabelIndex_('Program',['id_program','id_aturan_penilaian_aktif','updated_at']);
     const rows=p.records.filter(p=>String(p.id_program).trim()===id);if(rows.length!==1)throw new Error('Program tidak ditemukan atau duplikat.');
     const program=rows[0],old=String(program.id_aturan_penilaian_aktif||'').trim();
     if(old!==String(d.id_aturan_sebelumnya||'').trim())throw new Error('Aturan program sudah berubah. Muat ulang pengaturan.');
@@ -3769,20 +3809,21 @@ function hitungNilaiPerilakuPeserta_(catatan,cfg){
   return {nilai:nilai,kontribusi:nilai*cfg.bobot,positif:positif,tambahan_diakui:tambahan,pengurangan:negatif,menunggu:pending,status:pending?'sementara':'lengkap',detail:detail};
 }
 function muatNilaiPerilakuProgramIndex(idProgram){
+  if(typeof wajibEndpointAkses_==='function')wajibEndpointAkses_('muatNilaiPerilakuProgramIndex');
   wajibPemilikIndex_();blokirEditTertunda_();
   wajibPemilikIndex_();const txt=v=>String(v==null?'':v).trim();idProgram=txt(idProgram);
   const program=tabelIndex_('Program',['id_program','id_aturan_penilaian_aktif']).records.filter(p=>txt(p.id_program)===idProgram);if(program.length!==1)throw new Error('Program tidak ditemukan atau duplikat.');
   const katalog=katalogIndikator_();const aturan=bacaAturanPerilaku_(program[0]);if(!aturan)return {sukses:true,katalog:katalog.indikator,versi_indikator:katalog.versi,aturan:null,default_cfg:aturanPerilakuDefault_(),peserta:[]};
-  const sesi=tabelIndex_('Sesi',['id_sesi','id_program','tanggal_sesi','jam_mulai']).records.filter(s=>txt(s.id_program)===idProgram),sm=new Map(sesi.map(s=>[txt(s.id_sesi),s]));
+  const sesi=tabelIndex_('Sesi',['id_sesi','id_program','tanggal_sesi','jam_mulai']).records.filter(s=>txt(s.id_program)===idProgram&&(typeof dalamJenjangAkses_!=='function'||dalamJenjangAkses_(s))),sm=new Map(sesi.map(s=>[txt(s.id_sesi),s]));
   const peserta=tabelIndex_('Peserta',['id_peserta','nama_pegawai']).records,names=new Map(peserta.map(p=>[txt(p.id_peserta),txt(p.nama_pegawai)]));
-  const ikut=tabelIndex_('Keikutsertaan',['id_keikutsertaan','id_peserta','id_program','unit_kerja_saat_pelatihan']).records.filter(k=>txt(k.id_program)===idProgram);
+  const ikut=tabelIndex_('Keikutsertaan',['id_keikutsertaan','id_peserta','id_program','unit_kerja_saat_pelatihan']).records.filter(k=>txt(k.id_program)===idProgram&&(typeof dalamJenjangAkses_!=='function'||dalamJenjangAkses_(k)));
   const indikator=tabelIndex_('Indikator_Perilaku',['id_indikator','kode_indikator']).records,im=new Map(indikator.map(i=>[txt(i.id_indikator),txt(i.kode_indikator)]));
   const hadir=tabelIndex_('Kehadiran',['id_kehadiran','id_sesi','id_keikutsertaan','waktu_datang','waktu_datang_terverifikasi']).records;
   const c=tabelIndex_('Catatan_Perilaku',['id_catatan','id_keikutsertaan','id_sesi','id_indikator','waktu_kejadian','status_validasi','keterangan','durasi_kejadian_menit','id_tugas']).records;
   const audit=tabelIndex_('Riwayat_Validasi',['jenis_data','id_referensi','id_transaksi_perubahan','status_transaksi']).records,tx=new Map();audit.forEach(a=>{if(a.id_transaksi_perubahan)tx.set(a.id_transaksi_perubahan,{jenis:a.jenis_data,id:txt(a.id_referensi),status:a.status_transaksi});});
   const pending=new Set(Array.from(tx.values()).filter(a=>a.status!=='SELESAI').map(a=>a.jenis+'|'+a.id));
   if(pending.has('Program|'+idProgram))throw new Error('Transaksi aturan program belum selesai. Periksa riwayat.');
-  const zona=SpreadsheetApp.getActiveSpreadsheet().getSpreadsheetTimeZone();const hasil=ikut.map(k=>{
+  const zona=databasePelatihan_().getSpreadsheetTimeZone();const hasil=ikut.map(k=>{
     const id=txt(k.id_keikutsertaan),notes=c.filter(r=>txt(r.id_keikutsertaan)===id&&sm.has(txt(r.id_sesi))&&sesuaiJenjang_(sm.get(txt(r.id_sesi)),k)).map(r=>{
       const s=sm.get(txt(r.id_sesi)),h=hadir.filter(h=>txt(h.id_sesi)===txt(r.id_sesi)&&txt(h.id_keikutsertaan)===id);let terlambat=null;
       try{const d=h.length===1&&(h[0].waktu_datang_terverifikasi||h[0].waktu_datang);if(d instanceof Date&&Number.isFinite(d.getTime())&&!peringatanWaktuKehadiran_(d,null,s.tanggal_sesi,zona))terlambat=Math.max(0,(d.getTime()-waktuJadwalJP_(s.tanggal_sesi,s.jam_mulai,zona))/60000);}catch(ignored){}
@@ -3799,7 +3840,8 @@ function tanggalKelola_(v,zona){
 }
 function nomorIdKelola_(records,kolom,prefix){let max=batasNomorIdHapus_(prefix);const pattern=new RegExp('^'+prefix+'(\\d+)$');records.forEach(r=>{const m=String(r[kolom]||'').match(pattern);if(m)max=Math.max(max,Number(m[1]));});return prefix+String(max+1).padStart(3,'0');}
 function muatKelolaProgramIndex(idProgram){
-  wajibPemilikIndex_();const ss=SpreadsheetApp.getActiveSpreadsheet(),z=ss.getSpreadsheetTimeZone(),txt=v=>String(v==null?'':v).trim();
+  if(typeof wajibEndpointAkses_==='function')wajibEndpointAkses_('muatKelolaProgramIndex');
+  wajibPemilikIndex_();const ss=databasePelatihan_(),z=ss.getSpreadsheetTimeZone(),txt=v=>String(v==null?'':v).trim();
   const programs=tabelIndex_('Program',['id_program','nama_program','kategori_pelatihan','jenjang','tanggal_mulai','tanggal_selesai','status_program']).records;
   const sesi=tabelIndex_('Sesi',['id_sesi','id_program','nama_sesi','tanggal_sesi','jam_mulai','jam_selesai','status_jp']).records.filter(s=>txt(s.id_program)===txt(idProgram));
   const jeda=tabelIndex_('Jeda_Sesi',['id_jeda','id_sesi','jam_mulai_jeda','jam_selesai_jeda']).records;
@@ -3812,7 +3854,7 @@ function muatKelolaProgramIndex(idProgram){
 }
 /** Pemanggil memegang ScriptLock. Audit menjadi penanda retry dan transaksi tertunda. */
 function pembuatanKelola_(jenis,input,request,builder){
-  const ss=SpreadsheetApp.getActiveSpreadsheet(),a=tabelIndex_('Riwayat_Validasi',['id_riwayat','jenis_data','id_referensi','jenis_tindakan','kolom_diubah','nilai_sebelum','nilai_sesudah','alasan_perubahan','diubah_oleh','waktu_perubahan','id_transaksi_perubahan','status_transaksi']);
+  const ss=databasePelatihan_(),a=tabelIndex_('Riwayat_Validasi',['id_riwayat','jenis_data','id_referensi','jenis_tindakan','kolom_diubah','nilai_sebelum','nilai_sesudah','alasan_perubahan','diubah_oleh','waktu_perubahan','id_transaksi_perubahan','status_transaksi']);
   const tx='BUAT-'+jenis+'|'+request;
   const signature=versiBarisIndex_(input);
   const found=a.records.filter(r=>String(r.id_transaksi_perubahan)===tx);
@@ -3826,7 +3868,7 @@ function pembuatanKelola_(jenis,input,request,builder){
   if(Array.from(previous.values()).some(v=>v!=='SELESAI'))throw new Error('Ada transaksi tertunda untuk ID ini. Periksa Riwayat_Validasi.');
   const hasil=Object.assign({sukses:true},plan.hasil),payload={sidik_input:signature,data:plan.writes,hasil:hasil};
   const as=ss.getSheetByName('Riwayat_Validasi');
-  function audit(st){const r={id_riwayat:'RV-'+Utilities.getUuid(),jenis_data:jenis,id_referensi:plan.id,jenis_tindakan:'tambah_'+jenis.toLowerCase(),kolom_diubah:JSON.stringify(plan.writes.map(w=>w.sheet)),nilai_sebelum:'null',nilai_sesudah:JSON.stringify(payload),alasan_perubahan:plan.alasan||'Penambahan melalui panel Program & Sesi.',diubah_oleh:Session.getActiveUser().getEmail(),waktu_perubahan:new Date(),id_transaksi_perubahan:tx,status_transaksi:st};as.appendRow(a.header.map(h=>r[h]===undefined?'':r[h]));SpreadsheetApp.flush();}
+  function audit(st){const r={id_riwayat:'RV-'+Utilities.getUuid(),jenis_data:jenis,id_referensi:plan.id,jenis_tindakan:'tambah_'+jenis.toLowerCase(),kolom_diubah:JSON.stringify(plan.writes.map(w=>w.sheet)),nilai_sebelum:'null',nilai_sesudah:JSON.stringify(payload),alasan_perubahan:plan.alasan||'Penambahan melalui panel Program & Sesi.',diubah_oleh:wajibPemilikIndex_(),waktu_perubahan:new Date(),id_transaksi_perubahan:tx,status_transaksi:st};as.appendRow(a.header.map(h=>r[h]===undefined?'':r[h]));SpreadsheetApp.flush();}
   // Semua header diperiksa sebelum ada penulisan data.
   plan.writes.forEach(w=>tabelIndex_(w.sheet,Object.keys(w.record)));
   audit('PENDING');
@@ -3837,8 +3879,9 @@ function pembuatanKelola_(jenis,input,request,builder){
   return hasil;
 }
 function tambahProgramIndex(d){
+  if(typeof wajibEndpointAkses_==='function')wajibEndpointAkses_('tambahProgramIndex');
   wajibPemilikIndex_();if(!d)throw new Error('Data program tidak tersedia.');
-  const txt=v=>String(v==null?'':v).trim(),z=SpreadsheetApp.getActiveSpreadsheet().getSpreadsheetTimeZone();
+  const txt=v=>String(v==null?'':v).trim(),z=databasePelatihan_().getSpreadsheetTimeZone();
   const input={nama:txt(d.nama),kategori:txt(d.kategori),jenjang:txt(d.jenjang),mulai:tanggalKelola_(d.mulai,z),selesai:tanggalKelola_(d.selesai,z),status:txt(d.status)};
   if(input.jenjang.startsWith('=')||!input.nama||input.nama.length>200||!input.kategori||input.kategori.length>100||input.jenjang.length>100||!['draft','aktif','selesai'].includes(input.status))throw new Error('Nama, kategori, dan status program wajib valid.');
   if(input.selesai<input.mulai)throw new Error('Tanggal selesai program tidak boleh sebelum tanggal mulai.');
@@ -3855,8 +3898,9 @@ function tambahProgramIndex(d){
   });}finally{lock.releaseLock();}
 }
 function tambahSesiIndex(d){
+  if(typeof wajibEndpointAkses_==='function')wajibEndpointAkses_('tambahSesiIndex');
   wajibPemilikIndex_();if(!d)throw new Error('Data sesi tidak tersedia.');
-  const txt=v=>String(v==null?'':v).trim(),z=SpreadsheetApp.getActiveSpreadsheet().getSpreadsheetTimeZone();
+  const txt=v=>String(v==null?'':v).trim(),z=databasePelatihan_().getSpreadsheetTimeZone();
   const input={...kolomJenjangData_(txt(d.id_program),d.id_jenjang),id_program:txt(d.id_program),nama:txt(d.nama),tanggal:tanggalKelola_(d.tanggal,z),mulai:txt(d.mulai),selesai:txt(d.selesai),status_jp:txt(d.status_jp),jeda:Array.isArray(d.jeda)?d.jeda.map(j=>({mulai:txt(j.mulai),selesai:txt(j.selesai),keterangan:txt(j.keterangan)})):[]};
   if(!input.id_program||!input.nama||input.nama.length>200||!['dihitung','tidak_dihitung'].includes(input.status_jp)||input.jeda.length>20)throw new Error('Data sesi tidak valid; maksimal 20 jeda.');
   const start=waktuJadwalJP_(input.tanggal,input.mulai,z),end=waktuJadwalJP_(input.tanggal,input.selesai,z);if(end<=start)throw new Error('Jam selesai harus setelah jam mulai.');
@@ -3902,17 +3946,18 @@ function cocokRecordKelola_(row,header,record,zona){
   });return beda;
 }
 function verifikasiWriteKelola_(w){
-  const table=tabelIndex_(w.sheet,Object.keys(w.record));const ss=SpreadsheetApp.getActiveSpreadsheet();
+  const table=tabelIndex_(w.sheet,Object.keys(w.record));const ss=databasePelatihan_();
   const rows=ss.getSheetByName(w.sheet).getDataRange().getValues().slice(1).filter(r=>String(r[table.header.indexOf(w.id_column)])===String(w.record[w.id_column]));
   if(rows.length!==1)throw new Error(w.sheet+': ID tidak ditemukan atau duplikat.');
   const beda=cocokRecordKelola_(rows[0],table.header,w.record,ss.getSpreadsheetTimeZone());if(beda.length)throw new Error(w.sheet+': nilai berbeda pada '+beda.join(', ')+'.');
 }
 function pulihkanPembuatanSesiIndex(idProgram){
+  if(typeof wajibEndpointAkses_==='function')wajibEndpointAkses_('pulihkanPembuatanSesiIndex');
   const petugas=wajibPemilikIndex_();idProgram=String(idProgram||'').trim();if(!idProgram)throw new Error('Pilih program terlebih dahulu.');
   const lock=LockService.getScriptLock();lock.waitLock(30000);
   try{
     pastikanTidakAdaHapusTertunda_();
-    const ss=SpreadsheetApp.getActiveSpreadsheet(),a=tabelIndex_('Riwayat_Validasi',['id_riwayat','jenis_data','id_referensi','jenis_tindakan','kolom_diubah','nilai_sebelum','nilai_sesudah','alasan_perubahan','diubah_oleh','waktu_perubahan','id_transaksi_perubahan','status_transaksi']);
+    const ss=databasePelatihan_(),a=tabelIndex_('Riwayat_Validasi',['id_riwayat','jenis_data','id_referensi','jenis_tindakan','kolom_diubah','nilai_sebelum','nilai_sesudah','alasan_perubahan','diubah_oleh','waktu_perubahan','id_transaksi_perubahan','status_transaksi']);
     const groups=new Map();a.records.filter(r=>r.jenis_data==='Sesi'&&String(r.id_transaksi_perubahan||'').startsWith('BUAT-Sesi|')).forEach(r=>{const id=r.id_transaksi_perubahan;if(!groups.has(id))groups.set(id,[]);groups.get(id).push(r);});
     const hasil={sukses:true,dipulihkan:0,dilengkapi:0,masalah:[],pesan:''};
     for(const [tx,records] of groups){
@@ -3958,8 +4003,8 @@ function peringatanWaktuKehadiran_(datang,pulang,tanggalSesi,zona){
   return '';
 }
 
-function bukaPanelMonitoring_(){wajibPemilikIndex_();SpreadsheetApp.getUi().showModalDialog(HtmlService.createHtmlOutputFromFile("Index").setWidth(1100).setHeight(780),"Monitoring Pelatihan");}
-function navigasiPelatihan_(){return {url:ScriptApp.getService().getUrl()||''};}
+function bukaPanelMonitoring_(){wajibPemilikIndex_();SpreadsheetApp.getUi().showModalDialog(keluaranPanelAplikasi_('Index').setWidth(1100).setHeight(780),"Monitoring Pelatihan");}
+function navigasiPelatihan_(){return {url:typeof aplikasiPanitiaAktif_==='function'&&aplikasiPanitiaAktif_()?callbackGoogleAkses_():ScriptApp.getService().getUrl()||''};}
 function pastikanProgramPeserta_(id){const found=tabelIndex_('Program',['id_program','nama_program']).records.filter(p=>String(p.id_program).trim()===String(id).trim());if(found.length!==1)throw new Error('Program tidak ditemukan atau duplikat.');return found[0];}
 function bacaRegistriPeserta_(){
   const p=tabelIndex_('Peserta',['id_peserta','nip','nama_pegawai','unit_kerja','created_at','updated_at']);
@@ -3990,6 +4035,7 @@ function periksaBarisImporPeserta_(idProgram,rows,registry){
   });
 }
 function pratinjauImporPesertaIndex(idProgram,rows,idJenjang){
+  if(typeof wajibEndpointAkses_==='function')wajibEndpointAkses_('pratinjauImporPesertaIndex');
   wajibPemilikIndex_();idProgram=String(idProgram||'').trim();pastikanProgramPeserta_(idProgram);
   if(!Array.isArray(rows)||!rows.length||rows.length>1000)throw new Error('Unggah 1–1000 baris per impor.');
   const tujuan=kolomJenjangData_(idProgram,idJenjang);
@@ -3997,23 +4043,26 @@ function pratinjauImporPesertaIndex(idProgram,rows,idJenjang){
   return {sukses:true,id_program:idProgram,...tujuan,baris:checked,jumlah:jumlah};
 }
 function muatPesertaProgramIndex(idProgram,q,page,idJenjang){
+  if(typeof wajibEndpointAkses_==='function')wajibEndpointAkses_('muatPesertaProgramIndex');
   wajibPemilikIndex_();idProgram=String(idProgram||'').trim();pastikanProgramPeserta_(idProgram);q=String(q||'').trim().toLowerCase();page=Math.max(0,Math.floor(Number(page)||0));
   const tujuan=typeof konteksJenjang_==='function'?konteksJenjang_(idProgram,idJenjang,false):{id:''};
-  const r=bacaRegistriPeserta_(),all=r.k.records.filter(k=>String(k.id_program).trim()===idProgram&&(!tujuan.id||String(k.id_jenjang).trim()===tujuan.id)).map(k=>{const p=r.byId.get(String(k.id_peserta).trim());return {id_jenjang:String(k.id_jenjang||''),jenjang:typeof konteksJenjang_==='function'?(tujuan.daftar.find(j=>j.id===String(k.id_jenjang).trim())||{}).nama||'':'',id_keikutsertaan:String(k.id_keikutsertaan),id_peserta:String(p.id_peserta),nama:String(p.nama_pegawai),nip:String(p.nip),unit:String(k.unit_kerja_saat_pelatihan||''),status:String(k.status_keikutsertaan||'')};});
+  const r=bacaRegistriPeserta_(),all=r.k.records.filter(k=>String(k.id_program).trim()===idProgram&&(typeof dalamJenjangAkses_!=='function'||dalamJenjangAkses_(k))&&(!tujuan.id||String(k.id_jenjang).trim()===tujuan.id)).map(k=>{const p=r.byId.get(String(k.id_peserta).trim());return {id_jenjang:String(k.id_jenjang||''),jenjang:typeof konteksJenjang_==='function'?(tujuan.daftar.find(j=>j.id===String(k.id_jenjang).trim())||{}).nama||'':'',id_keikutsertaan:String(k.id_keikutsertaan),id_peserta:String(p.id_peserta),nama:String(p.nama_pegawai),nip:String(p.nip),unit:String(k.unit_kerja_saat_pelatihan||''),status:String(k.status_keikutsertaan||'')};});
   const filtered=all.filter(p=>(p.nama+' '+p.nip+' '+p.unit).toLowerCase().includes(q)).sort((a,b)=>a.nama.localeCompare(b.nama,'id'));
   return {sukses:true,total:all.length,jumlah_cocok:filtered.length,page:page,peserta:filtered.slice(page*50,page*50+50)};
 }
 function cariPesertaLamaIndex(q){
+  if(typeof wajibEndpointAkses_==='function')wajibEndpointAkses_('cariPesertaLamaIndex');
   wajibPemilikIndex_();q=String(q||'').trim().toLowerCase();if(q.length<2)return {sukses:true,peserta:[]};
   const r=bacaRegistriPeserta_();return {sukses:true,peserta:r.p.records.filter(p=>(String(p.nama_pegawai)+' '+String(p.nip)).toLowerCase().includes(q)).slice(0,15).map(p=>({nama:String(p.nama_pegawai),nip:String(p.nip),unit:String(p.unit_kerja||'')}))};
 }
 function imporPesertaProgramIndex(d){
+  if(typeof wajibEndpointAkses_==='function')wajibEndpointAkses_('imporPesertaProgramIndex');
   const petugas=wajibPemilikIndex_();if(!d||!Array.isArray(d.baris)||!d.baris.length||d.baris.length>20||!/^[a-zA-Z0-9_-]{16,100}$/.test(String(d.id_permintaan||''))||!Number.isInteger(d.batch)||d.batch<0||d.batch>49)throw new Error('Data batch impor tidak valid (maksimal 20 peserta per batch).');
   const idProgram=String(d.id_program||'').trim(),signature=versiBarisIndex_({id_program:idProgram,...kolomJenjangData_(idProgram,d.id_jenjang),baris:d.baris}),tx='IMPOR-PESERTA|'+d.id_permintaan+'|'+d.batch;
   const lock=LockService.getScriptLock();lock.waitLock(30000);
   try{
     pastikanTidakAdaHapusTertunda_();
-    pastikanProgramPeserta_(idProgram);const ss=SpreadsheetApp.getActiveSpreadsheet();
+    pastikanProgramPeserta_(idProgram);const ss=databasePelatihan_();
     const a=tabelIndex_('Riwayat_Validasi',['id_riwayat','jenis_data','id_referensi','jenis_tindakan','kolom_diubah','nilai_sebelum','nilai_sesudah','alasan_perubahan','diubah_oleh','waktu_perubahan','id_transaksi_perubahan','status_transaksi']);
     const prior=a.records.filter(r=>r.id_transaksi_perubahan===tx);let plan;
     if(prior.length){try{plan=JSON.parse(prior.find(r=>r.status_transaksi==='PENDING').nilai_sesudah);}catch(e){throw new Error('Audit batch tidak lengkap; periksa Riwayat_Validasi.');}if(plan.sidik_input!==signature)throw new Error('ID batch digunakan untuk data berbeda.');if(prior[prior.length-1].status_transaksi==='SELESAI')return plan.hasil;}
@@ -4063,6 +4112,7 @@ function imporPesertaProgramIndex(d){
 }
 
 function pulihkanImporPesertaIndex(idProgram){
+  if(typeof wajibEndpointAkses_==='function')wajibEndpointAkses_('pulihkanImporPesertaIndex');
   wajibPemilikIndex_();idProgram=String(idProgram||'').trim();pastikanProgramPeserta_(idProgram);
   const a=tabelIndex_('Riwayat_Validasi',['jenis_data','id_referensi','id_transaksi_perubahan','status_transaksi','nilai_sesudah']).records;
   const tx=new Map();a.filter(r=>r.jenis_data==='Impor_Peserta'&&String(r.id_referensi)===idProgram).forEach(r=>tx.set(r.id_transaksi_perubahan,r));const errors=[];let total=0;
@@ -4072,8 +4122,9 @@ function pulihkanImporPesertaIndex(idProgram){
 
 // Pemeriksaan hanya membaca; nomor baris merujuk posisi asli pada sheet.
 function periksaDataIndex(opsi){
+  if(typeof wajibEndpointAkses_==='function')wajibEndpointAkses_('periksaDataIndex');
   wajibPemilikIndex_();
-  const ss=SpreadsheetApp.getActiveSpreadsheet(),temuan=[],tables={},stats=[];
+  const ss=databasePelatihan_(),temuan=[],tables={},stats=[];
   const cakupan=opsi&&opsi.cakupan||'semua',programId=String(opsi&&opsi.id_program||'').trim();
   if(!['program','semua'].includes(cakupan))throw new Error('Cakupan pemeriksaan tidak valid.');
   if(cakupan==='program'&&!programId)throw new Error('Pilih program sebelum memeriksa.');
@@ -4124,7 +4175,7 @@ function periksaDataIndex(opsi){
 
 function konfigurasiEdit_(){const cfg={Indikator_Perilaku:{id:'id_indikator',fields:['definisi_indikator','jenis_indikator','poin_per_kejadian','status_indikator']},Program:{id:'id_program',fields:['nama_program','kategori_pelatihan','jenjang','tanggal_mulai','tanggal_selesai','status_program']},Sesi:{id:'id_sesi',fields:['nama_sesi','tanggal_sesi','jam_mulai','jam_selesai','status_jp']},Peserta:{id:'id_peserta',fields:['nama_pegawai','nip','unit_kerja']}};if(typeof bacaMentahJenjang_==='function'&&bacaMentahJenjang_('Jenjang',true)){cfg.Program.fields=cfg.Program.fields.filter(f=>f!=='jenjang');cfg.Jenjang={id:'id_jenjang',fields:['nama_jenjang']};}return cfg;}
 function lokasiEdit_(jenis,id){
-  const ss=SpreadsheetApp.getActiveSpreadsheet(),spec=konfigurasiEdit_()[jenis];if(!spec)throw Error('Jenis data tidak didukung.');
+  const ss=databasePelatihan_(),spec=konfigurasiEdit_()[jenis];if(!spec)throw Error('Jenis data tidak didukung.');
   const table=tabelIndex_(jenis,[spec.id].concat(spec.fields)),sheet=ss.getSheetByName(jenis),values=sheet.getDataRange().getValues(),found=[];
   values.slice(1).forEach((row,n)=>{if(String(row[table.header.indexOf(spec.id)]).trim()===String(id).trim())found.push({row:row,nomor:n+2});});
   if(found.length!==1)throw Error('Data tidak ditemukan atau ID duplikat.');const record={};table.header.forEach((k,i)=>{if(k)record[k]=found[0].row[i];});
@@ -4132,7 +4183,8 @@ function lokasiEdit_(jenis,id){
 }
 function snapshotEdit_(jenis,id){const x=lokasiEdit_(jenis,id),r={record:x.record};if(jenis==='Sesi')r.jeda=tabelIndex_('Jeda_Sesi',['id_jeda','id_sesi','jam_mulai_jeda','jam_selesai_jeda','keterangan']).records.filter(j=>String(j.id_sesi).trim()===String(id).trim());return r;}
 function muatEditDataIndex(jenis,id){
-  wajibPemilikIndex_();const s=snapshotEdit_(jenis,id),z=SpreadsheetApp.getActiveSpreadsheet().getSpreadsheetTimeZone(),spec=konfigurasiEdit_()[jenis],values={};
+  if(typeof wajibEndpointAkses_==='function')wajibEndpointAkses_('muatEditDataIndex');
+  wajibPemilikIndex_();const s=snapshotEdit_(jenis,id),z=databasePelatihan_().getSpreadsheetTimeZone(),spec=konfigurasiEdit_()[jenis],values={};
   spec.fields.forEach(k=>{const v=s.record[k];values[k]=v instanceof Date?Utilities.formatDate(v,z,k.startsWith('tanggal_')?'yyyy-MM-dd':'HH:mm:ss'):String(v==null?'':v);});
   return {sukses:true,jenis:jenis,id:String(id),versi:versiBarisIndex_(s),values:values,jeda:(s.jeda||[]).map(j=>({mulai:j.jam_mulai_jeda instanceof Date?Utilities.formatDate(j.jam_mulai_jeda,z,'HH:mm:ss'):String(j.jam_mulai_jeda),selesai:j.jam_selesai_jeda instanceof Date?Utilities.formatDate(j.jam_selesai_jeda,z,'HH:mm:ss'):String(j.jam_selesai_jeda),keterangan:String(j.keterangan||'')})),zona:z};
 }
@@ -4141,7 +4193,7 @@ function blokirEditTertunda_(){
   if(Array.from(m.values()).some(v=>v!=='SELESAI'))throw Error('Ada edit data belum selesai. Pulihkan Edit Tertunda pada halaman Pengelolaan terlebih dahulu.');
 }
 function jalankanRencanaEdit_(plan,tx,petugas){
-  const ss=SpreadsheetApp.getActiveSpreadsheet(),z=ss.getSpreadsheetTimeZone();
+  const ss=databasePelatihan_(),z=ss.getSpreadsheetTimeZone();
   function locate(w){const sheet=ss.getSheetByName(w.sheet),v=sheet.getDataRange().getValues(),h=v[0].map(String),at=h.indexOf(w.key);if(at<0)throw Error('Kolom ID hilang: '+w.sheet);const rows=[];v.slice(1).forEach((r,i)=>{if(String(r[at]).trim()===String(w.id))rows.push({r,n:i+2});});if(rows.length>1)throw Error('ID duplikat pada '+w.sheet);return {sheet,h,item:rows[0]};}
   function same(x,record){return x.item&&!cocokRecordKelola_(x.item.r,x.h,record,z).length;}
   // Periksa seluruh target sebelum melanjutkan transaksi parsial.
@@ -4161,8 +4213,9 @@ function tulisRiwayatEdit_(plan,tx,status,petugas){
   if(String(r.nilai_sebelum).length>45000||String(r.nilai_sesudah).length>45000||String(r.kolom_diubah).length>45000)throw Error('Perubahan terlalu besar untuk satu transaksi prototype.');ssEditAppend_(a.header,r);SpreadsheetApp.flush();
 }
 function bacaRencanaEdit_(json){const plan=JSON.parse(json);plan.writes.forEach(w=>['before','after','patch'].forEach(key=>{if(!w[key])return;Object.keys(w[key]).forEach(k=>{const v=w[key][k];if(typeof v==='string'&&/^(?:tanggal_|jam_|waktu_|created_at$|updated_at$)|_pada$/.test(k)&&/^\d{4}-\d{2}-\d{2}T.*Z$/.test(v))w[key][k]=new Date(v);});}));return plan;}
-function ssEditAppend_(header,r){SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Riwayat_Validasi').appendRow(header.map(k=>r[k]===undefined?'':r[k]));}
+function ssEditAppend_(header,r){databasePelatihan_().getSheetByName('Riwayat_Validasi').appendRow(header.map(k=>r[k]===undefined?'':r[k]));}
 function simpanEditDataIndex(d){
+  if(typeof wajibEndpointAkses_==='function')wajibEndpointAkses_('simpanEditDataIndex');
   const petugas=wajibPemilikIndex_();if(!d||!/^[a-zA-Z0-9_-]{16,100}$/.test(String(d.id_permintaan||'')))throw Error('Permintaan edit tidak valid.');
   const lock=LockService.getScriptLock();lock.waitLock(30000);try{
     pastikanTidakAdaHapusTertunda_();
@@ -4172,7 +4225,7 @@ function simpanEditDataIndex(d){
     blokirEditTertunda_();const spec=konfigurasiEdit_()[d.jenis];if(!spec)throw Error('Jenis tidak valid.');
     const snap=snapshotEdit_(d.jenis,d.id);if(versiBarisIndex_(snap)!==d.versi)throw Error('Data berubah. Tutup formulir, muat ulang, lalu edit kembali.');
     const alasan=String(d.alasan||'').trim();if(!alasan||alasan.length>2000)throw Error('Alasan wajib diisi, maksimal 2.000 karakter.');
-    const ss=SpreadsheetApp.getActiveSpreadsheet(),z=ss.getSpreadsheetTimeZone(),old=snap.record,patch={},now=new Date(),txt=v=>String(v==null?'':v).trim();
+    const ss=databasePelatihan_(),z=ss.getSpreadsheetTimeZone(),old=snap.record,patch={},now=new Date(),txt=v=>String(v==null?'':v).trim();
     const val={};spec.fields.forEach(k=>{val[k]=txt(d.values&&d.values[k]);if(val[k].length>(k==='definisi_indikator'?2000:200)||/^[=]/.test(val[k]))throw Error('Nilai '+k+' tidak valid.');});
     spec.fields.filter(k=>k!=='jenjang').forEach(k=>{if(!val[k])throw Error(k+' wajib diisi.');});
     Object.assign(patch,val);
@@ -4233,6 +4286,7 @@ function simpanEditDataIndex(d){
   }finally{lock.releaseLock();}
 }
 function pulihkanEditDataIndex(){
+  if(typeof wajibEndpointAkses_==='function')wajibEndpointAkses_('pulihkanEditDataIndex');
   const petugas=wajibPemilikIndex_(),lock=LockService.getScriptLock();lock.waitLock(30000);try{
     pastikanTidakAdaHapusTertunda_();
     const logs=tabelIndex_('Riwayat_Validasi',['jenis_tindakan','id_transaksi_perubahan','status_transaksi','nilai_sesudah']).records.filter(r=>r.jenis_tindakan==='edit_data'),latest=new Map();logs.forEach(r=>latest.set(r.id_transaksi_perubahan,r));let count=0;
@@ -4241,11 +4295,12 @@ function pulihkanEditDataIndex(){
 }
 
 function folderBuktiPelatihan_(){
-  const ss=SpreadsheetApp.getActiveSpreadsheet(),props=PropertiesService.getScriptProperties(),key='FOLDER_BUKTI|'+ss.getId(),id=props.getProperty(key);
+  const ss=databasePelatihan_(),props=PropertiesService.getScriptProperties(),key='FOLDER_BUKTI|'+ss.getId(),id=props.getProperty(key);
   if(id){const f=DriveApp.getFolderById(id);if(f.isTrashed())throw Error('Folder bukti ada di Sampah. Pulihkan folder terlebih dahulu.');return f;}
   const f=DriveApp.createFolder('Bukti Monitoring Pelatihan - '+ss.getName());props.setProperty(key,f.getId());return f;
 }
-function siapkanPenyimpananBukti(){wajibPemilikIndex_();const lock=LockService.getScriptLock();lock.waitLock(30000);try{
+function siapkanPenyimpananBukti(){
+  if(typeof wajibEndpointAkses_==='function')wajibEndpointAkses_('siapkanPenyimpananBukti');wajibPemilikIndex_();const lock=LockService.getScriptLock();lock.waitLock(30000);try{
     pastikanTidakAdaHapusTertunda_();return {sukses:true,pesan:'Folder bukti siap. Sistem tidak mengaktifkan berbagi publik.',url:folderBuktiPelatihan_().getUrl()};}finally{lock.releaseLock();}}
 function targetBukti_(d){
   const txt=v=>String(v||'').trim();
@@ -4257,6 +4312,7 @@ function targetBukti_(d){
   }throw Error('Jenis lampiran tidak valid.');
 }
 function unggahBuktiIndex(d){
+  if(typeof wajibEndpointAkses_==='function')wajibEndpointAkses_('unggahBuktiIndex');
   wajibPemilikIndex_();if(!d||!/^[a-zA-Z0-9_-]{16,100}$/.test(String(d.id_permintaan||'')))throw Error('ID unggahan tidak valid.');
   const text=String(d.base64||''),max=5*1024*1024;if(!text||text.length>Math.ceil(max/3)*4||!/^[A-Za-z0-9+/]*={0,2}$/.test(text))throw Error('File kosong, rusak, atau melebihi 5 MB.');
   const bytes=Utilities.base64Decode(text);if(!bytes.length||bytes.length>max)throw Error('Maksimal ukuran file 5 MB.');const b=bytes.slice(0,8).map(x=>(x+256)%256),ext=String(d.nama||'').toLowerCase().match(/\.([a-z0-9]+)$/);let mime='';
@@ -4278,7 +4334,7 @@ function unggahBuktiIndex(d){
 function buktiDenganLampiran_(text,id,target){
   text=String(text||'').trim();if(text.length>2000)throw Error('Keterangan bukti maksimal 2.000 karakter.');if(!id)return text;
   if(!/^[A-Za-z0-9_-]{10,150}$/.test(String(id)))throw Error('ID file bukti tidak valid.');
-  const ss=SpreadsheetApp.getActiveSpreadsheet(),folderId=PropertiesService.getScriptProperties().getProperty('FOLDER_BUKTI|'+ss.getId());if(!folderId)throw Error('Folder bukti belum disiapkan.');
+  const ss=databasePelatihan_(),folderId=PropertiesService.getScriptProperties().getProperty('FOLDER_BUKTI|'+ss.getId());if(!folderId)throw Error('Folder bukti belum disiapkan.');
   const file=DriveApp.getFileById(String(id));if(file.isTrashed())throw Error('File bukti ada di Sampah.');let validFolder=false;const parents=file.getParents();while(parents.hasNext())if(parents.next().getId()===folderId)validFolder=true;
   let meta;try{meta=JSON.parse(file.getDescription());}catch(e){throw Error('Metadata file bukti tidak valid.');}
   if(!validFolder||meta.schema!=='bukti_v1'||meta.target!==target)throw Error('File bukti tidak sesuai peserta atau sesi.');
@@ -4297,6 +4353,7 @@ function validasiPoinKatalog_(cfg,katalog,previous){
   if(previous)Object.keys(previous.cfg.indikator).forEach(k=>{if(!Object.prototype.hasOwnProperty.call(cfg.indikator,k))throw Error('Poin indikator lama '+k+' harus dipertahankan untuk riwayat.');});
 }
 function tambahIndikatorIndex(d){
+  if(typeof wajibEndpointAkses_==='function')wajibEndpointAkses_('tambahIndikatorIndex');
   wajibPemilikIndex_();if(!d)throw Error('Data indikator tidak tersedia.');const txt=v=>String(v==null?'':v).trim();
   const input={kode:txt(d.kode).toUpperCase(),definisi:txt(d.definisi),jenis:txt(d.jenis),poin:Number(d.poin),alasan:txt(d.alasan),status:txt(d.status||'aktif')};
   if(!['aktif','nonaktif'].includes(input.status)||!/^[A-Z][A-Z0-9_]{1,79}$/.test(input.kode)||!input.definisi||input.definisi.length>2000||input.definisi.startsWith('=')||!['positif','negatif'].includes(input.jenis)||d.poin===''||!Number.isFinite(input.poin)||Math.abs(input.poin)>1000||(input.jenis==='positif'&&input.poin<0)||(input.jenis==='negatif'&&input.poin>0)||!input.alasan||input.alasan.length>2000)throw Error('Kode, definisi, jenis, poin bertanda sesuai jenis, dan alasan wajib valid.');
@@ -4317,12 +4374,13 @@ function pulihkanTambahIndikator_(request,input){
   if(!Array.isArray(plan.data)||plan.data.length!==1||plan.data[0].sheet!=='Indikator_Perilaku')throw Error('Rencana indikator tidak valid.');
   const w=plan.data[0];['created_at','updated_at','berlaku_mulai','berlaku_sampai'].forEach(k=>{if(typeof w.record[k]==='string'&&/^\d{4}-\d{2}-\d{2}T/.test(w.record[k]))w.record[k]=new Date(w.record[k]);});
   const t=tabelIndex_(w.sheet,Object.keys(w.record));const matches=t.records.filter(r=>String(r.id_indikator)===String(w.record.id_indikator));
-  if(!matches.length){if(t.records.some(r=>String(r.kode_indikator)===String(w.record.kode_indikator)))throw Error('Kode indikator sudah dipakai record lain.');SpreadsheetApp.getActiveSpreadsheet().getSheetByName(w.sheet).appendRow(t.header.map(k=>w.record[k]===undefined?'':w.record[k]));SpreadsheetApp.flush();}
-  verifikasiWriteKelola_(w);const done=Object.assign({},first,{id_riwayat:'RV-'+Utilities.getUuid(),status_transaksi:'SELESAI',waktu_perubahan:new Date()});SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Riwayat_Validasi').appendRow(a.header.map(k=>done[k]===undefined?'':done[k]));SpreadsheetApp.flush();return plan.hasil;
+  if(!matches.length){if(t.records.some(r=>String(r.kode_indikator)===String(w.record.kode_indikator)))throw Error('Kode indikator sudah dipakai record lain.');databasePelatihan_().getSheetByName(w.sheet).appendRow(t.header.map(k=>w.record[k]===undefined?'':w.record[k]));SpreadsheetApp.flush();}
+  verifikasiWriteKelola_(w);const done=Object.assign({},first,{id_riwayat:'RV-'+Utilities.getUuid(),status_transaksi:'SELESAI',waktu_perubahan:new Date()});databasePelatihan_().getSheetByName('Riwayat_Validasi').appendRow(a.header.map(k=>done[k]===undefined?'':done[k]));SpreadsheetApp.flush();return plan.hasil;
 }
 
-function muatRingkasanPesertaIndex(idProgram){const r=muatPesertaProgramIndex(idProgram,'',0);return {sukses:true,total:r.total,peserta:r.peserta.slice(0,10).map(p=>({id_peserta:p.id_peserta,id_keikutsertaan:p.id_keikutsertaan,nama:p.nama,unit:p.unit,status:p.status}))};}
-function bukaPanelPeserta_(){wajibPemilikIndex_();SpreadsheetApp.getUi().showModalDialog(HtmlService.createHtmlOutputFromFile('Peserta').setWidth(1100).setHeight(780),'Peserta Program');}
+function muatRingkasanPesertaIndex(idProgram){
+  if(typeof wajibEndpointAkses_==='function')wajibEndpointAkses_('muatRingkasanPesertaIndex');const r=muatPesertaProgramIndex(idProgram,'',0);return {sukses:true,total:r.total,peserta:r.peserta.slice(0,10).map(p=>({id_peserta:p.id_peserta,id_keikutsertaan:p.id_keikutsertaan,nama:p.nama,unit:p.unit,status:p.status}))};}
+function bukaPanelPeserta_(){wajibPemilikIndex_();SpreadsheetApp.getUi().showModalDialog(keluaranPanelAplikasi_('Peserta').setWidth(1100).setHeight(780),'Peserta Program');}
 
 function statusKehadiranProfil_(s,k,now,zona){
   let start,end;try{start=waktuJadwalJP_(s.tanggal_sesi,s.jam_mulai,zona);end=waktuJadwalJP_(s.tanggal_sesi,s.jam_selesai,zona);if(!Number.isFinite(start)||!Number.isFinite(end)||end<=start)throw Error('Jadwal tidak valid.');}catch(e){return {status:'perlu_verifikasi',selesai:false,terlambat:null,keterangan:e.message};}
@@ -4335,8 +4393,9 @@ function statusKehadiranProfil_(s,k,now,zona){
   return {status:d&&p?'hadir_lengkap':'belum_lengkap',selesai:ended,berlangsung:!ended,terlambat:late,keterangan:d&&p?'Waktu datang dan pulang tersedia.':'Waktu datang atau pulang belum lengkap.'};
 }
 function muatProfilPesertaIndex(d){
-  wajibPemilikIndex_();d=d||{};const txt=v=>String(v==null?'':v).trim(),ss=SpreadsheetApp.getActiveSpreadsheet(),zona=ss.getSpreadsheetTimeZone(),now=Date.now();
-  const ik=tabelIndex_('Keikutsertaan',['id_keikutsertaan','id_program','id_peserta','unit_kerja_saat_pelatihan','status_keikutsertaan']).records;let pid=txt(d.id_peserta);
+  if(typeof wajibEndpointAkses_==='function')wajibEndpointAkses_('muatProfilPesertaIndex');
+  wajibPemilikIndex_();d=d||{};const txt=v=>String(v==null?'':v).trim(),ss=databasePelatihan_(),zona=ss.getSpreadsheetTimeZone(),now=Date.now();
+  const ik=tabelIndex_('Keikutsertaan',['id_keikutsertaan','id_program','id_peserta','unit_kerja_saat_pelatihan','status_keikutsertaan']).records.filter(k=>typeof dalamJenjangAkses_!=='function'||dalamJenjangAkses_(k));let pid=txt(d.id_peserta);
   if(d.id_keikutsertaan){const match=ik.filter(k=>txt(k.id_keikutsertaan)===txt(d.id_keikutsertaan));if(match.length!==1)throw Error('Keikutsertaan tidak ditemukan atau duplikat.');if(pid&&pid!==txt(match[0].id_peserta))throw Error('Identitas peserta dan keikutsertaan tidak sesuai.');pid=txt(match[0].id_peserta);if(d.id_program&&txt(d.id_program)!==txt(match[0].id_program))throw Error('Program tidak sesuai keikutsertaan.');d=Object.assign({},d,{id_program:txt(match[0].id_program)});}
   const person=tabelIndex_('Peserta',['id_peserta','nip','nama_pegawai','unit_kerja']).records.filter(p=>txt(p.id_peserta)===pid);if(person.length!==1)throw Error('Peserta tidak ditemukan atau ID duplikat.');
   const programs=tabelIndex_('Program',['id_program','nama_program','kategori_pelatihan','jenjang']).records,links=ik.filter(k=>txt(k.id_peserta)===pid),seen=new Set();
@@ -4360,16 +4419,18 @@ function muatProfilPesertaIndex(d){
   try{const r=muatRekapJPProgramIndex(selected);result.jp=r.peserta.find(p=>p.id_keikutsertaan===program.id_keikutsertaan)||null;result.peringatan.push(...r.masalah);}catch(e){result.peringatan.push('Rekap JP belum tersedia: '+e.message);}
   try{const r=muatNilaiPerilakuProgramIndex(selected);result.nilai=r.aturan?r.peserta.find(p=>p.id_keikutsertaan===program.id_keikutsertaan)||null:null;result.aturan=r.aturan?{nama:r.aturan.nama,versi:r.aturan.versi,bobot:r.aturan.cfg.bobot}:null;}catch(e){result.peringatan.push('Nilai perilaku belum tersedia: '+e.message);}
   const hids=new Set(hadir.map(k=>txt(k.id_kehadiran))),cids=new Set(cat.map(c=>txt(c.id_catatan))),audit=tabelIndex_('Riwayat_Validasi',['id_riwayat','jenis_data','id_referensi','jenis_tindakan','nilai_sebelum','nilai_sesudah','alasan_perubahan','diubah_oleh','waktu_perubahan','id_transaksi_perubahan','status_transaksi']).records;
-  const transactions=new Map();audit.filter(a=>(a.jenis_data==='Peserta'&&txt(a.id_referensi)===pid||a.jenis_data==='Kehadiran'&&hids.has(txt(a.id_referensi))||a.jenis_data==='Catatan_Perilaku'&&cids.has(txt(a.id_referensi)))&&/koreksi|validasi|edit_data|izin/.test(txt(a.jenis_tindakan))).forEach(a=>{const key=txt(a.id_transaksi_perubahan)||txt(a.id_riwayat);if(!transactions.has(key))transactions.set(key,{first:a,last:a});else transactions.get(key).last=a;});
+  const transactions=new Map();audit.filter(a=>(a.jenis_data==='Peserta'&&(typeof petugasDalamKonteksAkses_!=='function'||!petugasDalamKonteksAkses_())&&txt(a.id_referensi)===pid||a.jenis_data==='Kehadiran'&&hids.has(txt(a.id_referensi))||a.jenis_data==='Catatan_Perilaku'&&cids.has(txt(a.id_referensi)))&&/koreksi|validasi|edit_data|izin/.test(txt(a.jenis_tindakan))).forEach(a=>{const key=txt(a.id_transaksi_perubahan)||txt(a.id_riwayat);if(!transactions.has(key))transactions.set(key,{first:a,last:a});else transactions.get(key).last=a;});
   const events=Array.from(transactions.values()).map(t=>({id:txt(t.last.id_transaksi_perubahan)||txt(t.last.id_riwayat),jenis:txt(t.last.jenis_data),referensi:txt(t.last.id_referensi),tindakan:txt(t.last.jenis_tindakan),waktu:fmt(t.last.waktu_perubahan),oleh:txt(t.last.diubah_oleh),alasan:txt(t.last.alasan_perubahan),status:txt(t.last.status_transaksi),sebelum:txt(t.first.nilai_sebelum).slice(0,10000),sesudah:txt(t.last.nilai_sesudah).slice(0,10000)})).sort((a,b)=>b.waktu.localeCompare(a.waktu));result.jumlah_riwayat=events.length;result.riwayat=events.slice(0,100);return result;
 }
 
-function muatDaftarIzinIndex(idSesi){const r=muatCatatanPerilakuIndex(idSesi);return {sukses:true,id_sesi:String(idSesi).trim(),zona_waktu:r.zona_waktu,catatan:r.catatan.filter(c=>c.kode==='IZIN_SESI')};}
+function muatDaftarIzinIndex(idSesi){
+  if(typeof wajibEndpointAkses_==='function')wajibEndpointAkses_('muatDaftarIzinIndex');const r=muatCatatanPerilakuIndex(idSesi);return {sukses:true,id_sesi:String(idSesi).trim(),zona_waktu:r.zona_waktu,catatan:r.catatan.filter(c=>c.kode==='IZIN_SESI')};}
 
 // Beranda reads existing records only; it does not calculate or write JP/scores.
 function muatBerandaIndex() {
+  if(typeof wajibEndpointAkses_==='function')wajibEndpointAkses_('muatBerandaIndex');
   wajibPemilikIndex_();
-  const zona = SpreadsheetApp.getActiveSpreadsheet().getSpreadsheetTimeZone();
+  const zona = databasePelatihan_().getSpreadsheetTimeZone();
   const data = {
     program: tabelIndex_('Program', ['id_program','nama_program','kategori_pelatihan','jenjang','tanggal_mulai','tanggal_selesai','status_program']).records.map(p=>Object.assign({},p,{jenjang:typeof namaJenjangProgram_==='function'?namaJenjangProgram_(p.id_program,p.jenjang):p.jenjang})),
     peserta: tabelIndex_('Peserta', ['id_peserta']).records,
@@ -4378,7 +4439,7 @@ function muatBerandaIndex() {
     hadir: tabelIndex_('Kehadiran', ['id_kehadiran','id_sesi','id_keikutsertaan','waktu_datang','waktu_pulang','waktu_datang_terverifikasi','waktu_pulang_terverifikasi']).records,
     catatan: tabelIndex_('Catatan_Perilaku', ['id_catatan','id_keikutsertaan','id_sesi','status_validasi']).records
   };
-  const result = ringkasBeranda_(data, Date.now(), zona);
+  const result = ringkasBeranda_(typeof saringBerandaPanitia_==='function'?saringBerandaPanitia_(data):data, Date.now(), zona);
   result.navigasi = navigasiPelatihan_();
   return result;
 }
@@ -4490,7 +4551,7 @@ function ringkasBeranda_(data, now, zona) {
 
 function bukaPanelBeranda_() {
   wajibPemilikIndex_();
-  SpreadsheetApp.getUi().showModalDialog(HtmlService.createHtmlOutputFromFile('Beranda').setWidth(1100).setHeight(780), 'Beranda Pelatihan');
+  SpreadsheetApp.getUi().showModalDialog(keluaranPanelAplikasi_('Beranda').setWidth(1100).setHeight(780), 'Beranda Pelatihan');
 }
 
 
@@ -4501,3 +4562,5 @@ function muatTampilanAbsensiQR(token) {
   if (sesi.length !== 1) throw Error('Data sesi tidak ditemukan atau duplikat. Hubungi petugas pelatihan.');
   return Object.assign({}, hasil, {nama_sesi: String(sesi[0].nama_sesi || '').trim()});
 }
+
+function keluaranPanelAplikasi_(name){return typeof aplikasiPanitiaAktif_==='function'&&aplikasiPanitiaAktif_()?keluaranAplikasiPanitia_(name,'Monitoring Pelatihan Pegawai'):HtmlService.createHtmlOutputFromFile(name);}

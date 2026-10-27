@@ -2,7 +2,9 @@
 
 Tanggal: 27 Oktober 2026, Asia/Jakarta. Paket terbaru: branch **fix/url-uji-login-deployment** (lanjutan feat/manajemen-akses-panitia).
 
-## Batas tahap ini
+Paket lanjutan **feat/login-dan-cakupan-panitia** tersedia setelah uji identitas berhasil. Lihat [SESI_AKSES_VALIDATION.md](SESI_AKSES_VALIDATION.md) untuk pemasangan paket sesi/otorisasi. Panduan di bawah menjelaskan batas paket tahap 3; uji identitas sendiri tetap tidak membuat sesi aplikasi.
+
+## Batas paket tahap 3
 
 Sudah tersedia: direktori akun pada **file spreadsheet terpisah**, Admin awal pemilik, pendataan peran/status, penugasan petugas ke beberapa Jenjang, audit/pemulihan perubahan, konfigurasi OAuth server dan **uji identitas Google**.
 

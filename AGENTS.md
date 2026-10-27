@@ -20,7 +20,7 @@ This repository also contains the upstream anti-slop project. Keep unrelated ups
 - Hamburger lives in sidebar with Sidebar text. Above Ruang Kerja is a user placeholder with icon, Nama, Posisi.
 - Sidebar has expanded and icon-only states. Hover opens a compact sidebar and smoothly pushes page content. Preserve that animation.
 - Keep menu icons at fixed x/y positions across states. Footer contains Pengaturan and Log Out placeholders.
-- Login/account/settings/logout placeholders do not implement authentication; do not represent them as working security controls.
+- Organizer login/role/Jenjang access is opt-in in the stage-4 source. Before owner activation, account/settings/logout remain placeholders. Active mode uses the server-injected authenticated bridge and guarded RPC gateway; browser role labels or hidden menus never grant authority. Stage-3 identity proof is user-verified; stage-4 application sessions still require Google-copy validation. Preserve native owner bootstrap/recovery and the separate public QR flow.
 - Public Absensi follows the user-provided blue design: pale blue background, white centered card, the same embedded Komdigi logo/agency identity as the header, and a blue confirmation button. Display the validated session name rather than its ID; preserve attendance selection, request-ID reuse and retry behavior.
 
 ## Navigation and known regression

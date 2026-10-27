@@ -12,7 +12,7 @@ function dataLaporanProgram_(id) {
   try {
     pastikanTidakAdaHapusTertunda_();
     const program = programLaporanSelesai_(id), txt = v => String(v == null ? '' : v).trim();
-    const zona = SpreadsheetApp.getActiveSpreadsheet().getSpreadsheetTimeZone();
+    const zona = databasePelatihan_().getSpreadsheetTimeZone();
     function scoped(sheet, fields, key) {
       const all=tabelIndex_(sheet,fields).records, selected=all.filter(r=>txt(r.id_program)===txt(id));
       const selectedIds=new Set(selected.map(r=>txt(r[key]))),counts=new Map();
@@ -85,10 +85,12 @@ function ringkasLaporanProgram_(d, now, zona) {
   return {sukses:true,program:{id:txt(d.program.id_program),nama:txt(d.program.nama_program),kategori:txt(d.program.kategori_pelatihan),jenjang:txt(d.program.jenjang),mulai:tanggal(d.program.tanggal_mulai),selesai:tanggal(d.program.tanggal_selesai)},waktu:Utilities.formatDate(new Date(now),zona,'yyyy-MM-dd HH:mm:ss'),zona:zona,peserta:peserta,sesi:sesi,total:total,sesi_selesai:selesai,jenis:jenis,validasi:validasi,catatan:catatan,indikator:Array.from(byIndicator,([nama,jumlah])=>({nama:nama,jumlah:jumlah})).sort((a,b)=>b.jumlah-a.jumlah),peringatan:peringatan,jp:null,nilai:null};
 }
 function muatPratinjauLaporanProgram(id) {
+  if(typeof wajibEndpointAkses_==='function')wajibEndpointAkses_('muatPratinjauLaporanProgram');
   const r=dataLaporanProgram_(String(id||'').trim());
   return {sukses:true,program:r.program,waktu:r.waktu,peserta:r.peserta.length,sesi:r.sesi.length,catatan:r.catatan.length,peringatan:r.peringatan};
 }
 function buatPDFLaporanProgram(id) {
+  if(typeof wajibEndpointAkses_==='function')wajibEndpointAkses_('buatPDFLaporanProgram');
   wajibPemilikIndex_();const lock=LockService.getUserLock();if(!lock.tryLock(1000))throw Error('Pembuatan laporan masih berjalan. Tunggu proses sebelumnya.');
   let doc=null,docId='',result=null;
   try {
@@ -164,6 +166,7 @@ function tulisDokumenLaporan_(doc,r) {
 
 // Run manually in the Apps Script editor as the owner to grant Docs/Drive access.
 function otorisasiLaporanProgram() {
+  if(typeof wajibEndpointAkses_==='function')wajibEndpointAkses_('otorisasiLaporanProgram');
   wajibPemilikIndex_();let id='';
   try {const doc=DocumentApp.create('TEMP Otorisasi Laporan');id=doc.getId();doc.getBody().appendParagraph('Pemeriksaan izin laporan.');doc.saveAndClose();DriveApp.getFileById(id).getAs('application/pdf');return 'Izin laporan siap. Kembali ke Pengelolaan.';}
   finally {if(id)DriveApp.getFileById(id).setTrashed(true);}

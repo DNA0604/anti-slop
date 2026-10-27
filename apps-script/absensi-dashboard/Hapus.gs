@@ -15,7 +15,7 @@ function skemaHapus_() {
 function teksHapus_(v) { return String(v == null ? '' : v).trim(); }
 function nilaiHapus_(v) { return v instanceof Date ? {$date:v.toISOString()} : v; }
 function auditHapus_() {
-  const sheet=SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Riwayat_Validasi');if(!sheet)throw Error('Sheet Riwayat_Validasi tidak ditemukan.');
+  const sheet=databasePelatihan_().getSheetByName('Riwayat_Validasi');if(!sheet)throw Error('Sheet Riwayat_Validasi tidak ditemukan.');
   const values=sheet.getDataRange().getValues(),header=values[0].map(teksHapus_),required=['id_riwayat','jenis_data','id_referensi','jenis_tindakan','kolom_diubah','nilai_sebelum','nilai_sesudah','alasan_perubahan','diubah_oleh','waktu_perubahan','id_transaksi_perubahan','status_transaksi'];
   if(required.some(k=>!header.includes(k))||new Set(header.filter(Boolean)).size!==header.filter(Boolean).length)throw Error('Header Riwayat_Validasi tidak sesuai.');
   const records=[];values.slice(1).forEach((row,i)=>{if(!row.some(v=>v!==''&&v!=null))return;const r={__baris:i+2};header.forEach((h,c)=>{if(h)r[h]=row[c];});records.push(r);});return {header,records};
@@ -26,6 +26,7 @@ function transaksiHapus_() {
   return m;
 }
 function pastikanTidakAdaHapusTertunda_() {
+  if(typeof periksaUlangSesiPanitia_==='function')periksaUlangSesiPanitia_();
   if(typeof pastikanMigrasiJenjangSiap_==='function')pastikanMigrasiJenjangSiap_();
   if(typeof validasiIntegritasOperasionalJenjang_==='function')validasiIntegritasOperasionalJenjang_();
   if(Array.from(transaksiHapus_().values()).some(r=>!['SELESAI','DIBATALKAN'].includes(r.status_transaksi)))
@@ -112,7 +113,7 @@ function pastikanTransaksiSebelumHapus_(plan) {
 }
 
 function bacaTabelHapus_(name,required) {
-  const sheet=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(name);
+  const sheet=databasePelatihan_().getSheetByName(name);
   if(!sheet)throw Error('Sheet tidak ditemukan: '+name+'. Penghapusan dibatalkan.');
   const range=sheet.getDataRange(),values=range.getValues(),formulas=range.getFormulas(),header=values[0].map(teksHapus_);
   if(new Set(header.filter(Boolean)).size!==header.filter(Boolean).length||required.some(k=>!header.includes(k)))throw Error('Header tidak sesuai pada '+name+'.');
@@ -158,7 +159,7 @@ function rencanaHapus_(jenis,id,seed) {
   const ref={};Object.keys(spec).forEach(n=>ref[spec[n][0]]=sets[n]);
   Object.keys(tables).forEach(n=>tables[n].rows.filter(r=>!sets[n].has(r.id)).forEach(r=>{if(Object.keys(ref).some(k=>ref[k].has(txt(r.record[k]))))throw Error('Masih ada referensi di luar cakupan pada '+n+' '+r.id+'. Periksa relasinya terlebih dahulu.');}));
   const retained=new Set(['Riwayat_Validasi','Aturan_Penilaian','Indikator_Perilaku']);
-  SpreadsheetApp.getActiveSpreadsheet().getSheets().forEach(sheet=>{
+  databasePelatihan_().getSheets().forEach(sheet=>{
     const name=sheet.getName();if(spec[name]||retained.has(name))return;
     const v=sheet.getDataRange().getValues(),header=(v[0]||[]).map(teksHapus_);
     if(v.slice(1).some(row=>header.some((h,c)=>ref[h]&&ref[h].has(txt(row[c])))))throw Error('Data masih dirujuk sheet tambahan '+name+'. Penghapusan belum mendukung relasi ini; periksa terlebih dahulu.');
@@ -175,22 +176,23 @@ function ringkasanHapus_(plan) {
   return {jenis:plan.jenis,id:plan.id,nama:plan.nama,jumlah:plan.tables.map(t=>({sheet:t.name,jumlah:t.rows.length})),total:plan.tables.reduce((n,t)=>n+t.rows.length,0),catatan:'Data terkait akan dihapus dari sheet operasional. Cadangan dan riwayat audit, identitas peserta pada penghapusan program/pendaftaran, katalog indikator, aturan penilaian, serta file bukti di Drive tetap disimpan. Laporan/rekap berikutnya mengikuti data yang tersisa. Tidak tersedia pemulihan otomatis data yang sudah selesai dihapus.'};
 }
 function pratinjauHapusDataIndex(jenis,id) {
+  if(typeof wajibEndpointAkses_==='function')wajibEndpointAkses_('pratinjauHapusDataIndex');
   wajibPemilikIndex_();const lock=LockService.getScriptLock();lock.waitLock(30000);
   try{const plan=rencanaHapus_(teksHapus_(jenis),teksHapus_(id));pastikanTransaksiSebelumHapus_(plan);return Object.assign({sukses:true,versi:versiBarisIndex_(plan)},ringkasanHapus_(plan));}finally{lock.releaseLock();}
 }
 function batasNomorIdHapus_(prefix) {
-  const ss=SpreadsheetApp.getActiveSpreadsheet(),v=PropertiesService.getScriptProperties().getProperty('BATAS_ID_HAPUS|'+ss.getId());
+  const ss=databasePelatihan_(),v=PropertiesService.getScriptProperties().getProperty('BATAS_ID_HAPUS|'+ss.getId());
   const map=v?JSON.parse(v):{};return Number(map[prefix]||0);
 }
 function simpanBatasIdHapus_(plan) {
-  const props=PropertiesService.getScriptProperties(),key='BATAS_ID_HAPUS|'+SpreadsheetApp.getActiveSpreadsheet().getId(),raw=props.getProperty(key),map=raw?JSON.parse(raw):{};
+  const props=PropertiesService.getScriptProperties(),key='BATAS_ID_HAPUS|'+databasePelatihan_().getId(),raw=props.getProperty(key),map=raw?JSON.parse(raw):{};
   plan.tables.forEach(t=>t.rows.forEach(r=>{const m=r.id.match(/^(PRG|SES|KST|PST|JDA|JEN)(\d+)$/);if(m)map[m[1]]=Math.max(Number(map[m[1]]||0),Number(m[2]));}));
   const value=JSON.stringify(map);props.setProperty(key,value);if(props.getProperty(key)!==value)throw Error('Penyimpanan batas ID gagal. Belum melanjutkan penghapusan.');
 }
 function tulisAuditHapus_(tx,meta,status,petugas,before,action,header) {
   const a=header?{header}:auditHapus_(),r={id_riwayat:'RV-'+Utilities.getUuid(),jenis_data:meta.jenis,id_referensi:meta.id,jenis_tindakan:action||'hapus_data',kolom_diubah:'penghapusan_dengan_cadangan',nilai_sebelum:before===undefined?'':JSON.stringify(before),nilai_sesudah:JSON.stringify(meta),alasan_perubahan:meta.alasan||'',diubah_oleh:petugas,waktu_perubahan:new Date(),id_transaksi_perubahan:tx,status_transaksi:status};
   if(String(r.nilai_sebelum).length>40000||r.nilai_sesudah.length>40000)throw Error('Bagian cadangan terlalu besar.');
-  SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Riwayat_Validasi').appendRow(a.header.map(h=>r[h]===undefined?'':r[h]));SpreadsheetApp.flush();
+  databasePelatihan_().getSheetByName('Riwayat_Validasi').appendRow(a.header.map(h=>r[h]===undefined?'':r[h]));SpreadsheetApp.flush();
 }
 function bacaCadanganHapus_(tx,meta) {
   const rows=auditHapus_().records.filter(r=>r.jenis_tindakan==='cadangan_hapus'&&teksHapus_(r.id_transaksi_perubahan)===tx),parts=new Map();
@@ -205,7 +207,7 @@ function jalankanHapus_(tx,meta,plan,petugas) {
   const actual=rencanaHapus_(plan.jenis,plan.id,plan),expected=new Map(plan.tables.flatMap(t=>t.rows.map(r=>[t.name+'|'+r.id,{table:t,row:r}])));
   actual.tables.forEach(t=>t.rows.forEach(r=>{const old=expected.get(t.name+'|'+r.id);if(!old||JSON.stringify(t.header)!==JSON.stringify(old.table.header)||versiBarisIndex_(r)!==versiBarisIndex_(old.row))throw Error('Data berubah di luar transaksi: '+t.name+' '+r.id+'. Periksa cadangan/audit; data baru tidak dihapus.');}));
   simpanBatasIdHapus_(plan);
-  const start=Date.now(),ss=SpreadsheetApp.getActiveSpreadsheet();
+  const start=Date.now(),ss=databasePelatihan_();
   for(const t of plan.tables){
     const current=bacaTabelHapus_(t.name,[t.key]);if(JSON.stringify(current.header)!==JSON.stringify(t.header))throw Error('Header berubah pada '+t.name+'.');
     const saved=new Map(t.rows.map(r=>[r.id,r]));current.rows.filter(r=>saved.has(r.id)).forEach(r=>{if(versiBarisIndex_({id:r.id,values:r.values,formulas:r.formulas})!==versiBarisIndex_(saved.get(r.id)))throw Error('Data berubah sebelum penghapusan: '+t.name+' '+r.id+'.');});
@@ -218,6 +220,7 @@ function jalankanHapus_(tx,meta,plan,petugas) {
   return {sukses:true,pesan:'Penghapusan '+meta.jenis+' '+meta.id+' selesai. Cadangan tersimpan pada Riwayat_Validasi.',jenis:meta.jenis,id:meta.id};
 }
 function hapusDataIndex(d) {
+  if(typeof wajibEndpointAkses_==='function')wajibEndpointAkses_('hapusDataIndex');
   const petugas=wajibPemilikIndex_();d=d||{};
   const jenis=teksHapus_(d.jenis),id=teksHapus_(d.id),alasan=teksHapus_(d.alasan),request=teksHapus_(d.id_permintaan);
   if(!/^[a-zA-Z0-9_-]{16,100}$/.test(request)||!alasan||alasan.length>2000||/^\s*=/.test(alasan)||teksHapus_(d.konfirmasi)!==id||d.setuju!==true||!/^[a-f0-9]{64}$/.test(teksHapus_(d.versi)))throw Error('Konfirmasi ID, persetujuan dampak, alasan, atau versi pratinjau tidak valid.');
@@ -237,9 +240,11 @@ function hapusDataIndex(d) {
   }finally{lock.releaseLock();}
 }
 function muatPenghapusanTertundaIndex() {
+  if(typeof wajibEndpointAkses_==='function')wajibEndpointAkses_('muatPenghapusanTertundaIndex');
   wajibPemilikIndex_();const audit=periksaAuditSebelumHapus_(null);return {sukses:true,transaksi_lain:audit.transaksi.filter(t=>!t.penghapusan),jumlah_riwayat_lama:audit.legacy,transaksi:Array.from(transaksiHapus_(),([tx,r])=>({tx,row:r})).filter(x=>!['SELESAI','DIBATALKAN'].includes(x.row.status_transaksi)).map(x=>Object.assign({id_transaksi:x.tx,status:x.row.status_transaksi},JSON.parse(x.row.nilai_sesudah)))};
 }
 function lanjutkanPenghapusanIndex(d) {
+  if(typeof wajibEndpointAkses_==='function')wajibEndpointAkses_('lanjutkanPenghapusanIndex');
   const petugas=wajibPemilikIndex_(),lock=LockService.getScriptLock();lock.waitLock(30000);
   try{
     const tx=teksHapus_(d&&d.id_transaksi),r=transaksiHapus_().get(tx);if(!r)throw Error('Transaksi tidak ditemukan.');const meta=JSON.parse(r.nilai_sesudah);
@@ -254,6 +259,7 @@ function lanjutkanPenghapusanIndex(d) {
   }finally{lock.releaseLock();}
 }
 function muatMasterPesertaHapusIndex(q,page) {
+  if(typeof wajibEndpointAkses_==='function')wajibEndpointAkses_('muatMasterPesertaHapusIndex');
   wajibPemilikIndex_();q=teksHapus_(q).toLowerCase();page=Math.max(0,Math.floor(Number(page)||0));
   const p=tabelIndex_('Peserta',['id_peserta','nama_pegawai','nip','unit_kerja']).records,k=tabelIndex_('Keikutsertaan',['id_peserta']).records;
   const counts=new Map();k.forEach(r=>{const id=teksHapus_(r.id_peserta);counts.set(id,(counts.get(id)||0)+1);});
