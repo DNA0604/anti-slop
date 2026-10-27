@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-10-27 — Jenjang structure and reviewed migration on a copy
+- User confirmed the preview opens and shared dummy inventory (3 programs, 4 sessions, 41 memberships, no detected relationship issues). Recorded Dasar / Umum / Jenjang 1 as the working mapping.
+- Added Jenjang.gs and a spreadsheet-menu migration panel with reviewed mapping, source fingerprints, verified chunked audit backups, schema-state guards and resumable writes that preserve old IDs/values/formulas/history. Initial migration supports one Jenjang per old program on a separate copy; no Google migration/deployment performed here.
+- Added audited Jenjang creation/renaming and initial Jenjang for new programs, destination fields for sessions/import, participant filtering, program/Jenjang/session Monitoring, Jenjang navigation context and per-membership Profile/JP/report obligations. QR/notes/evidence and mutation guards reject inconsistent relationships. CSV includes Jenjang ID; grading formulas and program rule versions remain.
+- Extended program deletion to include its Jenjang, preserve other groups and reserve deleted JEN numbers. Retained accepted deletion confirmation/recovery, sidebar animations and public attendance design.
+- Added 29 backend integration tests (112 total) and modern Chromium workflow checks; existing deletion/preview browser regressions pass. Added full installation/recovery/Google-copy validation guide and simulated previews. Gmail login, organizer roles and separate access spreadsheet are not implemented.
+
 ## 2026-10-27 — open Jenjang preview from spreadsheet menu
 - User reported Cannot call SpreadsheetApp.getUi() from this context when opening from the editor. Added a guarded Pratinjau Pemetaan Jenjang item to the existing Manajemen Pelatihan menu in Code.gs/onOpen; use the menu after reloading the bound spreadsheet, without entering a spreadsheet ID.
 - Preview opener gives actionable context guidance when getUi is unavailable. Owner checks and read-only loader are unchanged; no trigger, scope, deployment or data changes. Existing menu choices still work if the optional preview file is absent.

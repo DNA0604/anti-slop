@@ -34,6 +34,12 @@ function muatPratinjauPemetaanJenjang() {
   const lock = LockService.getScriptLock();
   if (!lock.tryLock(10000)) throw Error('Database sedang digunakan. Tunggu proses lain selesai, lalu muat ulang pratinjau.');
   try {
+    return bacaSnapshotPratinjauJenjang_();
+  } finally { lock.releaseLock(); }
+}
+
+/** Private reader; caller holds ScriptLock and performs the owner check. */
+function bacaSnapshotPratinjauJenjang_() {
     const ss = SpreadsheetApp.getActiveSpreadsheet(), spec = skemaPratinjauJenjang_(), tables = {};
     let cells = 0, rows = 0, size = 0;
     const fingerprints = [];
@@ -71,7 +77,6 @@ function muatPratinjauPemetaanJenjang() {
     result.versi = hashPratinjauJenjang_(JSON.stringify([ss.getId(),fingerprints]));
     if (JSON.stringify(result).length > 4000000) throw Error('Rincian pratinjau melebihi batas 4 juta karakter. Tidak ada hasil parsial.');
     return result;
-  } finally { lock.releaseLock(); }
 }
 
 function teksPratinjauJenjang_(v) { return String(v == null ? '' : v).trim(); }

@@ -1,6 +1,10 @@
 <!doctype html>
 <html lang="id">
   <head>
+<script>
+window.jenjangNavigationParam=function(){const el=document.getElementById('jenjang')||document.getElementById('participantJenjang')||document.getElementById('sessionJenjang');const id=el?el.value:document.body&&document.body.dataset.jenjangContext||'';return /^JEN[A-Za-z0-9_-]+$/.test(id)?'&jenjang='+encodeURIComponent(id):'';};
+</script>
+
 <script id="database-navigation-context">
 window.resolveDatabaseBase = function(canonical) {
   function validBase(raw) {
@@ -955,7 +959,7 @@ body.flat-dashboard {font-family:'Avenir Next',Avenir,'Segoe UI',Arial,sans-seri
         <section id="recapPanel" class="hidden">
           <div class="stats">
             <div class="stat">
-              <span class="muted">JP acuan program</span
+              <span class="muted">JP acuan per Jenjang</span
               ><strong id="recapTarget">—</strong>
             </div>
             <div class="stat">
@@ -1926,9 +1930,9 @@ body.flat-dashboard {font-family:'Avenir Next',Avenir,'Segoe UI',Arial,sans-seri
         $("refreshLeavePeople").disabled = saving || leaveLoading;
         $("calculate").disabled = !ready;
         $("kategori").disabled = saving || publishing;
-        $("jenjang").disabled = !$("kategori").value || saving || publishing;
-        $("program").disabled = !$("jenjang").value || saving || publishing;
-        $("sesi").disabled = !$("program").value || saving || publishing;
+        $("jenjang").disabled = !(modernJenjang?$("program").value:$("kategori").value) || saving || publishing;
+        $("program").disabled = !(modernJenjang?$("kategori").value:$("jenjang").value) || saving || publishing;
+        $("sesi").disabled = !$("program").value || (modernJenjang&&!$("jenjang").value) || saving || publishing;
         $("jenis").disabled = publishing;
         $("masa").disabled = publishing;
         $("refreshRecap").disabled =
@@ -1947,8 +1951,9 @@ body.flat-dashboard {font-family:'Avenir Next',Avenir,'Segoe UI',Arial,sans-seri
             "?page=pengelolaan" +
             ($("program").value
               ? "&program=" + encodeURIComponent($("program").value)
-              : "");
+              : "") + window.jenjangNavigationParam();
       }
+      let monitoringJenjang=[],modernJenjang=false;
       async function init() {
         $("blocked").classList.add("hidden");
         $("app").classList.add("hidden");
@@ -1958,6 +1963,8 @@ body.flat-dashboard {font-family:'Avenir Next',Avenir,'Segoe UI',Arial,sans-seri
           if (!r || !r.sukses) throw Error("Data awal tidak tersedia.");
           navigationBase = window.resolveDatabaseBase((r.navigasi && r.navigasi.url) || "");
           allSessions = r.data.sesi;
+          modernJenjang=Boolean(r.data.struktur_jenjang);monitoringJenjang=r.data.jenjang||[];
+          if(modernJenjang){const fields=$("program").parentElement;fields.parentElement.insertBefore(fields,$("jenjang").parentElement);}
           zone = r.zona_waktu;
           allPrograms = r.data.program.map((p) => ({
             ...p,
@@ -2577,6 +2584,7 @@ body.flat-dashboard {font-family:'Avenir Next',Avenir,'Segoe UI',Arial,sans-seri
         clearData();
       }
       $("kategori").addEventListener("change", () => {
+        if(modernJenjang){options($("program"),'Pilih program',kategoriDipilih().map(p=>({id:p.id_program,label:p.nama_program+' · '+p.id_program})));options($("jenjang"),'Pilih program terlebih dahulu',[]);resetPilihanSesi();return;}
         options(
           $("jenjang"),
           $("kategori").value
@@ -2590,6 +2598,7 @@ body.flat-dashboard {font-family:'Avenir Next',Avenir,'Segoe UI',Arial,sans-seri
         resetPilihanSesi();
       });
       $("jenjang").addEventListener("change", () => {
+        if(modernJenjang){resetPilihanSesi();isiSesiJenjang();return;}
         const daftar = kategoriDipilih().filter(
           (p) => JSON.stringify(p.jenjang) === $("jenjang").value,
         );
@@ -2688,6 +2697,7 @@ body.flat-dashboard {font-family:'Avenir Next',Avenir,'Segoe UI',Arial,sans-seri
           open.style.textAlign = "left";
           open.style.whiteSpace = "normal";
           open.textContent = p.nama;
+          if(p.nama_jenjang){const level=document.createElement("small");level.style.display="block";level.textContent=p.nama_jenjang;name.append(level);}
           open.title = "Buka Profil Peserta";
           if (navigationBase)
             open.href =
@@ -4180,6 +4190,7 @@ body.flat-dashboard {font-family:'Avenir Next',Avenir,'Segoe UI',Arial,sans-seri
         const header = [
           "id_program",
           "id_keikutsertaan",
+          "id_jenjang",
           "nama_pegawai",
           "unit_kerja",
           "jp_diperoleh",
@@ -4201,6 +4212,7 @@ body.flat-dashboard {font-family:'Avenir Next',Avenir,'Segoe UI',Arial,sans-seri
           return [
             recapProgram,
             p.id_keikutsertaan,
+            p.id_jenjang || "",
             p.nama,
             p.unit,
             num(p.jp_diperoleh),
@@ -4267,6 +4279,7 @@ body.flat-dashboard {font-family:'Avenir Next',Avenir,'Segoe UI',Arial,sans-seri
             if (!p) return;
             $("kategori").value = JSON.stringify(p.kategori_pelatihan);
             $("kategori").dispatchEvent(new Event("change"));
+            if(modernJenjang){$("program").value=p.id_program;$("program").dispatchEvent(new Event('change'));const target=allSessions.find(s=>s.id_sesi===String(para.sesi||'')&&s.id_program===p.id_program),j=target?target.id_jenjang:String(para.jenjang||'');if(monitoringJenjang.some(x=>x.id_program===p.id_program&&x.id===j)){$("jenjang").value=j;$("jenjang").dispatchEvent(new Event('change'));}if(target){$("sesi").value=target.id_sesi;$("sesi").dispatchEvent(new Event('change'));}return;}
             $("jenjang").value = JSON.stringify(p.jenjang);
             $("jenjang").dispatchEvent(new Event("change"));
             $("program").value = p.id_program;
@@ -4283,7 +4296,9 @@ body.flat-dashboard {font-family:'Avenir Next',Avenir,'Segoe UI',Arial,sans-seri
           });
         } catch (ignored) {}
       }
+      function isiSesiJenjang(){options($("sesi"),'Pilih sesi',allSessions.filter(s=>s.id_program===$("program").value&&s.id_jenjang===$("jenjang").value).map(s=>({id:s.id_sesi,label:s.nama_sesi+' · '+s.id_sesi})));controls();}
       $("program").addEventListener("change", () => {
+        if(modernJenjang){const js=monitoringJenjang.filter(j=>j.id_program===$("program").value);options($("jenjang"),'Pilih Jenjang',js.map(j=>({id:j.id,label:j.nama})));$("jenjang").value=js.length===1?js[0].id:'';resetPilihanSesi();isiSesiJenjang();if(activeTab==='rekap')loadRecap();if(activeTab==='nilai')loadScore();return;}
         resetScore();
         resetBehavior();
         resetRecap();
@@ -4428,10 +4443,10 @@ body.flat-dashboard {font-family:'Avenir Next',Avenir,'Segoe UI',Arial,sans-seri
     document.querySelectorAll('[data-sidebar-placeholder]').forEach(button => button.addEventListener('click', () => toast(button.dataset.sidebarPlaceholder)));
     body.classList.remove('dash-compact');
     function navigationURL(page) {
-      const base = window.resolveDatabaseBase(typeof navigationBase === 'string' ? navigationBase : '');
+      const base = window.resolveDatabaseBase(typeof navigationBase === 'string' ? navigationBase : '') + window.jenjangNavigationParam();
       if (!base) return '';
       const selected = document.getElementById('program');
-      return base + '?page=' + encodeURIComponent(page) + (selected && selected.value ? '&program=' + encodeURIComponent(selected.value) : '');
+      return base + '?page=' + encodeURIComponent(page) + (selected && selected.value ? '&program=' + encodeURIComponent(selected.value) : '') + window.jenjangNavigationParam();
     }
     function syncNavigation() {
       document.querySelectorAll('[data-dash-page]').forEach(link => {

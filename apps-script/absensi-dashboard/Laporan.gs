@@ -21,7 +21,8 @@ function dataLaporanProgram_(id) {
       return selected;
     }
     const data = {
-      program: program, sesi: scoped('Sesi',['id_sesi','id_program','nama_sesi','tanggal_sesi','jam_mulai','jam_selesai'],'id_sesi'),
+      jenjang: typeof konteksJenjang_==='function'?konteksJenjang_(id,'',false).daftar:[],
+      program: Object.assign({},program,{jenjang:typeof namaJenjangProgram_==='function'?namaJenjangProgram_(id,program.jenjang):program.jenjang}), sesi: scoped('Sesi',['id_sesi','id_program','nama_sesi','tanggal_sesi','jam_mulai','jam_selesai'],'id_sesi'),
       ikut: scoped('Keikutsertaan',['id_keikutsertaan','id_program','id_peserta','status_keikutsertaan','unit_kerja_saat_pelatihan'],'id_keikutsertaan'),
       peserta: tabelIndex_('Peserta',['id_peserta','nama_pegawai']).records,
       hadir: tabelIndex_('Kehadiran',['id_kehadiran','id_sesi','id_keikutsertaan','waktu_datang','waktu_pulang','waktu_datang_terverifikasi','waktu_pulang_terverifikasi']).records,
@@ -42,28 +43,30 @@ function ringkasLaporanProgram_(d, now, zona) {
   if (d.ikut.length > 1000 || d.sesi.length > 300) throw Error('Laporan mendukung maksimal 1.000 peserta dan 300 sesi per program.');
   function map(rows,key,label) { const m=new Map(); rows.forEach(r=>{const id=txt(r[key]);if(!id||m.has(id))throw Error('ID kosong/duplikat pada '+label+'. Periksa Data terlebih dahulu.');m.set(id,r);});return m; }
   const people=map(d.peserta,'id_peserta','Peserta'), members=map(d.ikut,'id_keikutsertaan','Keikutsertaan'), sessions=map(d.sesi,'id_sesi','Sesi'), indicators=map(d.indikator,'id_indikator','Indikator');
+  const levelNames=new Map((d.jenjang||[]).map(j=>[j.id,j.nama]));
+  const sejenjang=(s,k)=>!Object.prototype.hasOwnProperty.call(s,'id_jenjang')&&!Object.prototype.hasOwnProperty.call(k,'id_jenjang')||Boolean(txt(s.id_jenjang))&&txt(s.id_jenjang)===txt(k.id_jenjang);
   const seenPeople=new Set(), peringatan=[];
   const peserta=d.ikut.map(k=>{
     const person=people.get(txt(k.id_peserta));if(!person||seenPeople.has(txt(k.id_peserta)))throw Error('Relasi peserta hilang/duplikat dalam program.');seenPeople.add(txt(k.id_peserta));
-    return {id:txt(k.id_keikutsertaan),nama:txt(person.nama_pegawai),unit:txt(k.unit_kerja_saat_pelatihan),status:norm(k.status_keikutsertaan),lengkap:0,belum_lengkap:0,belum_tercatat:0,verifikasi:0,terlambat:0,sasaran:0};
+    return {id:txt(k.id_keikutsertaan),id_jenjang:txt(k.id_jenjang),nama_jenjang:levelNames.get(txt(k.id_jenjang))||'',nama:txt(person.nama_pegawai),unit:txt(k.unit_kerja_saat_pelatihan),status:norm(k.status_keikutsertaan),lengkap:0,belum_lengkap:0,belum_tercatat:0,verifikasi:0,terlambat:0,sasaran:0};
   }).sort((a,b)=>a.nama.localeCompare(b.nama,'id'));
   const aktif=peserta.filter(p=>p.status==='terdaftar'), records=new Map();let foreign=0;
-  d.hadir.forEach(h=>{const sid=txt(h.id_sesi),kid=txt(h.id_keikutsertaan);if(!sessions.has(sid))return;if(!members.has(kid)){foreign++;return;}const key=JSON.stringify([sid,kid]);if(records.has(key))throw Error('Kehadiran duplikat pada sesi '+sid);records.set(key,h);});
+  d.hadir.forEach(h=>{const sid=txt(h.id_sesi),kid=txt(h.id_keikutsertaan);if(!sessions.has(sid))return;if(!members.has(kid)||!sejenjang(sessions.get(sid),members.get(kid))){foreign++;return;}const key=JSON.stringify([sid,kid]);if(records.has(key))throw Error('Kehadiran duplikat pada sesi '+sid);records.set(key,h);});
   const total={lengkap:0,belum_lengkap:0,belum_tercatat:0,verifikasi:0,sasaran:0,terlambat:0};let selesai=0,mendatang=0,invalid=0;
   const tanggal=v=>v instanceof Date?Utilities.formatDate(v,zona,'yyyy-MM-dd'):txt(v);
   const jam=v=>v instanceof Date?Utilities.formatDate(v,zona,'HH:mm'):txt(v);
   const sesi=d.sesi.map(s=>{
-    const row={id:txt(s.id_sesi),nama:txt(s.nama_sesi),tanggal:tanggal(s.tanggal_sesi),mulai:jam(s.jam_mulai),selesai:jam(s.jam_selesai),jp:txt(s.status_jp),lengkap:0,belum_lengkap:0,belum_tercatat:0,verifikasi:0,sasaran:0,status:'jadwal_bermasalah'};
+    const row={id:txt(s.id_sesi),nama_jenjang:levelNames.get(txt(s.id_jenjang))||'',nama:txt(s.nama_sesi),tanggal:tanggal(s.tanggal_sesi),mulai:jam(s.jam_mulai),selesai:jam(s.jam_selesai),jp:txt(s.status_jp),lengkap:0,belum_lengkap:0,belum_tercatat:0,verifikasi:0,sasaran:0,status:'jadwal_bermasalah'};
     let end;try{const start=waktuJadwalJP_(s.tanggal_sesi,s.jam_mulai,zona);end=waktuJadwalJP_(s.tanggal_sesi,s.jam_selesai,zona);if(end<=start)throw Error('Jam tidak valid');}catch(e){invalid++;return row;}
     if(end>now){mendatang++;row.status='belum_selesai';return row;}selesai++;row.status='selesai';
-    aktif.forEach(p=>{const state=statusKehadiranProfil_(s,records.get(JSON.stringify([row.id,p.id])),now,zona);const key=state.status==='hadir_lengkap'?'lengkap':state.status==='belum_lengkap'?'belum_lengkap':state.status==='belum_tercatat_hadir'?'belum_tercatat':'verifikasi';p[key]++;row[key]++;total[key]++;p.sasaran++;row.sasaran++;total.sasaran++;if(Number.isFinite(state.terlambat)&&state.terlambat>10){p.terlambat++;total.terlambat++;}});
+    aktif.filter(p=>sejenjang(s,members.get(p.id))).forEach(p=>{const state=statusKehadiranProfil_(s,records.get(JSON.stringify([row.id,p.id])),now,zona);const key=state.status==='hadir_lengkap'?'lengkap':state.status==='belum_lengkap'?'belum_lengkap':state.status==='belum_tercatat_hadir'?'belum_tercatat':'verifikasi';p[key]++;row[key]++;total[key]++;p.sasaran++;row.sasaran++;total.sasaran++;if(Number.isFinite(state.terlambat)&&state.terlambat>10){p.terlambat++;total.terlambat++;}});
     return row;
   }).sort((a,b)=>a.tanggal.localeCompare(b.tanggal)||a.mulai.localeCompare(b.mulai));
   const validasi={disetujui:0,belum_divalidasi:0,ditolak:0,lainnya:0}, jenis={positif:0,negatif:0,izin:0,lainnya:0}, byIndicator=new Map(), seenNotes=new Set();
   const catatan=[];
   d.catatan.forEach(c=>{
     const kid=txt(c.id_keikutsertaan),sid=txt(c.id_sesi);if(!members.has(kid)){if(sessions.has(sid))foreign++;return;}
-    if(sid&&!sessions.has(sid)){foreign++;return;}
+    if(sid&&(!sessions.has(sid)||!sejenjang(sessions.get(sid),members.get(kid)))){foreign++;return;}
     const id=txt(c.id_catatan);if(!id||seenNotes.has(id))throw Error('ID catatan kosong/duplikat.');seenNotes.add(id);
     const i=indicators.get(txt(c.id_indikator));if(!i)peringatan.push('Indikator catatan '+id+' tidak ditemukan.');
     const status=norm(c.status_validasi)||'belum_divalidasi';validasi[Object.prototype.hasOwnProperty.call(validasi,status)?status:'lainnya']++;
@@ -129,15 +132,15 @@ function tulisDokumenLaporan_(doc,r) {
   p(r.peringatan.length?'STATUS DATA: PERLU TINDAK LANJUT — baca bagian keterbatasan dan rekomendasi.':'STATUS DATA: ringkasan tersedia berdasarkan catatan saat laporan dibuat.');
   b.appendPageBreak();h('1. Ringkasan eksekutif');
   table(['Indikator','Hasil'],[['Peserta tercatat',r.peserta.length],['Peserta berstatus terdaftar',r.peserta.filter(x=>x.status==='terdaftar').length],['Sesi tercatat / selesai menurut jadwal',r.sesi.length+' / '+r.sesi_selesai],['Kehadiran lengkap / kesempatan peserta-sesi',r.total.lengkap+' / '+r.total.sasaran],['Persentase kelengkapan',percent(r.total.lengkap,r.total.sasaran)],['Catatan perilaku dan izin',r.catatan.length]]);
-  p('Penyebut kehadiran adalah peserta berstatus terdaftar saat pengambilan data × sesi dengan jadwal valid yang sudah berakhir. Sesi tanpa JP tetap termasuk. Peserta berstatus lain tidak masuk penyebut. Perubahan pendaftaran historis tidak dapat direkonstruksi dari snapshot ini.');
+  p('Penyebut kehadiran adalah jumlah kesempatan peserta berstatus terdaftar pada sesi Jenjangnya yang berjadwal valid dan sudah berakhir. Sesi tanpa JP tetap termasuk. Peserta berstatus lain tidak masuk penyebut. Perubahan pendaftaran historis tidak dapat direkonstruksi dari snapshot ini.');
   h('2. Jadwal dan rekap sesi');
   const jadwal=new Map((r.jadwal||[]).map(x=>[x.id,x]));
-  table(['Tanggal / sesi','Jam / jeda / efektif','Lengkap / sasaran','Kelengkapan','Status'],r.sesi.map(s=>{const j=jadwal.get(s.id);return [s.tanggal+'\n'+s.nama,s.mulai+'–'+s.selesai+'\nJeda: '+(j?j.jeda||'Tidak ada':'—')+'\nEfektif: '+(j?num(j.durasi_efektif):'—')+' menit',s.lengkap+' / '+s.sasaran,percent(s.lengkap,s.sasaran),s.status.replace(/_/g,' ')];}));
+  table(['Tanggal / sesi / Jenjang','Jam / jeda / efektif','Lengkap / sasaran','Kelengkapan','Status'],r.sesi.map(s=>{const j=jadwal.get(s.id);return [s.tanggal+'\n'+s.nama+(s.nama_jenjang?'\nJenjang: '+s.nama_jenjang:''),s.mulai+'–'+s.selesai+'\nJeda: '+(j?j.jeda||'Tidak ada':'—')+'\nEfektif: '+(j?num(j.durasi_efektif):'—')+' menit',s.lengkap+' / '+s.sasaran,percent(s.lengkap,s.sasaran),s.status.replace(/_/g,' ')];}));
   p('Jadwal jeda dan durasi efektif mengikuti pengaturan sesi pada aplikasi; rekap JP di bagian 5 menggunakan hasil perhitungan yang telah tersedia, tanpa menjalankan hitung ulang.');
   h('3. Kehadiran peserta');
   chart('Distribusi kesempatan kehadiran peserta-sesi',['Kondisi','Jumlah'],[['Lengkap',r.total.lengkap],['Belum lengkap',r.total.belum_lengkap],['Belum tercatat',r.total.belum_tercatat],['Perlu verifikasi',r.total.verifikasi]],false);
   p('Belum tercatat tidak otomatis berarti tidak hadir. Waktu terverifikasi digunakan bila tersedia. Terlambat dihitung hanya bila melewati toleransi 10 menit dan waktunya dapat dinilai; dapat beririsan dengan kategori kehadiran lain.');
-  table(['Peserta / unit','Status','Lengkap / sasaran','Belum lengkap / tercatat','Verifikasi / terlambat'],r.peserta.map(x=>[x.nama+'\n'+x.unit,x.status,x.lengkap+' / '+x.sasaran+' ('+percent(x.lengkap,x.sasaran)+')',x.belum_lengkap+' / '+x.belum_tercatat,x.verifikasi+' / '+x.terlambat]));
+  table(['Peserta / Jenjang / unit','Status','Lengkap / sasaran','Belum lengkap / tercatat','Verifikasi / terlambat'],r.peserta.map(x=>[x.nama+(x.nama_jenjang?'\nJenjang: '+x.nama_jenjang:'')+'\n'+x.unit,x.status,x.lengkap+' / '+x.sasaran+' ('+percent(x.lengkap,x.sasaran)+')',x.belum_lengkap+' / '+x.belum_tercatat,x.verifikasi+' / '+x.terlambat]));
   h('4. Aktivitas, perilaku dan izin');
   table(['Jenis catatan (semua status)','Jumlah'],Object.entries(r.jenis));
   chart('Status validasi catatan (termasuk izin)',['Status','Catatan'],Object.entries(r.validasi).map(([k,v])=>[k.replace(/_/g,' '),v]),true);

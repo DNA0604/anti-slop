@@ -1,6 +1,6 @@
 /** Penghapusan fisik, hanya pemilik. Cadangan/audit dipertahankan; tidak menyentuh Drive. */
 function skemaHapus_() {
-  return {
+  const schema={
     Program: ['id_program'], Peserta: ['id_peserta'],
     Keikutsertaan: ['id_keikutsertaan','id_program','id_peserta'],
     Sesi: ['id_sesi','id_program'], Jeda_Sesi: ['id_jeda','id_sesi'],
@@ -9,6 +9,8 @@ function skemaHapus_() {
     Token_QR: ['id_token_qr','id_sesi'],
     Log_Absensi: ['id_log','id_sesi','id_keikutsertaan','id_token_qr']
   };
+  if(typeof bacaMentahJenjang_==='function'&&bacaMentahJenjang_('Jenjang',true))schema.Jenjang=['id_jenjang','id_program'];
+  return schema;
 }
 function teksHapus_(v) { return String(v == null ? '' : v).trim(); }
 function nilaiHapus_(v) { return v instanceof Date ? {$date:v.toISOString()} : v; }
@@ -24,6 +26,8 @@ function transaksiHapus_() {
   return m;
 }
 function pastikanTidakAdaHapusTertunda_() {
+  if(typeof pastikanMigrasiJenjangSiap_==='function')pastikanMigrasiJenjangSiap_();
+  if(typeof validasiIntegritasOperasionalJenjang_==='function')validasiIntegritasOperasionalJenjang_();
   if(Array.from(transaksiHapus_().values()).some(r=>!['SELESAI','DIBATALKAN'].includes(r.status_transaksi)))
     throw Error('Ada penghapusan belum selesai. Buka Pengelolaan atau Peserta → Penghapusan tertunda → Periksa / lanjutkan.');
 }
@@ -122,6 +126,7 @@ function bacaTabelHapus_(name,required) {
   return {name,key:required[0],header,rows};
 }
 function rencanaHapus_(jenis,id,seed) {
+  if(typeof pastikanMigrasiJenjangSiap_==='function')pastikanMigrasiJenjangSiap_();
   if(!['Program','Sesi','Keikutsertaan','Peserta'].includes(jenis)||!/^[A-Za-z0-9][A-Za-z0-9_-]{0,99}$/.test(id))throw Error('Target penghapusan tidak valid.');
   const spec=skemaHapus_(),tables={};Object.keys(spec).forEach(n=>tables[n]=bacaTabelHapus_(n,spec[n]));
   const root=tables[jenis].rows.find(r=>r.id===id);
@@ -132,6 +137,7 @@ function rencanaHapus_(jenis,id,seed) {
   const txt=teksHapus_,has=(n,v)=>sets[n].has(txt(v));
   const pick=(name,pred)=>tables[name].rows.forEach(r=>{if(pred(r.record))sets[name].add(r.id);});
   if(jenis==='Peserta'&&tables.Keikutsertaan.rows.some(r=>txt(r.record.id_peserta)===id))throw Error('Identitas peserta masih dipakai pada program. Hapus pendaftarannya dari masing-masing program terlebih dahulu; riwayat program lain tetap dilindungi.');
+  if(tables.Jenjang)pick('Jenjang',r=>has('Program',r.id_program));
   pick('Sesi',r=>has('Program',r.id_program));
   pick('Keikutsertaan',r=>has('Program',r.id_program));
   pick('Jeda_Sesi',r=>has('Sesi',r.id_sesi));
@@ -143,7 +149,7 @@ function rencanaHapus_(jenis,id,seed) {
   const sessionProgram=new Map(tables.Sesi.rows.map(r=>[r.id,txt(r.record.id_program)])),memberProgram=new Map(tables.Keikutsertaan.rows.map(r=>[r.id,txt(r.record.id_program)]));
   ['Kehadiran','Catatan_Perilaku','Log_Absensi'].forEach(n=>tables[n].rows.filter(r=>sets[n].has(r.id)).forEach(r=>{
     const a=sessionProgram.get(txt(r.record.id_sesi)),b=memberProgram.get(txt(r.record.id_keikutsertaan));
-    if(a&&b&&a!==b)throw Error('Relasi lintas program pada '+n+' '+r.id+'. Perbaiki relasi sebelum menghapus.');
+    if(a&&b&&(a!==b||(typeof sesuaiJenjang_==='function'&&!sesuaiJenjang_(tables.Sesi.rows.find(s=>s.id===txt(r.record.id_sesi)).record,tables.Keikutsertaan.rows.find(k=>k.id===txt(r.record.id_keikutsertaan)).record))))throw Error('Relasi lintas program/Jenjang pada '+n+' '+r.id+'. Perbaiki relasi sebelum menghapus.');
   }));
   const attendance=new Map(tables.Kehadiran.rows.map(r=>[r.id,r.record])),tokens=new Map(tables.Token_QR.rows.map(r=>[r.id,r.record]));
   tables.Catatan_Perilaku.rows.filter(r=>sets.Catatan_Perilaku.has(r.id)).forEach(r=>{const h=attendance.get(txt(r.record.id_kehadiran));if(h&&(['id_sesi','id_keikutsertaan'].some(k=>txt(r.record[k])&&txt(r.record[k])!==txt(h[k]))))throw Error('Relasi catatan/kehadiran tidak sesuai pada '+r.id+'.');});
@@ -158,10 +164,10 @@ function rencanaHapus_(jenis,id,seed) {
     if(v.slice(1).some(row=>header.some((h,c)=>ref[h]&&ref[h].has(txt(row[c])))))throw Error('Data masih dirujuk sheet tambahan '+name+'. Penghapusan belum mendukung relasi ini; periksa terlebih dahulu.');
   });
   // Child-first; Program/Peserta can only disappear after their relations are removed.
-  const order=['Log_Absensi','Catatan_Perilaku','Kehadiran','Token_QR','Jeda_Sesi','Sesi','Keikutsertaan','Program','Peserta'];
+  const order=['Log_Absensi','Catatan_Perilaku','Kehadiran','Token_QR','Jeda_Sesi','Sesi','Keikutsertaan','Jenjang','Program','Peserta'];
   const plan={schema:1,jenis,id,nama:seed?seed.nama:txt(root.record.nama_program||root.record.nama_sesi||root.record.nama_pegawai||id),tables:[]};
   if(jenis==='Keikutsertaan'&&root){const p=tables.Peserta.rows.find(p=>p.id===txt(root.record.id_peserta)),g=tables.Program.rows.find(p=>p.id===txt(root.record.id_program));plan.nama=(p?txt(p.record.nama_pegawai):id)+' — '+(g?txt(g.record.nama_program):txt(root.record.id_program));}
-  order.forEach(n=>{const t=tables[n],rows=t.rows.filter(r=>sets[n].has(r.id)).map(r=>({id:r.id,values:r.values,formulas:r.formulas})).sort((a,b)=>a.id.localeCompare(b.id));if(rows.length)plan.tables.push({name:n,key:t.key,header:t.header,rows});});
+  order.filter(n=>tables[n]).forEach(n=>{const t=tables[n],rows=t.rows.filter(r=>sets[n].has(r.id)).map(r=>({id:r.id,values:r.values,formulas:r.formulas})).sort((a,b)=>a.id.localeCompare(b.id));if(rows.length)plan.tables.push({name:n,key:t.key,header:t.header,rows});});
   if(plan.tables.reduce((n,t)=>n+t.rows.length,0)>3000)throw Error('Maksimal 3.000 baris terkait per penghapusan. Hapus per sesi/pendaftaran terlebih dahulu.');
   return plan;
 }
@@ -178,7 +184,7 @@ function batasNomorIdHapus_(prefix) {
 }
 function simpanBatasIdHapus_(plan) {
   const props=PropertiesService.getScriptProperties(),key='BATAS_ID_HAPUS|'+SpreadsheetApp.getActiveSpreadsheet().getId(),raw=props.getProperty(key),map=raw?JSON.parse(raw):{};
-  plan.tables.forEach(t=>t.rows.forEach(r=>{const m=r.id.match(/^(PRG|SES|KST|PST|JDA)(\d+)$/);if(m)map[m[1]]=Math.max(Number(map[m[1]]||0),Number(m[2]));}));
+  plan.tables.forEach(t=>t.rows.forEach(r=>{const m=r.id.match(/^(PRG|SES|KST|PST|JDA|JEN)(\d+)$/);if(m)map[m[1]]=Math.max(Number(map[m[1]]||0),Number(m[2]));}));
   const value=JSON.stringify(map);props.setProperty(key,value);if(props.getProperty(key)!==value)throw Error('Penyimpanan batas ID gagal. Belum melanjutkan penghapusan.');
 }
 function tulisAuditHapus_(tx,meta,status,petugas,before,action,header) {

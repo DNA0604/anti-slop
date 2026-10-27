@@ -1,6 +1,10 @@
 <!doctype html>
 <html lang="id">
   <head>
+<script>
+window.jenjangNavigationParam=function(){const el=document.getElementById('jenjang')||document.getElementById('participantJenjang')||document.getElementById('sessionJenjang');const id=el?el.value:document.body&&document.body.dataset.jenjangContext||'';return /^JEN[A-Za-z0-9_-]+$/.test(id)?'&jenjang='+encodeURIComponent(id):'';};
+</script>
+
 <script id="database-navigation-context">
 window.resolveDatabaseBase = function(canonical) {
   function validBase(raw) {
@@ -854,6 +858,7 @@ body.flat-dashboard {font-family:'Avenir Next',Avenir,'Segoe UI',Arial,sans-seri
           <p class="foot">PDF formal berisi ringkasan pelaksanaan, rekap sesi/kehadiran, aktivitas dan izin, grafik, JP/nilai perilaku yang tersedia, serta catatan tindak lanjut. Tidak mengubah data atau menjalankan hitung ulang JP.</p>
         </section>
         <section id="managePanel">
+          <section class="panel" id="jenjangPanel" hidden><div class="sectionhead"><div><h2>Jenjang Program</h2><p class="muted">Peserta terdaftar pada satu Jenjang dan mengikuti seluruh sesinya.</p></div><button type="button" class="btn primary" id="openNewJenjang">Tambah Jenjang</button></div><p id="jenjangList" class="foot"></p></section>
           <div class="panel">
             <div class="sectionhead">
               <div>
@@ -1059,7 +1064,7 @@ body.flat-dashboard {font-family:'Avenir Next',Avenir,'Segoe UI',Arial,sans-seri
                     /><datalist id="categoryList"></datalist>
                   </div>
                   <div class="field">
-                    <label for="programLevel">Jenjang (jika ada)</label
+                    <label for="programLevel">Jenjang awal (kosong untuk Umum)</label
                     ><input
                       id="programLevel"
                       list="levelList"
@@ -1095,7 +1100,7 @@ body.flat-dashboard {font-family:'Avenir Next',Avenir,'Segoe UI',Arial,sans-seri
  <form id="sessionForm" style="margin-top: 16px">
                 <div class="dialog-fields">
                   <div class="field wide">
-                    <label for="sessionName">Nama sesi</label
+                    <div id="sessionJenjangField"><label for="sessionJenjang">Jenjang sesi</label><select id="sessionJenjang"><option value="">Pilih Jenjang</option></select></div><label for="sessionName">Nama sesi</label
                     ><input id="sessionName" required maxlength="200" />
                   </div>
                   <div class="field">
@@ -1145,6 +1150,7 @@ body.flat-dashboard {font-family:'Avenir Next',Avenir,'Segoe UI',Arial,sans-seri
                 <p id="sessionFormMessage" class="foot" role="status"></p>
               </form>
  </dialog>
+    <dialog id="newJenjangDialog" class="creation-dialog" aria-labelledby="newJenjangTitle"><div class="creation-heading"><h2 id="newJenjangTitle">Tambah Jenjang Program</h2><button type="button" class="btn" id="closeJenjang">Tutup</button></div><form id="jenjangForm"><label for="jenjangName">Nama Jenjang</label><input id="jenjangName" required maxlength="100" placeholder="Contoh: Jenjang 2"><p class="foot">Jenjang ditambahkan pada program yang sedang dipilih. Peserta dan sesi lama tidak dipindahkan.</p><p id="jenjangMessage" role="status"></p><button class="btn primary" id="saveJenjang" type="submit">Simpan Jenjang</button></form></dialog>
     <dialog id="programReportDialog" class="creation-dialog" aria-labelledby="programReportDialogTitle">
       <div class="creation-heading"><div><h2 id="programReportDialogTitle">Laporan Evaluasi Program</h2><p class="muted creation-context" id="reportProgramName"></p></div><button type="button" class="btn" id="closeProgramReport">Tutup</button></div>
       <p>Susunan laporan: identitas dan ringkasan eksekutif; jadwal sesi; kehadiran peserta; aktivitas, perilaku dan izin; rekap JP/nilai; keterbatasan dan tindak lanjut; lampiran aktivitas.</p>
@@ -1289,7 +1295,7 @@ body.flat-dashboard {font-family:'Avenir Next',Avenir,'Segoe UI',Arial,sans-seri
               navigationBase +
               "?page=" +
               page +
-              (id ? "&program=" + encodeURIComponent(id) : "");
+              (id ? "&program=" + encodeURIComponent(id) : "") + window.jenjangNavigationParam();
             el.setAttribute("aria-disabled", "false");
           } else {
             el.removeAttribute("href");
@@ -1411,6 +1417,7 @@ body.flat-dashboard {font-family:'Avenir Next',Avenir,'Segoe UI',Arial,sans-seri
             "Kelola program dan sesi di sini. Pendaftaran peserta tersedia pada halaman Peserta Program.",
           );
           await changeProgram();
+          if(para.jenjang&&[...$("sessionJenjang").options].some(o=>o.value===para.jenjang)){$("sessionJenjang").value=para.jenjang;updateNavigation();}
         } catch (e) {
           message(e.message || "Halaman gagal dimuat.", "error");
           $("blocked").classList.remove("hidden");
@@ -1519,6 +1526,7 @@ body.flat-dashboard {font-family:'Avenir Next',Avenir,'Segoe UI',Arial,sans-seri
       }
       const editLabels = {
         nama_program: "Nama program",
+        nama_jenjang: "Nama Jenjang",
         kategori_pelatihan: "Kategori pelatihan",
         jenjang: "Jenjang",
         tanggal_mulai: "Tanggal mulai",
@@ -1796,7 +1804,7 @@ body.flat-dashboard {font-family:'Avenir Next',Avenir,'Segoe UI',Arial,sans-seri
         );
         manageSesi.forEach((s) => {
           const tr = document.createElement("tr"),
-            name = cell(s.nama),
+            name = cell(s.nama + (s.nama_jenjang?' · '+s.nama_jenjang:'')),
             sub = document.createElement("span");
           sub.className = "sub";
           sub.textContent = s.id;
@@ -1834,6 +1842,16 @@ body.flat-dashboard {font-family:'Avenir Next',Avenir,'Segoe UI',Arial,sans-seri
           if (!r || !r.sukses) throw Error("Daftar tidak tersedia.");
           managePrograms = r.program;
           manageSesi = r.sesi;
+          $("jenjangPanel").hidden=!r.struktur_jenjang;
+          $("openNewJenjang").disabled=!id;
+          $("jenjangList").replaceChildren();
+          (r.jenjang||[]).forEach(j=>{const row=document.createElement('span');row.style.cssText='display:inline-flex;align-items:center;gap:8px;margin:8px 12px 0 0';const name=document.createElement('span');name.textContent=j.nama;row.append(name,editButton('Jenjang',j.id));$("jenjangList").append(row);});
+          if(!(r.jenjang||[]).length)$("jenjangList").textContent='Pilih program untuk melihat Jenjang.';
+          const oldJenjang=$("sessionJenjang").value;
+          $("sessionJenjangField").hidden=!r.struktur_jenjang;
+          options($("sessionJenjang"),'Pilih Jenjang',(r.jenjang||[]).map(j=>({id:j.id,label:j.nama})));
+          $("sessionJenjang").required=Boolean(r.struktur_jenjang);
+          $("sessionJenjang").value=(r.jenjang||[]).some(j=>j.id===oldJenjang)?oldJenjang:(r.jenjang||[]).length===1?r.jenjang[0].id:'';
           const p = managePrograms.find((p) => p.id === id);
           $("manageSelectedProgram").textContent = p
             ? p.nama +
@@ -2059,6 +2077,7 @@ body.flat-dashboard {font-family:'Avenir Next',Avenir,'Segoe UI',Arial,sans-seri
         if (!sessionPayload)
           sessionPayload = {
             id_program: $("program").value,
+            id_jenjang: $("sessionJenjang").value,
             nama: $("sessionName").value.trim(),
             tanggal: $("sessionDate").value,
             mulai: $("sessionStart").value,
@@ -2179,11 +2198,17 @@ body.flat-dashboard {font-family:'Avenir Next',Avenir,'Segoe UI',Arial,sans-seri
           if (!saving) programPayload = null;
         }),
       );
-      ["sessionName", "sessionDate"].forEach((id) =>
+      ["sessionName", "sessionDate", "sessionJenjang"].forEach((id) =>
         $(id).addEventListener("input", () => {
           if (!saving) sessionPayload = null;
         }),
       );
+      let jenjangPayload=null,jenjangBusy=false;
+      $("openNewJenjang").addEventListener('click',()=>{if(!saving&&!jenjangBusy&&$("program").value)$("newJenjangDialog").showModal();});
+      $("closeJenjang").addEventListener('click',()=>{if(!jenjangBusy)$("newJenjangDialog").close();});
+      $("newJenjangDialog").addEventListener('cancel',e=>{if(jenjangBusy)e.preventDefault();});
+      $("jenjangName").addEventListener('input',()=>{if(!jenjangBusy)jenjangPayload=null;});
+      $("jenjangForm").addEventListener('submit',async e=>{e.preventDefault();if(saving||jenjangBusy)return;jenjangPayload=jenjangPayload||{id_program:$("program").value,nama:$("jenjangName").value.trim(),id_permintaan:requestIdKelola()};jenjangBusy=true;$("saveJenjang").disabled=$("closeJenjang").disabled=$("jenjangName").disabled=true;$("jenjangMessage").textContent='Menyimpan Jenjang…';try{const r=await rpc('tambahJenjangProgramIndex',jenjangPayload);const id=jenjangPayload.id_program;jenjangPayload=null;$("jenjangForm").reset();$("newJenjangDialog").close();await reloadPrograms(id);await loadManage();message(r.pesan,'success');}catch(e){$("jenjangMessage").textContent=e.message||'Penyimpanan belum terkonfirmasi. Ulangi dengan data yang sama.';}finally{jenjangBusy=false;$("saveJenjang").disabled=$("closeJenjang").disabled=$("jenjangName").disabled=false;}});
       let reportBusy=false, reportProgram='', reportSequence=0, reportURL='';
       function reportReady() {
         const p=managePrograms.find(p=>p.id===$("program").value);
@@ -2430,10 +2455,10 @@ body.flat-dashboard {font-family:'Avenir Next',Avenir,'Segoe UI',Arial,sans-seri
     document.querySelectorAll('[data-sidebar-placeholder]').forEach(button => button.addEventListener('click', () => toast(button.dataset.sidebarPlaceholder)));
     body.classList.remove('dash-compact');
     function navigationURL(page) {
-      const base = window.resolveDatabaseBase(typeof navigationBase === 'string' ? navigationBase : '');
+      const base = window.resolveDatabaseBase(typeof navigationBase === 'string' ? navigationBase : '') + window.jenjangNavigationParam();
       if (!base) return '';
       const selected = document.getElementById('program');
-      return base + '?page=' + encodeURIComponent(page) + (selected && selected.value ? '&program=' + encodeURIComponent(selected.value) : '');
+      return base + '?page=' + encodeURIComponent(page) + (selected && selected.value ? '&program=' + encodeURIComponent(selected.value) : '') + window.jenjangNavigationParam();
     }
     function syncNavigation() {
       document.querySelectorAll('[data-dash-page]').forEach(link => {

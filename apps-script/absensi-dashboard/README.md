@@ -4,18 +4,28 @@ Current accepted application source for Pusat Pengembangan Aparatur Komdigi.
 Read ../../PROJECT_CONTEXT.md and ../../AGENTS.md first. These supersede the earlier flat UI package notes and old preview/test reports.
 
 ## Files to use in Google Apps Script
-Code.gs, Laporan.gs, Hapus.gs, Beranda.html, Index.html, Pengelolaan.html, Peserta.html, Profil.html, Absensi.html, AdminQR.html.
+Code.gs, Laporan.gs, Hapus.gs, Jenjang.gs, MigrasiJenjang.gs, PemetaanJenjang.gs, Beranda.html, Index.html, Pengelolaan.html, Peserta.html, Profil.html, Absensi.html, AdminQR.html, PratinjauJenjang.html, MigrasiJenjang.html.
 The project must remain bound to its existing Google Sheet. Retain the deployed manifest/scopes and deployment configuration.
 
 Replace complete contents of files changed for a task. Keep exact file names. Save, and for /exec publish a new version of the existing deployment. Keep the deployment URL so QR links remain valid.
 
 Preview files and Hasil-Pengujian.txt inherited from the older UI branch are historical and do not depict or validate this current snapshot. Do not install preview files as Apps Script application code.
 
-See SOURCE_SNAPSHOT.json for SHA-256 hashes of the ten current HTML/GS source files.
+See SOURCE_SNAPSHOT.json for SHA-256 hashes of all 15 current HTML/GS source files, including the Jenjang preparation tools.
+
+## Struktur Jenjang dan migrasi data dummy
+
+Paket terbaru pada branch **feat/struktur-jenjang-pelatihan** mendukung beberapa Jenjang per program, sesi/pendaftaran pada satu Jenjang, acuan JP/kehadiran sesuai peserta, serta laporan dan hapus yang memahami relasi baru. Login dan pembagian akses panitia belum termasuk paket ini.
+
+**Pasang/uji pada salinan spreadsheet dan proyek Apps Script.** Tambahkan Jenjang.gs, MigrasiJenjang.gs dan MigrasiJenjang.html; ganti Code.gs, Hapus.gs, Laporan.gs, PemetaanJenjang.gs, Index.html, Pengelolaan.html, Peserta.html dan Profil.html dari branch yang sama. Simpan, refresh spreadsheet, lalu buka **Manajemen Pelatihan → Persiapan Struktur Jenjang**. Periksa pemetaan sebelum menekan tindakan yang mengubah struktur. Jangan menambah kolom manual atau mencampur sumber versi lama dengan struktur baru.
+
+[Panduan pemasangan, migrasi, pemulihan dan pengujian Google lengkap](tests/JENJANG_VALIDATION.md). Migrasi lewat menu tidak memerlukan ID Spreadsheet/deployment; pengujian web app dan QR menggunakan deployment milik salinan proyek. Tidak ada migrasi/deployment utama yang dilakukan dari lingkungan ini.
 
 ## Pengembangan bertahap: Jenjang dan akses panitia
 
-Lihat [rancangan tahap 1](docs/TAHAP_1_JENJANG_AKSES.md) untuk struktur Program → Jenjang → Sesi, pemetaan data lama dan pembagian akses panitia. Migrasi/login belum dibuat dan data spreadsheet sebenarnya belum dipetakan.
+Bagian ini menjelaskan panel pratinjau sebelumnya. Untuk memasang paket struktur/migrasi terbaru, ikuti daftar lengkap pada bagian di atas.
+
+Lihat [rancangan tahap 1](docs/TAHAP_1_JENJANG_AKSES.md) untuk struktur Program → Jenjang → Sesi, pemetaan data lama dan pembagian akses panitia. Pratinjau telah dicoba pengguna; paket migrasi tersedia pada bagian Struktur Jenjang di atas, tetapi belum dijalankan dari lingkungan ini. Login panitia belum dibuat.
 
 Pratinjau baca saja tersedia sebagai **dua file tambahan**, PemetaanJenjang.gs dan PratinjauJenjang.html. Pada **salinan spreadsheet/proyek**, tambahkan Script `PemetaanJenjang` dan HTML `PratinjauJenjang`, salin isi lengkap keduanya dan ganti **Code.gs** untuk menambahkan menu pembuka pada onOpen. Simpan, kembali ke spreadsheet lalu refresh. Pilih **Manajemen Pelatihan → Pratinjau Pemetaan Jenjang** dengan akun pemilik; jangan mengandalkan Jalankan dari editor karena konteks getUi dapat tidak tersedia. Tidak perlu ID Spreadsheet, sheet/kolom baru, atau deployment baru. Jika dua file awal sudah dipasang, revisi ini hanya memerlukan penggantian **Code.gs + PemetaanJenjang.gs**; HTML tetap. Panduan lengkap, arti status, batas dan pemeriksaan: [PEMETAAN_JENJANG_VALIDATION.md](tests/PEMETAAN_JENJANG_VALIDATION.md).
 

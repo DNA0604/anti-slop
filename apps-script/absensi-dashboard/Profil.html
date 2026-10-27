@@ -1,6 +1,10 @@
 <!doctype html>
 <html lang="id">
   <head>
+<script>
+window.jenjangNavigationParam=function(){const el=document.getElementById('jenjang')||document.getElementById('participantJenjang')||document.getElementById('sessionJenjang');const id=el?el.value:document.body&&document.body.dataset.jenjangContext||'';return /^JEN[A-Za-z0-9_-]+$/.test(id)?'&jenjang='+encodeURIComponent(id):'';};
+</script>
+
 <script id="database-navigation-context">
 window.resolveDatabaseBase = function(canonical) {
   function validBase(raw) {
@@ -1285,6 +1289,7 @@ body.flat-dashboard {font-family:'Avenir Next',Avenir,'Segoe UI',Arial,sans-seri
           if (seq !== sequence) return;
           if (!r || !r.sukses) throw Error("Profil tidak tersedia.");
           profile = r;
+          document.body.dataset.jenjangContext=r.program&&r.program.id_jenjang||"";
           personId = r.peserta.id;
           navigationBase = window.resolveDatabaseBase((r.navigasi && r.navigasi.url) || "");
           render();
@@ -1455,11 +1460,11 @@ body.flat-dashboard {font-family:'Avenir Next',Avenir,'Segoe UI',Arial,sans-seri
     document.querySelectorAll('[data-sidebar-placeholder]').forEach(button => button.addEventListener('click', () => toast(button.dataset.sidebarPlaceholder)));
     body.classList.remove('dash-compact');
     function navigationURL(page) {
-      const base = window.resolveDatabaseBase(typeof navigationBase === 'string' ? navigationBase : '');
+      const base = window.resolveDatabaseBase(typeof navigationBase === 'string' ? navigationBase : '') + window.jenjangNavigationParam();
       if (!base) return '';
       const selected = document.getElementById('program');
-      const programId = selected && selected.value ? selected.value : (typeof profile !== 'undefined' && profile && profile.program ? profile.program.id : '');
-      return base + '?page=' + encodeURIComponent(page) + (programId ? '&program=' + encodeURIComponent(programId) : '');
+      const programId = selected && selected.value ? selected.value : (typeof profile !== 'undefined' && profile && profile.program ? profile.program.id : '') + window.jenjangNavigationParam();
+      return base + '?page=' + encodeURIComponent(page) + (programId ? '&program=' + encodeURIComponent(programId) : '') + window.jenjangNavigationParam();
     }
     function syncNavigation() {
       document.querySelectorAll('[data-dash-page]').forEach(link => {

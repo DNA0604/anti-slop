@@ -1,6 +1,10 @@
 <!doctype html>
 <html lang="id">
   <head>
+<script>
+window.jenjangNavigationParam=function(){const el=document.getElementById('jenjang')||document.getElementById('participantJenjang')||document.getElementById('sessionJenjang');const id=el?el.value:document.body&&document.body.dataset.jenjangContext||'';return /^JEN[A-Za-z0-9_-]+$/.test(id)?'&jenjang='+encodeURIComponent(id):'';};
+</script>
+
 <script id="database-navigation-context">
 window.resolveDatabaseBase = function(canonical) {
   function validBase(raw) {
@@ -842,6 +846,7 @@ body.flat-dashboard {font-family:'Avenir Next',Avenir,'Segoe UI',Arial,sans-seri
       </div>
       <div id="app" class="hidden">
         <section class="panel">
+          <div id="participantJenjangField" hidden><label for="participantJenjang">JENJANG TUJUAN / FILTER PESERTA</label><select id="participantJenjang"><option value="">Semua Jenjang (lihat)</option></select><p class="foot">Pilih satu Jenjang sebelum menambah atau mengimpor peserta.</p></div>
           <label for="program">PROGRAM TUJUAN</label
           ><select id="program">
             <option value="">Pilih program</option>
@@ -1139,11 +1144,13 @@ body.flat-dashboard {font-family:'Avenir Next',Avenir,'Segoe UI',Arial,sans-seri
           el.append(o);
         });
       }
+      let participantJenjangList=[],participantJenjangActive=false;
       async function reloadPrograms(id = "") {
         const r = await rpc("muatAwalIndex");
         if (!r || !r.sukses) throw Error("Data program tidak tersedia.");
         navigationBase = window.resolveDatabaseBase((r.navigasi && r.navigasi.url) || "");
         allPrograms = r.data.program;
+        participantJenjangList=r.data.jenjang||[];participantJenjangActive=Boolean(r.data.struktur_jenjang);
         allSessions = r.data.sesi;
         options(
           $("program"),
@@ -1202,7 +1209,7 @@ body.flat-dashboard {font-family:'Avenir Next',Avenir,'Segoe UI',Arial,sans-seri
               navigationBase +
               "?page=" +
               page +
-              (id ? "&program=" + encodeURIComponent(id) : "");
+              (id ? "&program=" + encodeURIComponent(id) : "") + window.jenjangNavigationParam();
             el.setAttribute("aria-disabled", "false");
           } else {
             el.removeAttribute("href");
@@ -1220,6 +1227,7 @@ body.flat-dashboard {font-family:'Avenir Next',Avenir,'Segoe UI',Arial,sans-seri
           .forEach((el) => (el.disabled = saving));
         $("recoverEdits").disabled = saving || Boolean(importRun);
         const selected = Boolean($("program").value);
+        $("participantJenjang").disabled=saving||Boolean(importRun);
         $("program").disabled = saving || Boolean(importRun);
         $("refreshParticipants").disabled =
           !selected || participantLoading || saving;
@@ -1253,6 +1261,10 @@ body.flat-dashboard {font-family:'Avenir Next',Avenir,'Segoe UI',Arial,sans-seri
           return;
         }
         activeParticipantProgram = $("program").value;
+        const js=participantJenjangList.filter(j=>j.id_program===activeParticipantProgram);
+        $("participantJenjangField").hidden=!participantJenjangActive;
+        options($("participantJenjang"),'Semua Jenjang (lihat)',js.map(j=>({id:j.id,label:j.nama})));
+        $("participantJenjang").value=js.length===1?js[0].id:'';
         ++participantSeq;
         participantLoading = false;
         participantPage = 0;
@@ -1269,6 +1281,7 @@ body.flat-dashboard {font-family:'Avenir Next',Avenir,'Segoe UI',Arial,sans-seri
         controls();
         await loadParticipants();
       }
+      $("participantJenjang").addEventListener('change',()=>{if(saving||importRun)return;++participantSeq;participantPage=0;invalidatePreview();controls();loadParticipants();});
       async function refreshAfterEdit() {
         await loadParticipants();
       }
@@ -1297,9 +1310,10 @@ body.flat-dashboard {font-family:'Avenir Next',Avenir,'Segoe UI',Arial,sans-seri
           )
             $("program").value = para.program;
           message(
-            "Peserta didaftarkan sekali per program dan tersedia pada seluruh sesinya.",
+            "Peserta didaftarkan sekali pada satu Jenjang per program dan tersedia pada seluruh sesi Jenjangnya.",
           );
           await changeProgram();
+          if(para.jenjang&&[...$("participantJenjang").options].some(o=>o.value===para.jenjang)){$("participantJenjang").value=para.jenjang;$("participantJenjang").dispatchEvent(new Event("change"));}
         } catch (e) {
           message(e.message || "Halaman gagal dimuat.", "error");
           $("blocked").classList.remove("hidden");
@@ -1331,6 +1345,7 @@ body.flat-dashboard {font-family:'Avenir Next',Avenir,'Segoe UI',Arial,sans-seri
             id,
             $("participantSearch").value.trim(),
             participantPage,
+            $("participantJenjang").value,
           );
           if (seq !== participantSeq) return;
           participantTotal = r.jumlah_cocok;
@@ -1351,6 +1366,7 @@ body.flat-dashboard {font-family:'Avenir Next',Avenir,'Segoe UI',Arial,sans-seri
                 "&program=" +
                 encodeURIComponent(id);
             name.append(link);
+            if(p.jenjang){const label=document.createElement('small');label.style.display='block';label.textContent=p.jenjang;name.append(label);}
             tr.append(
               name,
               cell(p.nip),
@@ -1421,7 +1437,7 @@ body.flat-dashboard {font-family:'Avenir Next',Avenir,'Segoe UI',Arial,sans-seri
         saving = true;
         controls();
         try {
-          const r = await rpc("pratinjauImporPesertaIndex", program, rows);
+          const r = await rpc("pratinjauImporPesertaIndex", program, rows, $("participantJenjang").value);
           previewState = r;
           importRun = null;
           importFinished = false;
@@ -1459,6 +1475,7 @@ body.flat-dashboard {font-family:'Avenir Next',Avenir,'Segoe UI',Arial,sans-seri
           importRun = {
             id: requestIdKelola(),
             program: $("program").value,
+            jenjang: previewState.id_jenjang||$("participantJenjang").value,
             rows: previewState.baris,
             batch: 0,
             counts: { baru: 0, daftar: 0, lewati: 0 },
@@ -1477,6 +1494,7 @@ body.flat-dashboard {font-family:'Avenir Next',Avenir,'Segoe UI',Arial,sans-seri
             message("Mengimpor batch " + (index + 1) + "/" + count + "…");
             const r = await rpc("imporPesertaProgramIndex", {
               id_program: importRun.program,
+              id_jenjang: importRun.jenjang,
               id_permintaan: importRun.id,
               batch: index,
               baris: importRun.rows.slice(index * 20, (index + 1) * 20),
@@ -1499,7 +1517,7 @@ body.flat-dashboard {font-family:'Avenir Next',Avenir,'Segoe UI',Arial,sans-seri
             " sudah terdaftar dan dilewati.";
           message(
             $("previewSummary").textContent +
-              " Peserta tersedia pada seluruh sesi program.",
+              " Peserta tersedia pada seluruh sesi Jenjangnya.",
             "success",
           );
           await loadParticipants();
@@ -2360,10 +2378,10 @@ body.flat-dashboard {font-family:'Avenir Next',Avenir,'Segoe UI',Arial,sans-seri
     document.querySelectorAll('[data-sidebar-placeholder]').forEach(button => button.addEventListener('click', () => toast(button.dataset.sidebarPlaceholder)));
     body.classList.remove('dash-compact');
     function navigationURL(page) {
-      const base = window.resolveDatabaseBase(typeof navigationBase === 'string' ? navigationBase : '');
+      const base = window.resolveDatabaseBase(typeof navigationBase === 'string' ? navigationBase : '') + window.jenjangNavigationParam();
       if (!base) return '';
       const selected = document.getElementById('program');
-      return base + '?page=' + encodeURIComponent(page) + (selected && selected.value ? '&program=' + encodeURIComponent(selected.value) : '');
+      return base + '?page=' + encodeURIComponent(page) + (selected && selected.value ? '&program=' + encodeURIComponent(selected.value) : '') + window.jenjangNavigationParam();
     }
     function syncNavigation() {
       document.querySelectorAll('[data-dash-page]').forEach(link => {

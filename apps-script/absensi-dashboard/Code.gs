@@ -353,6 +353,7 @@ function tambahKeikutsertaan(data) {
       updated_at: waktu
     };
 
+    Object.assign(recordBaru,kolomJenjangData_(idProgram,data.id_jenjang));
     const barisBaru = keikutsertaan.header.map(kolom =>
       Object.prototype.hasOwnProperty.call(recordBaru, kolom)
         ? recordBaru[kolom]
@@ -519,6 +520,7 @@ function tambahSesi(data) {
       updated_at: waktu
     };
 
+    Object.assign(recordBaru,kolomJenjangData_(idProgram,data.id_jenjang));
     const barisBaru = sesi.header.map(kolom =>
       Object.prototype.hasOwnProperty.call(recordBaru, kolom)
         ? recordBaru[kolom]
@@ -2128,6 +2130,7 @@ function ujiBuatTokenQR_() {
 }
 
 function validasiTokenQR(tokenMentah) {
+  if(typeof pastikanMigrasiJenjangSiap_==='function')pastikanMigrasiJenjangSiap_();
   const token = String(tokenMentah || "").trim();
 
   if (!token) {
@@ -2607,6 +2610,7 @@ function ambilDataProgramSesiQR() {
           hasil[nama] = String(r[index(nama)]).trim();
         });
 
+        if(index('id_jenjang')>=0)hasil.id_jenjang=String(r[index('id_jenjang')]).trim();
         return hasil;
       });
   }
@@ -2688,6 +2692,7 @@ function onOpen() {
   if (typeof bukaPratinjauPemetaanJenjang === 'function') {
     menu.addSeparator().addItem('Pratinjau Pemetaan Jenjang', 'bukaPratinjauPemetaanJenjang');
   }
+  if(typeof bukaPersiapanStrukturJenjang==='function')menu.addItem('Persiapan Struktur Jenjang','bukaPersiapanStrukturJenjang');
   menu.addToUi();
 }
 
@@ -2845,6 +2850,7 @@ function cariPesertaAbsensi(token, kataKunci) {
 
   const sesi = bacaSheet("Sesi");
   const keikutsertaan = bacaSheet("Keikutsertaan");
+  if(typeof validasiTabelJenjang_==='function'){for(const [n,records] of [['Sesi',sesi],['Keikutsertaan',keikutsertaan]])validasiTabelJenjang_(n,{header:bacaMentahJenjang_(n).header,records});}
   const peserta = bacaSheet("Peserta");
 
   // Cari program berdasarkan sesi dari token QR.
@@ -2863,7 +2869,7 @@ function cariPesertaAbsensi(token, kataKunci) {
   const pesertaTerdaftar = new Set(
     keikutsertaan
       .filter(k =>
-        String(k.id_program).trim() === idProgram
+        String(k.id_program).trim() === idProgram && sesuaiJenjang_(sesiAktif,k) && String(k.status_keikutsertaan).trim().toLowerCase() === "terdaftar"
       )
       .map(k => String(k.id_peserta).trim())
   );
@@ -2948,6 +2954,7 @@ function simpanAbsensiPeserta(data) {
     const hadir = tabel('Kehadiran', ['id_kehadiran','id_sesi','id_keikutsertaan','waktu_datang','waktu_pulang','status_kehadiran','status_scan_pulang','status_validasi','metode_input','status_perhitungan_ulang','alasan_perhitungan_ulang','updated_at']);
     const sesi = tabel('Sesi', ['id_sesi','id_program']);
     const ikut = tabel('Keikutsertaan', ['id_keikutsertaan','id_program','id_peserta','status_keikutsertaan']);
+    if(typeof validasiTabelJenjang_==='function'){validasiTabelJenjang_('Sesi',sesi);validasiTabelJenjang_('Keikutsertaan',ikut);}
     const txt = v => String(v == null ? '' : v).trim();
     const hash = Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, token, Utilities.Charset.UTF_8)
       .map(b => ('0' + (b & 255).toString(16)).slice(-2)).join('');
@@ -2960,6 +2967,8 @@ function simpanAbsensiPeserta(data) {
     let peristiwa = lama[0];
     if (peristiwa) {
       const relasi = ikut.records.find(k => txt(k.id_keikutsertaan) === txt(peristiwa.id_keikutsertaan));
+      const sses=sesi.records.find(s=>txt(s.id_sesi)===txt(peristiwa.id_sesi));
+      if(!sses||!relasi||!sesuaiJenjang_(sses,relasi))throw Error('Relasi retry absensi tidak sesuai Jenjang sesi.');
       if (txt(peristiwa.id_token_qr) !== idToken || !relasi || txt(relasi.id_peserta) !== peserta) {
         throw new Error('ID permintaan sudah digunakan untuk data lain.');
       }
@@ -2970,7 +2979,7 @@ function simpanAbsensiPeserta(data) {
       if (!valid.valid) return {sukses:false, pesan:'QR tidak aktif atau sudah kedaluwarsa. Silakan hubungi petugas.'};
       const s = sesi.records.filter(r => txt(r.id_sesi) === valid.id_sesi);
       if (s.length !== 1) throw new Error('Data sesi tidak ditemukan atau duplikat.');
-      const k = ikut.records.filter(r => txt(r.id_program) === txt(s[0].id_program) && txt(r.id_peserta) === peserta);
+      const k = ikut.records.filter(r => txt(r.id_program) === txt(s[0].id_program) && txt(r.id_peserta) === peserta && sesuaiJenjang_(s[0],r));
       if (k.length !== 1) throw new Error('Keikutsertaan tidak ditemukan atau duplikat.');
       const keikutsertaan = k[0];
       if (txt(keikutsertaan.status_keikutsertaan).toLowerCase() !== 'terdaftar') {
@@ -3266,20 +3275,33 @@ function bukaPanelPengelolaan_(){
   wajibPemilikIndex_();
   SpreadsheetApp.getUi().showModalDialog(HtmlService.createHtmlOutputFromFile('Pengelolaan').setWidth(1100).setHeight(780),'Pengelolaan Pelatihan');
 }
+function sesuaiJenjang_(s,k){
+  const txt=v=>String(v==null?'':v).trim();
+  if(txt(s.id_program)!==txt(k.id_program))return false;
+  if(!Object.prototype.hasOwnProperty.call(s,'id_jenjang')&&!Object.prototype.hasOwnProperty.call(k,'id_jenjang'))return true;
+  if(!txt(s.id_jenjang)||!txt(k.id_jenjang))throw Error('Relasi Jenjang belum lengkap. Periksa migrasi.');
+  return txt(s.id_jenjang)===txt(k.id_jenjang);
+}
+function kolomJenjangData_(p,j){return typeof kolomJenjang_==='function'?kolomJenjang_(p,j):{};}
 function tabelIndex_(nama,wajib){
+  if(typeof pastikanMigrasiJenjangSiap_==='function')pastikanMigrasiJenjangSiap_();
   const sheet=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(nama);
   if(!sheet)throw new Error('Sheet tidak ditemukan: '+nama);
   const v=sheet.getDataRange().getValues(),h=v[0].map(x=>String(x).trim());
   wajib.forEach(x=>{if(!h.includes(x))throw new Error('Kolom '+x+' tidak ditemukan di '+nama);});
-  return {header:h,rows:v.slice(1).filter(r=>r.some(x=>x!=='')),records:v.slice(1).filter(r=>r.some(x=>x!=='')).map(r=>{const o={};h.forEach((x,n)=>{if(x)o[x]=r[n];});return o;})};
+  const result={header:h,rows:v.slice(1).filter(r=>r.some(x=>x!=='')),records:v.slice(1).filter(r=>r.some(x=>x!=='')).map(r=>{const o={};h.forEach((x,n)=>{if(x)o[x]=r[n];});return o;})};
+  if(typeof validasiTabelJenjang_==='function')validasiTabelJenjang_(nama,result);
+  return result;
 }
 function versiBarisIndex_(row){return Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256,JSON.stringify(row),Utilities.Charset.UTF_8).map(b=>('0'+(b&255).toString(16)).slice(-2)).join('');}
 function muatAwalIndex(){
   wajibPemilikIndex_();
   const data=ambilDataProgramSesiQR();
+  if(typeof bacaMentahJenjang_==='function'){const j=bacaMentahJenjang_('Jenjang',true),names=new Map((j?j.records:[]).map(j=>[String(j.id_jenjang).trim(),String(j.nama_jenjang)]));data.sesi=data.sesi.map(s=>Object.assign({},s,{nama_sesi:String(s.nama_sesi)+(names.has(s.id_jenjang)?' · '+names.get(s.id_jenjang):'')}));}
   data.program=tabelIndex_('Program',['id_program','nama_program','kategori_pelatihan','jenjang']).records
-    .map(p=>({id_program:String(p.id_program||'').trim(),nama_program:String(p.nama_program||'').trim(),kategori_pelatihan:String(p.kategori_pelatihan||'').trim(),jenjang:String(p.jenjang||'').trim()}))
+    .map(p=>({id_program:String(p.id_program||'').trim(),nama_program:String(p.nama_program||'').trim(),kategori_pelatihan:String(p.kategori_pelatihan||'').trim(),jenjang:typeof namaJenjangProgram_==='function'?namaJenjangProgram_(p.id_program,p.jenjang):String(p.jenjang||'').trim()}))
     .filter(p=>p.id_program);
+  if(typeof bacaMentahJenjang_==='function'){const j=bacaMentahJenjang_('Jenjang',true);data.struktur_jenjang=Boolean(j);data.jenjang=j?j.records.map(r=>({id:String(r.id_jenjang),id_program:String(r.id_program),nama:String(r.nama_jenjang)})):[];}
   return {sukses:true,zona_waktu:SpreadsheetApp.getActiveSpreadsheet().getSpreadsheetTimeZone(),data:data,navigasi:navigasiPelatihan_()};
 }
 function muatKehadiranIndex(idSesi){
@@ -3290,7 +3312,7 @@ function muatKehadiranIndex(idSesi){
   if(sesi.length!==1)throw new Error('Sesi tidak ditemukan atau duplikat.');
   const s=sesi[0];
   const awalSesiIndex=waktuJadwalJP_(s.tanggal_sesi,s.jam_mulai,zona);
-  const ikut=tabelIndex_('Keikutsertaan',['id_keikutsertaan','id_program','id_peserta','unit_kerja_saat_pelatihan','status_keikutsertaan']).records.filter(k=>String(k.id_program).trim()===String(s.id_program).trim());
+  const ikut=tabelIndex_('Keikutsertaan',['id_keikutsertaan','id_program','id_peserta','unit_kerja_saat_pelatihan','status_keikutsertaan']).records.filter(k=>String(k.id_program).trim()===String(s.id_program).trim()&&sesuaiJenjang_(s,k));
   const peserta=tabelIndex_('Peserta',['id_peserta','nama_pegawai']).records;
   const kehadiran=tabelIndex_('Kehadiran',['id_kehadiran','id_sesi','id_keikutsertaan','waktu_datang','waktu_pulang','waktu_datang_terverifikasi','waktu_pulang_terverifikasi','status_kehadiran']);
   const map=new Map();kehadiran.records.forEach((k,n)=>{
@@ -3397,6 +3419,7 @@ function hitungJPSesiIndex(idSesi) {
     const raw=sheet.getDataRange().getValues();
     const ix=x=>k.header.indexOf(x);
     const daftar=raw.slice(1).map((row,n)=>({row:row,n:n+2})).filter(o=>txt(o.row[ix('id_sesi')])===idSesi);
+    if(typeof validasiTabelJenjang_==='function')validasiTabelJenjang_('Kehadiran',k);
     const seen=new Set(),pairs=new Set();daftar.forEach(o=>{
       const id=txt(o.row[ix('id_kehadiran')]),pair=txt(o.row[ix('id_keikutsertaan')]);
       if(!id||!pair||seen.has(id)||pairs.has(pair))throw new Error('ID kehadiran/keikutsertaan kosong atau duplikat pada sesi.');seen.add(id);pairs.add(pair);
@@ -3466,6 +3489,7 @@ function muatRekapJPProgramIndex(idProgram){
   const catatan=tabelIndex_('Catatan_Perilaku',['id_catatan','id_sesi','id_kehadiran','id_keikutsertaan','waktu_mulai_izin','waktu_selesai_izin','status_pengurangan_jp']).records;
   const peserta=tabelIndex_('Peserta',['id_peserta','nama_pegawai']).records;
   const ikut=tabelIndex_('Keikutsertaan',['id_program','id_peserta','id_keikutsertaan','unit_kerja_saat_pelatihan','status_keikutsertaan']).records.filter(t=>txt(t.id_program)===idProgram);
+  const levelNames=new Map((typeof konteksJenjang_==='function'?konteksJenjang_(idProgram,'',false).daftar:[]).map(j=>[j.id,j.nama]));
   const audit=tabelIndex_('Riwayat_Validasi',['jenis_data','id_referensi','id_transaksi_perubahan','status_transaksi']).records;
   const transactions=new Map();audit.filter(a=>a.jenis_data==='Kehadiran'&&a.id_transaksi_perubahan).forEach(a=>transactions.set(a.id_transaksi_perubahan,{id:txt(a.id_referensi),status:a.status_transaksi}));
   const pending=new Set(Array.from(transactions.values()).filter(t=>t.status!=='SELESAI').map(t=>t.id));
@@ -3476,7 +3500,7 @@ function muatRekapJPProgramIndex(idProgram){
   let totalMenit=0,diabaikan=0;const masalah=[];
   sesi.forEach(s=>{
     const id=txt(s.id_sesi);if(!id||ids.has(id))throw new Error('ID sesi kosong atau duplikat pada program.');ids.add(id);
-    if(txt(s.status_jp)==='tidak_dihitung'){diabaikan++;tambahan.push({id_sesi:id,nama_sesi:txt(s.nama_sesi)||id,tanggal:tanggalSesi(s.tanggal_sesi),status:'tidak_diperhitungkan',keterangan:'Sesi ditandai tidak dihitung sebagai JP.',jp:null,durasi_diakui:null,terlambat:null});return;}
+    if(txt(s.status_jp)==='tidak_dihitung'){diabaikan++;tambahan.push({id_jenjang:txt(s.id_jenjang),id_sesi:id,nama_sesi:txt(s.nama_sesi)||id,tanggal:tanggalSesi(s.tanggal_sesi),status:'tidak_diperhitungkan',keterangan:'Sesi ditandai tidak dihitung sebagai JP.',jp:null,durasi_diakui:null,terlambat:null});return;}
     try{
       if(txt(s.status_jp)!=='dihitung')throw new Error('Status JP sesi belum ditetapkan menjadi dihitung atau tidak_dihitung.');
       const a=waktuJadwalJP_(s.tanggal_sesi,s.jam_mulai,zona),b=waktuJadwalJP_(s.tanggal_sesi,s.jam_selesai,zona);
@@ -3486,14 +3510,15 @@ function muatRekapJPProgramIndex(idProgram){
         if(y<=x||x<a||y>b)throw new Error('Rentang jeda tidak valid.');return [x,y];
       });
       const menit=(b-a-gabungRentangJP_(intervals).reduce((n,r)=>n+r[1]-r[0],0))/60000;
-      totalMenit+=menit;meta.push({id:id,nama:txt(s.nama_sesi)||id,tanggal:tanggalSesi(s.tanggal_sesi),mulai:a,selesai:b,jeda:intervals,menit:menit});
-    }catch(e){masalah.push(id+': '+e.message);tambahan.push({id_sesi:id,nama_sesi:txt(s.nama_sesi)||id,tanggal:tanggalSesi(s.tanggal_sesi),status:'perlu_verifikasi',keterangan:e.message,jp:null,durasi_diakui:null,terlambat:null});}
+      totalMenit+=menit;meta.push({id_jenjang:txt(s.id_jenjang),id:id,nama:txt(s.nama_sesi)||id,tanggal:tanggalSesi(s.tanggal_sesi),mulai:a,selesai:b,jeda:intervals,menit:menit});
+    }catch(e){masalah.push(id+': '+e.message);tambahan.push({id_jenjang:txt(s.id_jenjang),id_sesi:id,nama_sesi:txt(s.nama_sesi)||id,tanggal:tanggalSesi(s.tanggal_sesi),status:'perlu_verifikasi',keterangan:e.message,jp:null,durasi_diakui:null,terlambat:null});}
   });
   const seen=new Set();
   const hasil=ikut.map(t=>{
+    const metaPeserta=meta.filter(s=>!t.id_jenjang||s.id_jenjang===txt(t.id_jenjang)),acuan=metaPeserta.reduce((n,s)=>n+s.menit,0),ownMasalah=tambahan.filter(r=>(!t.id_jenjang||r.id_jenjang===txt(t.id_jenjang))&&r.status==='perlu_verifikasi');
     const id=txt(t.id_keikutsertaan);if(!id||seen.has(id))throw new Error('ID keikutsertaan kosong atau duplikat.');seen.add(id);
-    let menit=0,selesai=0,belumAbsen=0,belumLengkap=0,belumHitung=0;const detail=[],rincian=tambahan.map(r=>Object.assign({},r));
-    meta.forEach(s=>{
+    let menit=0,selesai=0,belumAbsen=0,belumLengkap=0,belumHitung=0;const detail=[],rincian=tambahan.filter(r=>!t.id_jenjang||r.id_jenjang===txt(t.id_jenjang)).map(r=>Object.assign({},r));
+    metaPeserta.forEach(s=>{
       const info={id_sesi:s.id,nama_sesi:s.nama,tanggal:s.tanggal,jp_acuan:s.menit/45,datang:'',pulang:'',datang_asli:'',pulang_asli:'',sumber_datang:'',sumber_pulang:'',durasi_diakui:null,jp:null,terlambat:null,status:'belum_absen',keterangan:''};rincian.push(info);
       const records=k.filter(r=>txt(r.id_sesi)===s.id&&txt(r.id_keikutsertaan)===id);
       if(!records.length){info.keterangan='Belum ada absensi pada sesi ini.';belumAbsen++;detail.push(s.id+': belum ada absensi');return;}
@@ -3525,10 +3550,10 @@ function muatRekapJPProgramIndex(idProgram){
         menit+=Number(tersimpan);selesai++;
       }catch(e){info.status='perlu_dihitung_atau_diperiksa';info.keterangan=e.message;belumHitung++;detail.push(s.id+': '+e.message);}
     });
-    const lengkap=meta.length>0&&!masalah.length&&!belumAbsen&&!belumLengkap&&!belumHitung;
-    return {id_keikutsertaan:id,nama:nama.get(txt(t.id_peserta))||'(peserta tidak ditemukan)',unit:txt(t.unit_kerja_saat_pelatihan),status_peserta:txt(t.status_keikutsertaan),jp_diperoleh:menit/45,jp_acuan:masalah.length?null:totalMenit/45,kekurangan_jp:masalah.length?null:Math.max(0,totalMenit-menit)/45,persentase:!masalah.length&&totalMenit>0?Math.min(100,menit/totalMenit*100):null,sesi_dihitung:selesai,belum_absen:belumAbsen,belum_lengkap:belumLengkap,belum_dihitung:belumHitung,status:lengkap?'lengkap':'sementara',detail:detail,rincian:rincian.sort((a,b)=>String(a.tanggal).localeCompare(String(b.tanggal))||a.id_sesi.localeCompare(b.id_sesi))};
+    const lengkap=metaPeserta.length>0&&!ownMasalah.length&&!belumAbsen&&!belumLengkap&&!belumHitung;
+    return {id_jenjang:txt(t.id_jenjang),nama_jenjang:levelNames.get(txt(t.id_jenjang))||'',id_keikutsertaan:id,nama:nama.get(txt(t.id_peserta))||'(peserta tidak ditemukan)',unit:txt(t.unit_kerja_saat_pelatihan),status_peserta:txt(t.status_keikutsertaan),jp_diperoleh:menit/45,jp_acuan:ownMasalah.length?null:acuan/45,kekurangan_jp:ownMasalah.length?null:Math.max(0,acuan-menit)/45,persentase:!ownMasalah.length&&acuan>0?Math.min(100,menit/acuan*100):null,sesi_dihitung:selesai,belum_absen:belumAbsen,belum_lengkap:belumLengkap,belum_dihitung:belumHitung,status:lengkap?'lengkap':'sementara',detail:detail,rincian:rincian.sort((a,b)=>String(a.tanggal).localeCompare(String(b.tanggal))||a.id_sesi.localeCompare(b.id_sesi))};
   }).sort((a,b)=>a.nama.localeCompare(b.nama,'id'));
-  return {sukses:true,id_program:idProgram,nama_program:txt(program[0].nama_program),jp_acuan:masalah.length?null:totalMenit/45,jumlah_sesi:meta.length,sesi_diabaikan:diabaikan,masalah:masalah,peserta:hasil};
+  return {sukses:true,id_program:idProgram,nama_program:txt(program[0].nama_program),jp_acuan:masalah.length||new Set(sesi.map(t=>txt(t.id_jenjang))).size>1?null:totalMenit/45,jumlah_sesi:meta.length,sesi_diabaikan:diabaikan,masalah:masalah,peserta:hasil};
 }
 
 function muatCatatanPerilakuIndex(idSesi){
@@ -3537,7 +3562,7 @@ function muatCatatanPerilakuIndex(idSesi){
   const s=tabelIndex_('Sesi',['id_sesi','id_program']).records.filter(r=>txt(r.id_sesi)===idSesi);
   if(s.length!==1)throw new Error('Pilih sesi yang valid.');
   const indikator=tabelIndex_('Indikator_Perilaku',['id_indikator','kode_indikator','definisi_indikator','jenis_indikator','status_indikator']).records;
-  const ikut=tabelIndex_('Keikutsertaan',['id_keikutsertaan','id_program','id_peserta']).records.filter(k=>txt(k.id_program)===txt(s[0].id_program));
+  const ikut=tabelIndex_('Keikutsertaan',['id_keikutsertaan','id_program','id_peserta']).records.filter(k=>txt(k.id_program)===txt(s[0].id_program)&&sesuaiJenjang_(s[0],k));
   const peserta=tabelIndex_('Peserta',['id_peserta','nama_pegawai']).records;
   const names=new Map(peserta.map(p=>[txt(p.id_peserta),txt(p.nama_pegawai)])),links=new Map(ikut.map(k=>[txt(k.id_keikutsertaan),names.get(txt(k.id_peserta))||'(peserta tidak ditemukan)']));
   const imap=new Map(indikator.map(i=>[txt(i.id_indikator),i]));
@@ -3558,7 +3583,7 @@ function simpanCatatanPerilakuIndex(d){
     const ss=SpreadsheetApp.getActiveSpreadsheet(),zona=ss.getSpreadsheetTimeZone();
     const sesi=tabelIndex_('Sesi',['id_sesi','id_program','tanggal_sesi','jam_mulai']).records.filter(s=>txt(s.id_sesi)===idSesi);
     if(sesi.length!==1)throw new Error('Sesi tidak ditemukan atau duplikat.');
-    const ikut=tabelIndex_('Keikutsertaan',['id_keikutsertaan','id_program','status_keikutsertaan']).records.filter(k=>txt(k.id_keikutsertaan)===idIkut&&txt(k.id_program)===txt(sesi[0].id_program));
+    const ikut=tabelIndex_('Keikutsertaan',['id_keikutsertaan','id_program','status_keikutsertaan']).records.filter(k=>txt(k.id_keikutsertaan)===idIkut&&txt(k.id_program)===txt(sesi[0].id_program)&&sesuaiJenjang_(sesi[0],k));
     if(ikut.length!==1||txt(ikut[0].status_keikutsertaan).toLowerCase()!=='terdaftar')throw new Error('Peserta tidak terdaftar aktif pada program sesi ini.');
     const indikator=tabelIndex_('Indikator_Perilaku',['id_indikator','kode_indikator','status_indikator']).records.filter(i=>txt(i.id_indikator)===idInd);
     if(indikator.length!==1||txt(indikator[0].status_indikator).toLowerCase()!=='aktif')throw new Error('Indikator tidak aktif atau duplikat.');
@@ -3752,7 +3777,7 @@ function muatNilaiPerilakuProgramIndex(idProgram){
   const pending=new Set(Array.from(tx.values()).filter(a=>a.status!=='SELESAI').map(a=>a.jenis+'|'+a.id));
   if(pending.has('Program|'+idProgram))throw new Error('Transaksi aturan program belum selesai. Periksa riwayat.');
   const zona=SpreadsheetApp.getActiveSpreadsheet().getSpreadsheetTimeZone();const hasil=ikut.map(k=>{
-    const id=txt(k.id_keikutsertaan),notes=c.filter(r=>txt(r.id_keikutsertaan)===id&&sm.has(txt(r.id_sesi))).map(r=>{
+    const id=txt(k.id_keikutsertaan),notes=c.filter(r=>txt(r.id_keikutsertaan)===id&&sm.has(txt(r.id_sesi))&&sesuaiJenjang_(sm.get(txt(r.id_sesi)),k)).map(r=>{
       const s=sm.get(txt(r.id_sesi)),h=hadir.filter(h=>txt(h.id_sesi)===txt(r.id_sesi)&&txt(h.id_keikutsertaan)===id);let terlambat=null;
       try{const d=h.length===1&&(h[0].waktu_datang_terverifikasi||h[0].waktu_datang);if(d instanceof Date&&Number.isFinite(d.getTime())&&!peringatanWaktuKehadiran_(d,null,s.tanggal_sesi,zona))terlambat=Math.max(0,(d.getTime()-waktuJadwalJP_(s.tanggal_sesi,s.jam_mulai,zona))/60000);}catch(ignored){}
       return {id:txt(r.id_catatan),id_sesi:txt(r.id_sesi),kode:im.get(txt(r.id_indikator))||txt(r.id_indikator),status:txt(r.status_validasi),urutan:r.waktu_kejadian instanceof Date?r.waktu_kejadian.getTime():NaN,waktu:r.waktu_kejadian instanceof Date?Utilities.formatDate(r.waktu_kejadian,zona,'yyyy-MM-dd HH:mm:ss'):txt(r.waktu_kejadian),keterangan:txt(r.keterangan),durasi:r.durasi_kejadian_menit===''||r.durasi_kejadian_menit==null?null:Number(r.durasi_kejadian_menit),id_tugas:txt(r.id_tugas),terlambat:terlambat,transaksi_tertunda:pending.has('Catatan_Perilaku|'+txt(r.id_catatan))||h.some(h=>pending.has('Kehadiran|'+txt(h.id_kehadiran)))};
@@ -3773,10 +3798,11 @@ function muatKelolaProgramIndex(idProgram){
   const sesi=tabelIndex_('Sesi',['id_sesi','id_program','nama_sesi','tanggal_sesi','jam_mulai','jam_selesai','status_jp']).records.filter(s=>txt(s.id_program)===txt(idProgram));
   const jeda=tabelIndex_('Jeda_Sesi',['id_jeda','id_sesi','jam_mulai_jeda','jam_selesai_jeda']).records;
   const fmtDate=v=>v instanceof Date?Utilities.formatDate(v,z,'yyyy-MM-dd'):txt(v),fmtTime=v=>v instanceof Date?Utilities.formatDate(v,z,'HH:mm'):txt(v);
-  return {sukses:true,program:programs.map(p=>({id:txt(p.id_program),nama:txt(p.nama_program),kategori:txt(p.kategori_pelatihan),jenjang:txt(p.jenjang),mulai:fmtDate(p.tanggal_mulai),selesai:fmtDate(p.tanggal_selesai),status:txt(p.status_program)})),sesi:sesi.map(s=>{
+  const scopeJenjang=typeof konteksJenjang_==='function'?konteksJenjang_(idProgram,'',false):{aktif:false,daftar:[]};
+  return {sukses:true,struktur_jenjang:scopeJenjang.aktif,jenjang:scopeJenjang.daftar,program:programs.map(p=>({id:txt(p.id_program),nama:txt(p.nama_program),kategori:txt(p.kategori_pelatihan),jenjang:typeof namaJenjangProgram_==='function'?namaJenjangProgram_(p.id_program,p.jenjang):txt(p.jenjang),mulai:fmtDate(p.tanggal_mulai),selesai:fmtDate(p.tanggal_selesai),status:txt(p.status_program)})),sesi:sesi.map(s=>{
     const breaks=jeda.filter(j=>txt(j.id_sesi)===txt(s.id_sesi));let menit=null,error='';
     try{const a=waktuJadwalJP_(s.tanggal_sesi,s.jam_mulai,z),b=waktuJadwalJP_(s.tanggal_sesi,s.jam_selesai,z);if(b<=a)throw new Error('Waktu sesi tidak valid.');const ranges=breaks.map(j=>{const x=waktuJadwalJP_(s.tanggal_sesi,j.jam_mulai_jeda,z),y=waktuJadwalJP_(s.tanggal_sesi,j.jam_selesai_jeda,z);if(y<=x||x<a||y>b)throw new Error('Waktu jeda tidak valid.');return [x,y];});menit=(b-a-gabungRentangJP_(ranges).reduce((n,r)=>n+r[1]-r[0],0))/60000;}catch(e){error=e.message;}
-    return {id:txt(s.id_sesi),nama:txt(s.nama_sesi),tanggal:fmtDate(s.tanggal_sesi),mulai:fmtTime(s.jam_mulai),selesai:fmtTime(s.jam_selesai),status_jp:txt(s.status_jp),durasi_efektif:menit,usulan_jp:menit==null?null:txt(s.status_jp)==='tidak_dihitung'?0:menit/45,jeda:breaks.map(j=>fmtTime(j.jam_mulai_jeda)+'–'+fmtTime(j.jam_selesai_jeda)).join(', '),masalah:error};}),zona_waktu:z};
+    return {id:txt(s.id_sesi),id_jenjang:txt(s.id_jenjang),nama_jenjang:typeof konteksJenjang_==='function'?(scopeJenjang.daftar.find(j=>j.id===txt(s.id_jenjang))||{}).nama||'':'',nama:txt(s.nama_sesi),tanggal:fmtDate(s.tanggal_sesi),mulai:fmtTime(s.jam_mulai),selesai:fmtTime(s.jam_selesai),status_jp:txt(s.status_jp),durasi_efektif:menit,usulan_jp:menit==null?null:txt(s.status_jp)==='tidak_dihitung'?0:menit/45,jeda:breaks.map(j=>fmtTime(j.jam_mulai_jeda)+'–'+fmtTime(j.jam_selesai_jeda)).join(', '),masalah:error};}),zona_waktu:z};
 }
 /** Pemanggil memegang ScriptLock. Audit menjadi penanda retry dan transaksi tertunda. */
 function pembuatanKelola_(jenis,input,request,builder){
@@ -3808,7 +3834,7 @@ function tambahProgramIndex(d){
   wajibPemilikIndex_();if(!d)throw new Error('Data program tidak tersedia.');
   const txt=v=>String(v==null?'':v).trim(),z=SpreadsheetApp.getActiveSpreadsheet().getSpreadsheetTimeZone();
   const input={nama:txt(d.nama),kategori:txt(d.kategori),jenjang:txt(d.jenjang),mulai:tanggalKelola_(d.mulai,z),selesai:tanggalKelola_(d.selesai,z),status:txt(d.status)};
-  if(!input.nama||input.nama.length>200||!input.kategori||input.kategori.length>100||input.jenjang.length>100||!['draft','aktif','selesai'].includes(input.status))throw new Error('Nama, kategori, dan status program wajib valid.');
+  if(input.jenjang.startsWith('=')||!input.nama||input.nama.length>200||!input.kategori||input.kategori.length>100||input.jenjang.length>100||!['draft','aktif','selesai'].includes(input.status))throw new Error('Nama, kategori, dan status program wajib valid.');
   if(input.selesai<input.mulai)throw new Error('Tanggal selesai program tidak boleh sebelum tanggal mulai.');
   if(!/^[a-zA-Z0-9_-]{16,100}$/.test(txt(d.id_permintaan)))throw new Error('ID permintaan tidak valid.');
   const lock=LockService.getScriptLock();lock.waitLock(30000);try{
@@ -3817,13 +3843,15 @@ function tambahProgramIndex(d){
     if(p.records.some(r=>txt(r.nama_program).toLowerCase()===input.nama.toLowerCase()&&txt(r.kategori_pelatihan).toLowerCase()===input.kategori.toLowerCase()&&txt(r.jenjang).toLowerCase()===input.jenjang.toLowerCase()&&tanggalKelola_(r.tanggal_mulai,z)===input.mulai&&tanggalKelola_(r.tanggal_selesai,z)===input.selesai))throw new Error('Program dengan nama, kategori, jenjang, dan rentang tanggal yang sama sudah ada.');
     const id=nomorIdKelola_(p.records,'id_program','PRG'),now=new Date();
     const r={id_program:id,nama_program:input.nama,kategori_pelatihan:input.kategori,jenjang:input.jenjang,tanggal_mulai:parseWaktuAbsensiManual_(input.mulai+' 00:00',z),tanggal_selesai:parseWaktuAbsensiManual_(input.selesai+' 00:00',z),status_program:input.status,id_aturan_penilaian_aktif:'',created_at:now,updated_at:now};
-    return {id:id,writes:[{sheet:'Program',id_column:'id_program',record:r}],hasil:{id_program:id,pesan:'Program '+id+' berhasil ditambahkan.'}};
+    const writes=[{sheet:'Program',id_column:'id_program',record:r}];
+    if(typeof konteksJenjang_==='function'&&konteksJenjang_('','',false).aktif){const js=tabelIndex_('Jenjang',['id_jenjang','id_program','nama_jenjang','created_at','updated_at']);writes.push({sheet:'Jenjang',id_column:'id_jenjang',record:{id_jenjang:nomorIdKelola_(js.records,'id_jenjang','JEN'),id_program:id,nama_jenjang:input.jenjang||'Umum',created_at:now,updated_at:now}});}
+    return {id:id,writes,hasil:{id_program:id,pesan:'Program '+id+' berhasil ditambahkan.'}};
   });}finally{lock.releaseLock();}
 }
 function tambahSesiIndex(d){
   wajibPemilikIndex_();if(!d)throw new Error('Data sesi tidak tersedia.');
   const txt=v=>String(v==null?'':v).trim(),z=SpreadsheetApp.getActiveSpreadsheet().getSpreadsheetTimeZone();
-  const input={id_program:txt(d.id_program),nama:txt(d.nama),tanggal:tanggalKelola_(d.tanggal,z),mulai:txt(d.mulai),selesai:txt(d.selesai),status_jp:txt(d.status_jp),jeda:Array.isArray(d.jeda)?d.jeda.map(j=>({mulai:txt(j.mulai),selesai:txt(j.selesai),keterangan:txt(j.keterangan)})):[]};
+  const input={...kolomJenjangData_(txt(d.id_program),d.id_jenjang),id_program:txt(d.id_program),nama:txt(d.nama),tanggal:tanggalKelola_(d.tanggal,z),mulai:txt(d.mulai),selesai:txt(d.selesai),status_jp:txt(d.status_jp),jeda:Array.isArray(d.jeda)?d.jeda.map(j=>({mulai:txt(j.mulai),selesai:txt(j.selesai),keterangan:txt(j.keterangan)})):[]};
   if(!input.id_program||!input.nama||input.nama.length>200||!['dihitung','tidak_dihitung'].includes(input.status_jp)||input.jeda.length>20)throw new Error('Data sesi tidak valid; maksimal 20 jeda.');
   const start=waktuJadwalJP_(input.tanggal,input.mulai,z),end=waktuJadwalJP_(input.tanggal,input.selesai,z);if(end<=start)throw new Error('Jam selesai harus setelah jam mulai.');
   const ranges=input.jeda.map(j=>{const a=waktuJadwalJP_(input.tanggal,j.mulai,z),b=waktuJadwalJP_(input.tanggal,j.selesai,z);if(b<=a||a<start||b>end)throw new Error('Jeda harus berada dalam sesi dan jam selesai jeda setelah jam mulai.');return[a,b];}).sort((a,b)=>a[0]-b[0]);
@@ -3834,10 +3862,10 @@ function tambahSesiIndex(d){
     const programs=tabelIndex_('Program',['id_program','tanggal_mulai','tanggal_selesai']).records.filter(p=>txt(p.id_program)===input.id_program);if(programs.length!==1)throw new Error('Program tidak ditemukan atau duplikat.');
     if(input.tanggal<tanggalKelola_(programs[0].tanggal_mulai,z)||input.tanggal>tanggalKelola_(programs[0].tanggal_selesai,z))throw new Error('Tanggal sesi harus berada dalam rentang tanggal program.');
     const s=tabelIndex_('Sesi',['id_sesi','id_program','nama_sesi','tanggal_sesi','jam_mulai','jam_selesai','durasi_rencana_menit','durasi_jeda_menit','durasi_efektif_menit','jp_rencana','status_jp','status_pemeriksaan','status_validasi_realisasi','created_at','updated_at']);
-    if(s.records.some(r=>txt(r.id_program)===input.id_program&&txt(r.nama_sesi).toLowerCase()===input.nama.toLowerCase()&&tanggalKelola_(r.tanggal_sesi,z)===input.tanggal&&waktuJadwalJP_(input.tanggal,r.jam_mulai,z)===start&&waktuJadwalJP_(input.tanggal,r.jam_selesai,z)===end))throw new Error('Sesi dengan nama, tanggal, dan jam yang sama sudah ada.');
+    if(s.records.some(r=>txt(r.id_program)===input.id_program&&(!input.id_jenjang||txt(r.id_jenjang)===input.id_jenjang)&&txt(r.nama_sesi).toLowerCase()===input.nama.toLowerCase()&&tanggalKelola_(r.tanggal_sesi,z)===input.tanggal&&waktuJadwalJP_(input.tanggal,r.jam_mulai,z)===start&&waktuJadwalJP_(input.tanggal,r.jam_selesai,z)===end))throw new Error('Sesi dengan nama, tanggal, dan jam yang sama sudah ada.');
     const j=tabelIndex_('Jeda_Sesi',['id_jeda','id_sesi','jam_mulai_jeda','jam_selesai_jeda','durasi_jeda_menit','status_validasi_jeda','keterangan','created_at','updated_at']);
     const id=nomorIdKelola_(s.records,'id_sesi','SES'),now=new Date(),durasi=(end-start)/60000,totalJeda=ranges.reduce((n,r)=>n+(r[1]-r[0])/60000,0),efektif=durasi-totalJeda;
-    const record={id_sesi:id,id_program:input.id_program,nama_sesi:input.nama,tanggal_sesi:parseWaktuAbsensiManual_(input.tanggal+' 00:00',z),jam_mulai:input.mulai,jam_selesai:input.selesai,durasi_rencana_menit:durasi,durasi_jeda_menit:totalJeda,durasi_efektif_menit:efektif,jp_rencana:'',status_jp:input.status_jp,status_pemeriksaan:'belum_diperiksa',status_validasi_realisasi:'belum_divalidasi',created_at:now,updated_at:now};
+    const record={...kolomJenjangData_(input.id_program,input.id_jenjang),id_sesi:id,id_program:input.id_program,nama_sesi:input.nama,tanggal_sesi:parseWaktuAbsensiManual_(input.tanggal+' 00:00',z),jam_mulai:input.mulai,jam_selesai:input.selesai,durasi_rencana_menit:durasi,durasi_jeda_menit:totalJeda,durasi_efektif_menit:efektif,jp_rencana:'',status_jp:input.status_jp,status_pemeriksaan:'belum_diperiksa',status_validasi_realisasi:'belum_divalidasi',created_at:now,updated_at:now};
     const writes=[{sheet:'Sesi',id_column:'id_sesi',record:record}],ids=j.records.slice();input.jeda.forEach(b=>{const jid=nomorIdKelola_(ids,'id_jeda','JDA');ids.push({id_jeda:jid});writes.push({sheet:'Jeda_Sesi',id_column:'id_jeda',record:{id_jeda:jid,id_sesi:id,jam_mulai_jeda:b.mulai,jam_selesai_jeda:b.selesai,durasi_jeda_menit:(waktuJadwalJP_(input.tanggal,b.selesai,z)-waktuJadwalJP_(input.tanggal,b.mulai,z))/60000,status_validasi_jeda:'belum_divalidasi',keterangan:b.keterangan,created_at:now,updated_at:now}});});
     return {id:id,writes:writes,hasil:{id_program:input.id_program,id_sesi:id,usulan_jp:input.status_jp==='dihitung'?efektif/45:0,pesan:'Sesi '+id+' dan '+input.jeda.length+' jeda berhasil ditambahkan. JP rencana belum dikonfirmasi.'}};
   });}finally{lock.releaseLock();}
@@ -3950,20 +3978,22 @@ function periksaBarisImporPeserta_(idProgram,rows,registry){
     row.id_peserta=txt(old.id_peserta);row.versi_peserta=versiBarisIndex_(old);
     if(normalNamaPeserta_(old.nama_pegawai)!==normalNamaPeserta_(row.nama)){row.pesan='NIP sudah ada dengan nama berbeda: '+txt(old.nama_pegawai)+'. Periksa identitas terlebih dahulu.';return row;}
     const link=registry.byPair.get(idProgram+'|'+row.id_peserta);
-    if(link){row.status='lewati';row.versi_keikutsertaan=versiBarisIndex_(link);row.pesan='Sudah terdaftar pada program (status: '+txt(link.status_keikutsertaan)+'). Tidak diubah.';}
+    if(link){row.status='lewati';row.versi_keikutsertaan=versiBarisIndex_(link);row.pesan='Sudah terdaftar pada program'+(link.id_jenjang?' di Jenjang '+txt(link.id_jenjang):'')+' (status: '+txt(link.status_keikutsertaan)+'). Tidak diubah atau dipindahkan.';}
     else{row.status='daftar';row.pesan=txt(old.unit_kerja)===row.unit?'Gunakan peserta lama dan tambahkan keikutsertaan.':'Gunakan peserta lama. Unit saat pelatihan mengikuti file; data master tidak diubah.';}
     return row;
   });
 }
-function pratinjauImporPesertaIndex(idProgram,rows){
+function pratinjauImporPesertaIndex(idProgram,rows,idJenjang){
   wajibPemilikIndex_();idProgram=String(idProgram||'').trim();pastikanProgramPeserta_(idProgram);
   if(!Array.isArray(rows)||!rows.length||rows.length>1000)throw new Error('Unggah 1–1000 baris per impor.');
+  const tujuan=kolomJenjangData_(idProgram,idJenjang);
   const checked=periksaBarisImporPeserta_(idProgram,rows,bacaRegistriPeserta_()),jumlah={baru:0,daftar:0,lewati:0,error:0};checked.forEach(r=>jumlah[r.status]++);
-  return {sukses:true,id_program:idProgram,baris:checked,jumlah:jumlah};
+  return {sukses:true,id_program:idProgram,...tujuan,baris:checked,jumlah:jumlah};
 }
-function muatPesertaProgramIndex(idProgram,q,page){
+function muatPesertaProgramIndex(idProgram,q,page,idJenjang){
   wajibPemilikIndex_();idProgram=String(idProgram||'').trim();pastikanProgramPeserta_(idProgram);q=String(q||'').trim().toLowerCase();page=Math.max(0,Math.floor(Number(page)||0));
-  const r=bacaRegistriPeserta_(),all=r.k.records.filter(k=>String(k.id_program).trim()===idProgram).map(k=>{const p=r.byId.get(String(k.id_peserta).trim());return {id_keikutsertaan:String(k.id_keikutsertaan),id_peserta:String(p.id_peserta),nama:String(p.nama_pegawai),nip:String(p.nip),unit:String(k.unit_kerja_saat_pelatihan||''),status:String(k.status_keikutsertaan||'')};});
+  const tujuan=typeof konteksJenjang_==='function'?konteksJenjang_(idProgram,idJenjang,false):{id:''};
+  const r=bacaRegistriPeserta_(),all=r.k.records.filter(k=>String(k.id_program).trim()===idProgram&&(!tujuan.id||String(k.id_jenjang).trim()===tujuan.id)).map(k=>{const p=r.byId.get(String(k.id_peserta).trim());return {id_jenjang:String(k.id_jenjang||''),jenjang:typeof konteksJenjang_==='function'?(tujuan.daftar.find(j=>j.id===String(k.id_jenjang).trim())||{}).nama||'':'',id_keikutsertaan:String(k.id_keikutsertaan),id_peserta:String(p.id_peserta),nama:String(p.nama_pegawai),nip:String(p.nip),unit:String(k.unit_kerja_saat_pelatihan||''),status:String(k.status_keikutsertaan||'')};});
   const filtered=all.filter(p=>(p.nama+' '+p.nip+' '+p.unit).toLowerCase().includes(q)).sort((a,b)=>a.nama.localeCompare(b.nama,'id'));
   return {sukses:true,total:all.length,jumlah_cocok:filtered.length,page:page,peserta:filtered.slice(page*50,page*50+50)};
 }
@@ -3973,7 +4003,7 @@ function cariPesertaLamaIndex(q){
 }
 function imporPesertaProgramIndex(d){
   const petugas=wajibPemilikIndex_();if(!d||!Array.isArray(d.baris)||!d.baris.length||d.baris.length>20||!/^[a-zA-Z0-9_-]{16,100}$/.test(String(d.id_permintaan||''))||!Number.isInteger(d.batch)||d.batch<0||d.batch>49)throw new Error('Data batch impor tidak valid (maksimal 20 peserta per batch).');
-  const idProgram=String(d.id_program||'').trim(),signature=versiBarisIndex_({id_program:idProgram,baris:d.baris}),tx='IMPOR-PESERTA|'+d.id_permintaan+'|'+d.batch;
+  const idProgram=String(d.id_program||'').trim(),signature=versiBarisIndex_({id_program:idProgram,...kolomJenjangData_(idProgram,d.id_jenjang),baris:d.baris}),tx='IMPOR-PESERTA|'+d.id_permintaan+'|'+d.batch;
   const lock=LockService.getScriptLock();lock.waitLock(30000);
   try{
     pastikanTidakAdaHapusTertunda_();
@@ -3995,9 +4025,9 @@ function imporPesertaProgramIndex(d){
         counts[r.status]++;if(r.status==='lewati')continue;let id=r.id_peserta;
         if(r.status==='baru'){id=nomorIdKelola_(ps,'id_peserta','PST');const record={id_peserta:id,nip:r.nip,nama_pegawai:r.nama,unit_kerja:r.unit,created_at:now,updated_at:now};ps.push(record);writes.push({sheet:'Peserta',id_column:'id_peserta',record:record});}
         else checks.push({id_peserta:id,versi:r.versi_peserta});
-        const idk=nomorIdKelola_(ks,'id_keikutsertaan','KST'),record={id_keikutsertaan:idk,id_program:idProgram,id_peserta:id,unit_kerja_saat_pelatihan:r.unit,status_keikutsertaan:'terdaftar',created_at:now,updated_at:now};ks.push(record);writes.push({sheet:'Keikutsertaan',id_column:'id_keikutsertaan',record:record});
+        const idk=nomorIdKelola_(ks,'id_keikutsertaan','KST'),record={...kolomJenjangData_(idProgram,d.id_jenjang),id_keikutsertaan:idk,id_program:idProgram,id_peserta:id,unit_kerja_saat_pelatihan:r.unit,status_keikutsertaan:'terdaftar',created_at:now,updated_at:now};ks.push(record);writes.push({sheet:'Keikutsertaan',id_column:'id_keikutsertaan',record:record});
       }
-      plan={sidik_input:signature,id_program:idProgram,baris_asal:d.baris,writes:writes,checks:checks,hasil:{sukses:true,baru:counts.baru,daftar:counts.daftar,lewati:counts.lewati}};
+      plan={sidik_input:signature,id_program:idProgram,...kolomJenjangData_(idProgram,d.id_jenjang),baris_asal:d.baris,writes:writes,checks:checks,hasil:{sukses:true,baru:counts.baru,daftar:counts.daftar,lewati:counts.lewati}};
       if(JSON.stringify(plan).length>45000)throw new Error('Isi batch terlalu panjang. Kurangi jumlah peserta atau panjang nama/unit.');
     }
     const as=ss.getSheetByName('Riwayat_Validasi');
@@ -4030,7 +4060,7 @@ function pulihkanImporPesertaIndex(idProgram){
   wajibPemilikIndex_();idProgram=String(idProgram||'').trim();pastikanProgramPeserta_(idProgram);
   const a=tabelIndex_('Riwayat_Validasi',['jenis_data','id_referensi','id_transaksi_perubahan','status_transaksi','nilai_sesudah']).records;
   const tx=new Map();a.filter(r=>r.jenis_data==='Impor_Peserta'&&String(r.id_referensi)===idProgram).forEach(r=>tx.set(r.id_transaksi_perubahan,r));const errors=[];let total=0;
-  for(const [id,r] of tx){if(r.status_transaksi==='SELESAI')continue;try{const m=String(id).match(/^IMPOR-PESERTA\|([a-zA-Z0-9_-]{16,100})\|(\d+)$/);if(!m)throw new Error('ID transaksi tidak dikenali.');const p=JSON.parse(r.nilai_sesudah);if(!Array.isArray(p.baris_asal))throw new Error('Rencana impor tidak lengkap.');imporPesertaProgramIndex({id_program:idProgram,id_permintaan:m[1],batch:Number(m[2]),baris:p.baris_asal});total++;}catch(e){errors.push(e.message);}}
+  for(const [id,r] of tx){if(r.status_transaksi==='SELESAI')continue;try{const m=String(id).match(/^IMPOR-PESERTA\|([a-zA-Z0-9_-]{16,100})\|(\d+)$/);if(!m)throw new Error('ID transaksi tidak dikenali.');const p=JSON.parse(r.nilai_sesudah);if(!Array.isArray(p.baris_asal))throw new Error('Rencana impor tidak lengkap.');imporPesertaProgramIndex({id_program:idProgram,id_jenjang:p.id_jenjang,id_permintaan:m[1],batch:Number(m[2]),baris:p.baris_asal});total++;}catch(e){errors.push(e.message);}}
   return {sukses:true,dipulihkan:total,masalah:errors,pesan:total+' batch dipulihkan.'+(errors.length?'\n'+errors.join('\n'):'')};
 }
 
@@ -4086,7 +4116,7 @@ function periksaDataIndex(opsi){
   return {sukses:true,cakupan:cakupan,id_program:cakupan==='program'?programId:'',waktu:Utilities.formatDate(new Date(),ss.getSpreadsheetTimeZone(),'yyyy-MM-dd HH:mm:ss'),zona:ss.getSpreadsheetTimeZone(),ringkasan:stats,jumlah:{masalah:temuan.filter(x=>x.tingkat==='masalah').length,peringatan:temuan.filter(x=>x.tingkat==='peringatan').length,informasi:temuan.filter(x=>x.tingkat==='informasi').length},total:temuan.length,temuan:temuan.slice(0,1000)};
 }
 
-function konfigurasiEdit_(){return {Indikator_Perilaku:{id:'id_indikator',fields:['definisi_indikator','jenis_indikator','poin_per_kejadian','status_indikator']},Program:{id:'id_program',fields:['nama_program','kategori_pelatihan','jenjang','tanggal_mulai','tanggal_selesai','status_program']},Sesi:{id:'id_sesi',fields:['nama_sesi','tanggal_sesi','jam_mulai','jam_selesai','status_jp']},Peserta:{id:'id_peserta',fields:['nama_pegawai','nip','unit_kerja']}};}
+function konfigurasiEdit_(){const cfg={Indikator_Perilaku:{id:'id_indikator',fields:['definisi_indikator','jenis_indikator','poin_per_kejadian','status_indikator']},Program:{id:'id_program',fields:['nama_program','kategori_pelatihan','jenjang','tanggal_mulai','tanggal_selesai','status_program']},Sesi:{id:'id_sesi',fields:['nama_sesi','tanggal_sesi','jam_mulai','jam_selesai','status_jp']},Peserta:{id:'id_peserta',fields:['nama_pegawai','nip','unit_kerja']}};if(typeof bacaMentahJenjang_==='function'&&bacaMentahJenjang_('Jenjang',true)){cfg.Program.fields=cfg.Program.fields.filter(f=>f!=='jenjang');cfg.Jenjang={id:'id_jenjang',fields:['nama_jenjang']};}return cfg;}
 function lokasiEdit_(jenis,id){
   const ss=SpreadsheetApp.getActiveSpreadsheet(),spec=konfigurasiEdit_()[jenis];if(!spec)throw Error('Jenis data tidak didukung.');
   const table=tabelIndex_(jenis,[spec.id].concat(spec.fields)),sheet=ss.getSheetByName(jenis),values=sheet.getDataRange().getValues(),found=[];
@@ -4150,6 +4180,7 @@ function simpanEditDataIndex(d){
       if(val.status_indikator==='aktif'&&tabelIndex_('Indikator_Perilaku',['id_indikator','kode_indikator','status_indikator']).records.some(r=>txt(r.id_indikator)!==txt(d.id)&&txt(r.kode_indikator)===txt(old.kode_indikator)&&txt(r.status_indikator)==='aktif'))throw Error('Sudah ada versi aktif untuk kode ini.');
       patch.poin_per_kejadian=n;
     }
+    if(d.jenis==='Jenjang'){if(val.nama_jenjang.length>100||tabelIndex_('Jenjang',['id_jenjang','id_program','nama_jenjang']).records.some(j=>txt(j.id_jenjang)!==txt(d.id)&&txt(j.id_program)===txt(old.id_program)&&txt(j.nama_jenjang).toLowerCase()===val.nama_jenjang.toLowerCase()))throw Error('Nama Jenjang terlalu panjang atau sudah digunakan pada program ini.');}
     if(d.jenis==='Peserta'){
       if(!/^\d{18}$/.test(val.nip)&&!(val.nip===txt(old.nip)&&/^\d{12}$/.test(val.nip)))throw Error('NIP baru wajib teks 18 digit. NIP dummy lama boleh dipertahankan.');
       if(tabelIndex_('Peserta',['id_peserta','nip']).records.some(r=>txt(r.id_peserta)!==txt(d.id)&&txt(r.nip)===val.nip))throw Error('NIP sudah digunakan peserta lain.');
@@ -4215,7 +4246,7 @@ function targetBukti_(d){
   if(d.jenis==='izin'){const t=tabelIndex_('Kehadiran',['id_kehadiran']).records.filter(r=>txt(r.id_kehadiran)===txt(d.id_kehadiran));if(t.length!==1)throw Error('Kehadiran untuk lampiran tidak ditemukan atau duplikat.');return 'IZIN|'+txt(d.id_kehadiran);}
   if(d.jenis==='perilaku'){
     const s=tabelIndex_('Sesi',['id_sesi','id_program']).records.filter(r=>txt(r.id_sesi)===txt(d.id_sesi));if(s.length!==1)throw Error('Sesi untuk lampiran tidak ditemukan.');
-    const k=tabelIndex_('Keikutsertaan',['id_keikutsertaan','id_program','status_keikutsertaan']).records.filter(r=>txt(r.id_keikutsertaan)===txt(d.id_keikutsertaan)&&txt(r.id_program)===txt(s[0].id_program)&&txt(r.status_keikutsertaan).toLowerCase()==='terdaftar');if(k.length!==1)throw Error('Peserta lampiran tidak terdaftar aktif pada program sesi.');
+    const k=tabelIndex_('Keikutsertaan',['id_keikutsertaan','id_program','status_keikutsertaan']).records.filter(r=>txt(r.id_keikutsertaan)===txt(d.id_keikutsertaan)&&txt(r.id_program)===txt(s[0].id_program)&&sesuaiJenjang_(s[0],r)&&txt(r.status_keikutsertaan).toLowerCase()==='terdaftar');if(k.length!==1)throw Error('Peserta lampiran tidak terdaftar aktif pada program sesi.');
     return 'PERILAKU|'+txt(d.id_sesi)+'|'+txt(d.id_keikutsertaan);
   }throw Error('Jenis lampiran tidak valid.');
 }
@@ -4303,10 +4334,10 @@ function muatProfilPesertaIndex(d){
   if(d.id_keikutsertaan){const match=ik.filter(k=>txt(k.id_keikutsertaan)===txt(d.id_keikutsertaan));if(match.length!==1)throw Error('Keikutsertaan tidak ditemukan atau duplikat.');if(pid&&pid!==txt(match[0].id_peserta))throw Error('Identitas peserta dan keikutsertaan tidak sesuai.');pid=txt(match[0].id_peserta);if(d.id_program&&txt(d.id_program)!==txt(match[0].id_program))throw Error('Program tidak sesuai keikutsertaan.');d=Object.assign({},d,{id_program:txt(match[0].id_program)});}
   const person=tabelIndex_('Peserta',['id_peserta','nip','nama_pegawai','unit_kerja']).records.filter(p=>txt(p.id_peserta)===pid);if(person.length!==1)throw Error('Peserta tidak ditemukan atau ID duplikat.');
   const programs=tabelIndex_('Program',['id_program','nama_program','kategori_pelatihan','jenjang']).records,links=ik.filter(k=>txt(k.id_peserta)===pid),seen=new Set();
-  const choices=links.map(k=>{const id=txt(k.id_program),p=programs.filter(p=>txt(p.id_program)===id);if(!id||seen.has(id)||p.length!==1)throw Error('Relasi program peserta kosong, duplikat, atau tidak ditemukan.');seen.add(id);return {id,nama:txt(p[0].nama_program),kategori:txt(p[0].kategori_pelatihan),jenjang:txt(p[0].jenjang),id_keikutsertaan:txt(k.id_keikutsertaan),unit:txt(k.unit_kerja_saat_pelatihan),status:txt(k.status_keikutsertaan)};}).sort((a,b)=>a.nama.localeCompare(b.nama,'id'));
+  const choices=links.map(k=>{const id=txt(k.id_program),p=programs.filter(p=>txt(p.id_program)===id);if(!id||seen.has(id)||p.length!==1)throw Error('Relasi program peserta kosong, duplikat, atau tidak ditemukan.');seen.add(id);return {id,nama:txt(p[0].nama_program),kategori:txt(p[0].kategori_pelatihan),id_jenjang:txt(k.id_jenjang),jenjang:typeof konteksJenjang_==='function'?(konteksJenjang_(id,'',false).daftar.find(j=>j.id===txt(k.id_jenjang))||{}).nama||txt(p[0].jenjang):txt(p[0].jenjang),id_keikutsertaan:txt(k.id_keikutsertaan),unit:txt(k.unit_kerja_saat_pelatihan),status:txt(k.status_keikutsertaan)};}).sort((a,b)=>a.nama.localeCompare(b.nama,'id'));
   const selected=txt(d.id_program)||choices[0]&&choices[0].id||'';if(selected&&!seen.has(selected))throw Error('Peserta tidak terdaftar pada program yang dipilih.');const program=choices.find(p=>p.id===selected)||null;
   const result={sukses:true,peserta:{id:pid,nama:txt(person[0].nama_pegawai),nip:txt(person[0].nip),unit:txt(person[0].unit_kerja)},programs:choices,program:program,navigasi:navigasiPelatihan_(),zona,waktu:Utilities.formatDate(new Date(now),zona,'yyyy-MM-dd HH:mm:ss'),kehadiran:[],catatan:[],riwayat:[],jp:null,nilai:null,peringatan:[]};if(!program)return result;
-  const sesi=tabelIndex_('Sesi',['id_sesi','id_program','nama_sesi','tanggal_sesi','jam_mulai','jam_selesai']).records.filter(s=>txt(s.id_program)===selected),sids=new Set(sesi.map(s=>txt(s.id_sesi)));
+  const sesi=tabelIndex_('Sesi',['id_sesi','id_program','nama_sesi','tanggal_sesi','jam_mulai','jam_selesai']).records.filter(s=>txt(s.id_program)===selected&&(!program.id_jenjang||sesuaiJenjang_(s,{id_program:selected,id_jenjang:program.id_jenjang}))),sids=new Set(sesi.map(s=>txt(s.id_sesi)));
   if(sids.size!==sesi.length||sids.has(''))throw Error('ID sesi kosong atau duplikat pada program.');
   const hadir=tabelIndex_('Kehadiran',['id_kehadiran','id_sesi','id_keikutsertaan','waktu_datang','waktu_pulang','waktu_datang_terverifikasi','waktu_pulang_terverifikasi','status_validasi']).records.filter(k=>txt(k.id_keikutsertaan)===program.id_keikutsertaan&&sids.has(txt(k.id_sesi)));
   const fmt=v=>v instanceof Date&&!isNaN(v.getTime())?Utilities.formatDate(v,zona,'yyyy-MM-dd HH:mm:ss'):txt(v),date=v=>v instanceof Date?Utilities.formatDate(v,zona,'yyyy-MM-dd'):txt(v),jam=v=>v instanceof Date?Utilities.formatDate(v,zona,'HH:mm:ss'):txt(v);
@@ -4334,7 +4365,7 @@ function muatBerandaIndex() {
   wajibPemilikIndex_();
   const zona = SpreadsheetApp.getActiveSpreadsheet().getSpreadsheetTimeZone();
   const data = {
-    program: tabelIndex_('Program', ['id_program','nama_program','kategori_pelatihan','jenjang','tanggal_mulai','tanggal_selesai','status_program']).records,
+    program: tabelIndex_('Program', ['id_program','nama_program','kategori_pelatihan','jenjang','tanggal_mulai','tanggal_selesai','status_program']).records.map(p=>Object.assign({},p,{jenjang:typeof namaJenjangProgram_==='function'?namaJenjangProgram_(p.id_program,p.jenjang):p.jenjang})),
     peserta: tabelIndex_('Peserta', ['id_peserta']).records,
     ikut: tabelIndex_('Keikutsertaan', ['id_keikutsertaan','id_program','id_peserta','status_keikutsertaan']).records,
     sesi: tabelIndex_('Sesi', ['id_sesi','id_program','nama_sesi','tanggal_sesi','jam_mulai','jam_selesai']).records,
@@ -4410,13 +4441,13 @@ function ringkasBeranda_(data, now, zona) {
   data.catatan.forEach(c => {
     const member = members.get(txt(c.id_keikutsertaan)), sid = txt(c.id_sesi);
     const rawSession = sid ? rawSessions.get(sid) : null;
-    if (!member || (sid && (!rawSession || txt(rawSession.id_program) !== txt(member.id_program)))) { relasi++; return; }
+    if (!member || (sid && (!rawSession || (txt(rawSession.id_program) !== txt(member.id_program)||!sesuaiJenjang_(rawSession,member))))) { relasi++; return; }
     if (norm(c.status_validasi) === 'belum_divalidasi') pending++;
   });
   const attendancePairs = new Set();
   data.hadir.forEach(k => {
     const s = sessions.get(txt(k.id_sesi)), member = members.get(txt(k.id_keikutsertaan));
-    if (!member || !s || txt(s.raw.id_program) !== txt(member.id_program)) { relasi++; return; }
+    if (!member || !s || (txt(s.raw.id_program) !== txt(member.id_program)||!sesuaiJenjang_(s.raw,member))) { relasi++; return; }
     const pair = JSON.stringify([txt(k.id_sesi), txt(k.id_keikutsertaan)]);
     if (attendancePairs.has(pair)) throw Error('Catatan kehadiran duplikat pada sesi. Periksa Data di Pengelolaan.');
     attendancePairs.add(pair);
