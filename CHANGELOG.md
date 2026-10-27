@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026-10-27 — user verifies Admin and Petugas Google identity results
+- User screenshots after the URL correction show a verified Admin Pelatihan and a separate verified Petugas Kelas Pelatihan assigned to Pelatihan Sosial Kultural 1 · Jenjang 1. Record successful user-observed login/role/scope display for these two paths; no personal account identifiers copied into the repository.
+- Main-app sessions and server-side role/Jenjang enforcement remain the next stage. Rejection/revocation and broader live regression checks are not established by these screenshots. Documentation-only update; no code replacement, deployment or Google data changes performed by the agent.
+
 ## 2026-10-27 — select the deployed URL for Google login proof
 - User reported Google Drive opening failure and supplied a Manage deployments URL different from the panel target. Added owner-editable canonical /exec URL in Akses.gs; saved callback overrides automatic service discovery and drives the test link, authorization and code exchange consistently. No user URL hardcoded.
 - Preserve existing directory/credentials, reject invalid host/path/query URLs, hide the old link during unsaved edits, and reject pending login states after callback changes. Only Akses.gs must be replaced for an installed stage 3. Update OAuth redirect URI and the selected deployment version on a copy.

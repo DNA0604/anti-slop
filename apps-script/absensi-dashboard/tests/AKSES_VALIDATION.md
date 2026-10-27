@@ -6,9 +6,11 @@ Tanggal: 27 Oktober 2026, Asia/Jakarta. Paket terbaru: branch **fix/url-uji-logi
 
 Sudah tersedia: direktori akun pada **file spreadsheet terpisah**, Admin awal pemilik, pendataan peran/status, penugasan petugas ke beberapa Jenjang, audit/pemulihan perubahan, konfigurasi OAuth server dan **uji identitas Google**.
 
+**Hasil uji pengguna, 27 Oktober 2026:** setelah perbaikan URL deployment, pengguna menunjukkan hasil Identitas Terverifikasi untuk Admin Pelatihan dan akun Petugas Kelas terpisah. Akun petugas menampilkan penugasan **Pelatihan Sosial Kultural 1 · Jenjang 1**; Admin tidak memerlukan penugasan Jenjang. Ini mengonfirmasi dua alur berhasil pada deployment pengguna, belum membuktikan seluruh skenario penolakan/pencabutan akses, browser lain atau pembatasan fitur operasional.
+
 **Pembatasan fitur aplikasi utama belum diaktifkan.** Seluruh halaman/RPC operasional tetap memakai pembatasan pemilik yang sudah ada. Akun Admin/Petugas yang baru didata belum otomatis dapat menggunakan aplikasi utama. Uji Google tidak menerbitkan sesi aplikasi atau mengaktifkan placeholder Nama/Posisi/Log Out. Setelah uji pada Google berhasil, tahap berikutnya adalah sesi login dan pemeriksaan peran/cakupan pada setiap endpoint, berikut alur pengajuan koreksi petugas.
 
-Tidak ada data Google, OAuth Client, spreadsheet atau deployment dibuat dari lingkungan pengembangan ini. Semua validasi layanan memakai tiruan; konfigurasi dan uji Google salinan harus dilakukan pengelola.
+Tidak ada data Google, OAuth Client, spreadsheet atau deployment dibuat dari lingkungan pengembangan ini. Pengujian otomatis layanan memakai tiruan; uji Google langsung dilakukan pengelola sebagaimana hasil di atas.
 
 ## File pemasangan
 
