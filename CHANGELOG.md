@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-10-27 — separate organizer access directory and Google identity proof
+- Added one Script Akses.gs with embedded owner panel: separate-spreadsheet setup/bootstrap, account roles/status, multi-Jenjang assignments, audit/versioned idempotent writes and pending recovery. No operational data copied or application permissions broadened.
+- Added optional Google identity proof using server code exchange with PKCE/state/nonce/browser binding and userinfo checks, active-directory/sub matching and valid scope filtering; client secret stays in server properties. The proof issues no main-app session and does not activate staff RBAC/login placeholders.
+- Owner setup also saves a server-only main-database pointer for callbacks without active spreadsheet context. Code.gs adds a guarded spreadsheet menu and dedicated proof/callback routing, preserving public QR priority and existing page routes. Other 12 application sources remain byte-identical to the consolidated Jenjang baseline.
+- Added 32 backend cases (145 total), generated-panel Chromium checks, configuration/recovery guide and simulated previews. Snapshot now contains 14 files. Owner must configure/test a Google OAuth Client on a copy; no live Google files, deployments or data were changed from this environment.
+
 ## 2026-10-27 — one-file Jenjang installation
 - Combined Jenjang runtime, migration backend and embedded migration HTML into one Script Jenjang.gs. Removed MigrasiJenjang.gs/MigrasiJenjang.html from the active bundle, resolving the separate same-name file installation issue and reducing three new files to one.
 - Preserved menu/RPC names, panel HTML byte-for-byte, schema, backups/guards and behavior. All other retained application sources remain identical to structural baseline 8f15cba; no Google operations/deployment performed.

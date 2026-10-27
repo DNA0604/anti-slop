@@ -1,0 +1,47 @@
+"""Owner directory and login-proof UI, generated from actual Akses.gs; Google bridge mocked."""
+import json,subprocess,os
+from pathlib import Path
+from playwright.sync_api import sync_playwright,expect
+ROOT=Path(__file__).resolve().parents[2];REPO=ROOT.parents[1]
+script="""import {harness,plain} from './apps-script/absensi-dashboard/tests/support/akses-harness.mjs';const t=harness(),before=t.c.muatManajemenAksesPanitia();t.setup();t.google();const u=t.addUser(),levels=t.c.muatManajemenAksesPanitia().jenjang;t.c.simpanPenugasanPanitia({pengguna:u.id,program:levels[0].program,jenjang:levels[0].id,status:'aktif',versi:'',id_permintaan:'browser_assignment_request_01'});t.provider({profile:{email:'petugas@gmail.com',name:'Petugas Uji <img src=x onerror=window.bad=true>',sub:'987654321098765432100'}});const identity=plain(t.finish(t.start())),flow=t.start();const fixture={before,ready:t.c.muatManajemenAksesPanitia(),identity,flow,html:t.c.halamanManajemenAkses_(),proof:t.c.halamanUjiLoginAkses_(),callback:t.c.halamanUjiLoginAkses_({state:flow.state,code:'auth_code_ui'})};process.stdout.write(JSON.stringify(plain(fixture)));"""
+fixture=json.loads(subprocess.check_output(['node','--input-type=module','-e',script],cwd=REPO,text=True))
+MOCK=r'''
+window.__fixture=FIXTURE;window.__data=JSON.parse(JSON.stringify(window.__fixture.ready));window.__calls=[];window.__fail='';window.__delay=20;window.__closed=false;
+function response(name,args){
+ const d=window.__data,p=args[0]||{};
+ if(window.__fail===name){window.__fail='';throw Error('Simulasi gagal memuat <img onerror=window.bad=true>');}
+ if(name==='muatManajemenAksesPanitia')return d;
+ if(name==='siapkanManajemenAksesPanitia'){window.__data=JSON.parse(JSON.stringify(window.__fixture.ready));return {sukses:true,pesan:'File akses siap.'};}
+ if(name==='simpanPenggunaPanitia'){const old=d.pengguna.find(u=>u.id===p.id),row={id:old?old.id:'USR-UI',nama:p.nama,email:p.email,peran:p.peran,status:p.status,google_terhubung:false,versi:'version-ui'};if(old)Object.assign(old,row);else d.pengguna.push(row);return {sukses:true,pesan:'Akun tersimpan.'};}
+ if(name==='simpanPenugasanPanitia'){const old=d.penugasan.find(x=>x.pengguna===p.pengguna&&x.jenjang===p.jenjang);if(old)old.status=p.status;else d.penugasan.push({id:'TGS-UI',pengguna:p.pengguna,program:p.program,jenjang:p.jenjang,status:p.status,relasi_valid:true,versi:'version-ui'});return {sukses:true,pesan:'Penugasan tersimpan.'};}
+ if(name==='pulihkanTransaksiAksesPanitia'){d.tertunda=[];return {sukses:true,pesan:'Transaksi diperiksa.'};}
+ if(name==='simpanKonfigurasiLoginGoogle'){d.login.siap=true;d.login.client_id=p.client_id;return {sukses:true,pesan:'Konfigurasi tersimpan.'};}
+ if(name==='mulaiUjiLoginGoogle')return window.__fixture.flow;
+ if(name==='verifikasiUjiLoginGoogle')return window.__fixture.identity;
+ throw Error('Unexpected RPC '+name);
+}
+function bridge(ok,bad){return new Proxy({}, {get(t,name){if(name==='withSuccessHandler')return f=>bridge(f,bad);if(name==='withFailureHandler')return f=>bridge(ok,f);return (...args)=>{window.__calls.push({name,args:JSON.parse(JSON.stringify(args))});setTimeout(()=>{try{ok?.(response(name,args));}catch(e){bad?.(e);}},window.__delay);};}});}
+window.google={script:{run:bridge(),host:{close(){window.__closed=true;}}}};
+'''.replace('FIXTURE',json.dumps(fixture))
+out=Path(os.environ.get('AKSES_SCREENSHOT_DIR','/tmp/akses-ui-preview'));out.mkdir(parents=True,exist_ok=True)
+with sync_playwright() as p:
+ browser=p.chromium.launch(executable_path='/usr/bin/chromium',headless=True,args=['--no-sandbox'])
+ def page_for(kind='html',width=1440,init=''):
+  page=browser.new_page(viewport={'width':width,'height':1000});errors=[];page.on('pageerror',lambda e:errors.append(str(e)));page.add_init_script(MOCK+init)
+  page.route('**/*',lambda r:r.fulfill(status=200,content_type='text/html',body=fixture[kind]) if r.request.resource_type=='document' else r.abort());page.goto('https://script.google.com/macros/s/TEST/exec?page=uji-login');return page,errors
+ manager,errors=page_for();expect(manager.locator('#directory')).to_be_visible();expect(manager.locator('#setupCard')).not_to_be_visible();expect(manager.locator('#userCount')).to_have_text('2 akun');expect(manager.locator('#clientSecret')).to_have_value('');expect(manager.locator('#message')).to_contain_text('belum diaktifkan');manager.screenshot(path=str(out/'Akses-Panitia-Desktop.png'))
+ manager.locator('#userName').fill('Panitia Baru <img onerror=window.bad=true>');manager.locator('#userEmail').fill('panitia.baru@gmail.com');manager.locator('#userForm button[type=submit]').click();expect(manager.locator('#userCount')).to_have_text('3 akun');expect(manager.locator('#users')).to_contain_text('<img');assert manager.evaluate('window.bad') is None
+ manager.locator('#userSearch').fill('panitia.baru');expect(manager.locator('#users tr')).to_have_count(1);manager.locator('#users button').click();expect(manager.locator('#userEmail')).to_have_value('panitia.baru@gmail.com');manager.locator('#userStatus').select_option('nonaktif');manager.locator('#userForm button[type=submit]').click();expect(manager.locator('#users')).to_contain_text('nonaktif');manager.locator('#userSearch').fill('');manager.locator('#resetUser').click()
+ manager.locator('#assignmentUser').select_option(fixture['ready']['pengguna'][1]['id']);manager.locator('#assignmentProgram').select_option('PRG002');manager.locator('#assignmentJenjang').select_option('JEN002');manager.locator('#assignmentForm button[type=submit]').click();expect(manager.locator('#assignments tr')).to_have_count(2);manager.locator('#assignments button').first.click();expect(manager.locator('#assignments')).to_contain_text('nonaktif')
+ manager.locator('#clientSecret').fill('TEMP_CLIENT_SECRET');manager.locator('#oauthForm button[type=submit]').click();expect(manager.locator('#message')).to_contain_text('Konfigurasi tersimpan');expect(manager.locator('#clientSecret')).to_have_value('')
+ manager.evaluate("window.__fail='muatManajemenAksesPanitia'");manager.locator('#reload').click();expect(manager.locator('#app')).not_to_be_visible();expect(manager.locator('#message')).to_contain_text('Simulasi gagal');assert manager.evaluate('window.bad') is None;manager.locator('#reload').click();expect(manager.locator('#directory')).to_be_visible();assert not errors,errors
+ setup,se=page_for(init='window.__data=window.__fixture.before;');expect(setup.locator('#setupCard')).to_be_visible();expect(setup.locator('#directory')).not_to_be_visible();setup.on('dialog',lambda dialog:dialog.accept());setup.locator('#setupForm button').click();expect(setup.locator('#directory')).to_be_visible();assert setup.evaluate("window.__calls.filter(c=>c.name==='siapkanManajemenAksesPanitia').length")==1;assert not se,se
+ mobile,me=page_for(width=390);expect(mobile.locator('#directory')).to_be_visible();assert mobile.evaluate('document.documentElement.scrollWidth<=innerWidth');mobile.screenshot(path=str(out/'Akses-Panitia-Mobile.png'));assert not me,me
+ proof,pe=page_for('proof',390);proof.locator('#prepare').click();expect(proof.locator('#googleLink')).to_be_visible();assert proof.locator('#googleLink').get_attribute('href').startswith('https://accounts.google.com/');assert proof.evaluate("sessionStorage.getItem('AKSES-GOOGLE|'+window.__fixture.flow.state)")==fixture['flow']['browser_key'];assert proof.locator('#googleLink').get_attribute('target')=='_top';assert not pe,pe
+ callback,ce=page_for('callback',390,"sessionStorage.setItem('AKSES-GOOGLE|'+window.__fixture.flow.state,window.__fixture.flow.browser_key);");expect(callback.locator('#identity')).to_be_visible();expect(callback.locator('#email')).to_have_text('petugas@gmail.com');expect(callback.locator('#name')).to_contain_text('<img');assert callback.evaluate('window.bad') is None;assert callback.evaluate("sessionStorage.getItem('AKSES-GOOGLE|'+window.__fixture.flow.state)") is None;expect(callback.locator('#message')).to_contain_text('belum diaktifkan');assert not ce,ce
+ preview,pre=page_for('callback',390,"window.__fixture.identity.nama='Petugas Kelas Uji';sessionStorage.setItem('AKSES-GOOGLE|'+window.__fixture.flow.state,window.__fixture.flow.browser_key);");expect(preview.locator('#identity')).to_be_visible();preview.screenshot(path=str(out/'Uji-Identitas-Google-Mobile.png'));assert not pre,pre
+ missing,mise=page_for('callback',390);expect(missing.locator('#identity')).not_to_be_visible();expect(missing.locator('#message')).to_contain_text('Sesi browser login tidak ditemukan');assert missing.evaluate("window.__calls.filter(c=>c.name==='verifikasiUjiLoginGoogle').length")==0;assert not mise,mise
+ blocked,be=page_for('proof',390,"Storage.prototype.setItem=function(){throw Error('Penyimpanan browser diblokir');};");blocked.locator('#prepare').click();expect(blocked.locator('#message')).to_contain_text('diblokir');expect(blocked.locator('#googleLink')).not_to_be_visible();assert not be,be
+ denied,de=page_for(init="window.__fail='muatManajemenAksesPanitia';");expect(denied.locator('#app')).not_to_be_visible();expect(denied.locator('#message')).to_contain_text('Simulasi gagal');assert not de,de
+ browser.close()
+print('PASS: generated owner directory/setup/account/assignment/reload UI, safe text, secret clearing, mobile layout, same-tab login preparation and browser-bound callback; Google services mocked')

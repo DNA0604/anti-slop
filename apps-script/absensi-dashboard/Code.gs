@@ -6,6 +6,11 @@ function doGet(e) {
     ? String(parameter.absen).trim()
     : "";
 
+  if (!token && typeof keluaranHalamanAkses_ === 'function') {
+    const halamanAkses = keluaranHalamanAkses_(parameter);
+    if (halamanAkses) return halamanAkses;
+  }
+
   let namaFile = "Beranda";
   let judul = "Beranda Pelatihan";
 
@@ -2693,6 +2698,7 @@ function onOpen() {
     menu.addSeparator().addItem('Pratinjau Pemetaan Jenjang', 'bukaPratinjauPemetaanJenjang');
   }
   if(typeof bukaPersiapanStrukturJenjang==='function')menu.addItem('Persiapan Struktur Jenjang','bukaPersiapanStrukturJenjang');
+  if(typeof bukaManajemenAksesPanitia==='function')menu.addItem('Manajemen Akses Panitia','bukaManajemenAksesPanitia');
   menu.addToUi();
 }
 

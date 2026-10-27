@@ -4,14 +4,22 @@ Current accepted application source for Pusat Pengembangan Aparatur Komdigi.
 Read ../../PROJECT_CONTEXT.md and ../../AGENTS.md first. These supersede the earlier flat UI package notes and old preview/test reports.
 
 ## Files to use in Google Apps Script
-Code.gs, Laporan.gs, Hapus.gs, Jenjang.gs, PemetaanJenjang.gs, Beranda.html, Index.html, Pengelolaan.html, Peserta.html, Profil.html, Absensi.html, AdminQR.html, PratinjauJenjang.html.
+Code.gs, Laporan.gs, Hapus.gs, Jenjang.gs, Akses.gs, PemetaanJenjang.gs, Beranda.html, Index.html, Pengelolaan.html, Peserta.html, Profil.html, Absensi.html, AdminQR.html, PratinjauJenjang.html.
 The project must remain bound to its existing Google Sheet. Retain the deployed manifest/scopes and deployment configuration.
 
 Replace complete contents of files changed for a task. Keep exact file names. Save, and for /exec publish a new version of the existing deployment. Keep the deployment URL so QR links remain valid.
 
 Preview files and Hasil-Pengujian.txt inherited from the older UI branch are historical and do not depict or validate this current snapshot. Do not install preview files as Apps Script application code.
 
-See SOURCE_SNAPSHOT.json for SHA-256 hashes of all 13 current HTML/GS source files, including the Jenjang preparation tools.
+See SOURCE_SNAPSHOT.json for SHA-256 hashes of all 14 current HTML/GS source files, including the Jenjang preparation tools.
+
+## Tahap 3: akun panitia pada spreadsheet terpisah
+
+Paket terbaru: **feat/manajemen-akses-panitia**. Tambahkan satu Script **Akses.gs** dan ganti **Code.gs** dari branch yang sama; seluruh file Jenjang satu paket dan halaman lain tetap. Simpan, refresh spreadsheet salinan, lalu buka **Manajemen Pelatihan → Manajemen Akses Panitia**. Isi tautan/ID file akses terpisah atau buat file baru melalui panel, kemudian data akun dan penugasan Jenjang.
+
+Tersedia konfigurasi dan halaman uji identitas Google untuk Gmail pribadi. **Pendaftaran akun/uji Google belum membuka akses petugas pada aplikasi utama**; sesi dan pembatasan semua endpoint masih tahap berikutnya. Client ID/Secret diisi pemilik pada panel setelah menyiapkan OAuth Client dan deployment salinan, tidak melalui chat atau file kode.
+
+[Panduan lengkap direktori, OAuth, scope, pemulihan dan uji Google](tests/AKSES_VALIDATION.md). Tidak ada spreadsheet/deployment Google yang dibuat dari lingkungan pengembangan ini.
 
 ## Struktur Jenjang dan migrasi data dummy
 
