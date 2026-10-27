@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-10-27 — open Jenjang preview from spreadsheet menu
+- User reported Cannot call SpreadsheetApp.getUi() from this context when opening from the editor. Added a guarded Pratinjau Pemetaan Jenjang item to the existing Manajemen Pelatihan menu in Code.gs/onOpen; use the menu after reloading the bound spreadsheet, without entering a spreadsheet ID.
+- Preview opener gives actionable context guidance when getUi is unavailable. Owner checks and read-only loader are unchanged; no trigger, scope, deployment or data changes. Existing menu choices still work if the optional preview file is absent.
+- Added two reproductions/menu tests (83 backend tests total). Replaced earlier editor-run installation guidance throughout the docs. Local tests cannot establish the exact reason UI context was unavailable in the user's project; live menu/dialog verification remains pending.
+
 ## 2026-10-27 — read-only Jenjang mapping preview
 - Added optional PemetaanJenjang.gs and PratinjauJenjang.html: owner-only spreadsheet dialog with legacy Jenjang proposals, session/membership details, review states, physical-row diagnostics, search/filter/pagination and source fingerprint.
 - Reads under ScriptLock; validates key relationships/duplicates, partial Jenjang references and latest explicit transaction status. Missing/oversized sources fail instead of producing partial counts. Unknown program references are global blockers; blank-status audit rows do not reopen/close transactions.

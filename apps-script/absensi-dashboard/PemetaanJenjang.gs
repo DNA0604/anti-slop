@@ -1,7 +1,12 @@
 /** Tahap 1: pratinjau baca saja. Tidak membuat Jenjang atau mengubah data/properti. */
 function bukaPratinjauPemetaanJenjang() {
   wajibPemilikIndex_();
-  SpreadsheetApp.getUi().showModalDialog(
+  let ui;
+  try { ui = SpreadsheetApp.getUi(); }
+  catch (e) {
+    throw Error('Panel perlu dibuka dari spreadsheet, bukan dari konteks eksekusi ini. Buka salinan spreadsheet → Ekstensi → Apps Script; pastikan kode disimpan di proyek yang terikat pada spreadsheet tersebut. Muat ulang tab spreadsheet, lalu pilih Manajemen Pelatihan → Pratinjau Pemetaan Jenjang. Tidak perlu mengisi ID Spreadsheet.');
+  }
+  ui.showModalDialog(
     HtmlService.createHtmlOutputFromFile('PratinjauJenjang').setWidth(1180).setHeight(800),
     'Pratinjau Pemetaan Jenjang'
   );

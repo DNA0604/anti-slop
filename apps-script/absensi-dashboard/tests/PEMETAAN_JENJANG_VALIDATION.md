@@ -6,11 +6,19 @@ Pratinjau adalah alat baca saja khusus pemilik spreadsheet. Ini bukan migrasi da
 
 1. Buat salinan spreadsheet database beserta proyek Apps Script terikatnya. Pastikan proyek salinan sudah berisi versi aplikasi terbaru yang sebelumnya normal, termasuk Code.gs. Buka spreadsheet salinan dengan akun pemiliknya.
 2. Dari **Ekstensi → Apps Script**, tambahkan file **Script** bernama `PemetaanJenjang` dan file **HTML** bernama `PratinjauJenjang`.
-3. Salin seluruh isi PemetaanJenjang.gs dan PratinjauJenjang.html dari branch yang sama. Tidak mengganti Code.gs, Pengelolaan.html, atau sepuluh file aplikasi sebelumnya. Jangan membuat sheet/kolom Jenjang secara manual untuk mencoba panel ini.
-4. Simpan. Pilih fungsi **bukaPratinjauPemetaanJenjang** pada daftar fungsi editor, lalu klik **Jalankan**. Jika Google meminta otorisasi, gunakan akun pemilik salinan. Kembali ke tab spreadsheet: panel pratinjau tampil di sana, bukan di tab editor atau web app.
-5. Tidak perlu deployment baru. Tidak ada menu/sidebar atau rute web app baru. Untuk membuka kembali, jalankan fungsi pembuka yang sama. Fungsi muatPratinjauPemetaanJenjang adalah RPC pembaca, bukan fungsi pembuka panel.
+3. Salin seluruh isi PemetaanJenjang.gs dan PratinjauJenjang.html dari branch yang sama. Untuk revisi pembukaan panel, ganti juga seluruh **Code.gs** dari branch ini: perubahan Code.gs hanya menambahkan pilihan menu pratinjau pada onOpen. File aplikasi lain tidak perlu diganti. Jangan membuat sheet/kolom Jenjang secara manual untuk mencoba panel ini.
+4. Simpan, lalu kembali ke tab **spreadsheet salinan** dan muat ulang halaman. Menu **Manajemen Pelatihan → Pratinjau Pemetaan Jenjang** akan muncul; pilih menu tersebut dengan akun pemilik salinan. Jika Google meminta otorisasi, gunakan akun pemilik. Panel tampil pada spreadsheet, bukan pada editor/web app.
+5. Tidak perlu deployment baru atau ID Spreadsheet. Pratinjau memakai spreadsheet tempat proyek terikat. Untuk membuka kembali, gunakan menu spreadsheet yang sama. Jangan menjalankan onOpen secara manual dari editor untuk mengatasi kegagalan getUi; muat ulang spreadsheet agar onOpen memperoleh konteks UI yang benar.
 
 Jika Code.gs pada salinan belum berisi wajibPemilikIndex_, gunakan sumber aplikasi terbaru yang diterima pengguna sebelum menambahkan kedua file. Jangan menambahkan duplikat Code.gs atau menyalin folder tests/preview ke Apps Script. Pertahankan manifest dan deployment asli.
+
+Jika sebelumnya dua file sudah dipasang: cukup ganti **Code.gs + PemetaanJenjang.gs**, simpan dan muat ulang spreadsheet; **PratinjauJenjang.html tidak berubah** dalam revisi ini.
+
+## Jika muncul Cannot call SpreadsheetApp.getUi() from this context
+
+Pengguna melaporkan error ini saat menjalankan pembuka dari editor. Pesan tersebut membuktikan konteks UI tidak tersedia pada pemanggilan itu; penyebab konteks persis pada proyek pengguna belum dapat diverifikasi. Ini bukan pesan ID Spreadsheet hilang. Pemakaian openById saja tidak menyediakan UI spreadsheet.
+
+Buka spreadsheet salinan terlebih dahulu, pilih **Ekstensi → Apps Script**, dan pastikan file berada pada proyek yang terbuka dari spreadsheet tersebut. Simpan revisi menu, kembali ke spreadsheet dan refresh, lalu gunakan menu yang dijelaskan di atas. Jika menu belum muncul, periksa apakah penyimpanan sudah selesai dan proyek yang diedit memang milik spreadsheet tersebut. Jangan membuat onOpen kedua atau memasang trigger baru; fungsi onOpen yang ada sudah diperbarui.
 
 ## Yang ditampilkan
 
@@ -41,11 +49,11 @@ node --test apps-script/absensi-dashboard/tests/*.test.mjs
 python apps-script/absensi-dashboard/tests/browser/pemetaan_jenjang_browser.py
 ```
 
-26 kasus backend baru + 55 kasus sebelumnya = **81 lulus**. Layanan tiruan memakai implementasi pemilik Code.gs sebenarnya, tripwire untuk operasi tulis, pemeriksaan sumber sebelum/sesudah, dan uji lock, header/sheet hilang, batas, nomor baris, ID/relasi duplikat/orphan/lintas program, status audit, struktur migrasi sebagian, lintas Jenjang, sidik sumber dan pembatasan data respons.
+28 kasus backend pratinjau + 55 kasus sebelumnya = **83 lulus**. Layanan tiruan memakai implementasi pemilik Code.gs sebenarnya, tripwire untuk operasi tulis, pemeriksaan sumber sebelum/sesudah, dan uji lock, header/sheet hilang, batas, nomor baris, ID/relasi duplikat/orphan/lintas program, status audit, struktur migrasi sebagian, lintas Jenjang, sidik sumber dan pembatasan data respons. Dua kasus tambahan mereproduksi getUi yang ditolak serta memeriksa menu/callback, pilihan menu lama, dan pemasangan Code.gs tanpa file pratinjau opsional.
 
 Chromium menggunakan bridge Google tiruan pada desktop 1440 px dan lebar 320/390/768 px: pencarian/filter/paginasi, rincian sesi/peserta, fokus keyboard/Escape, teks berbahaya, empty/error, reload gagal menyembunyikan hasil lama, pencegahan baca ganda saat loading dan kontrak RPC hanya baca. Gambar preview menggunakan **data simulasi**, bukan spreadsheet pengguna.
 
-Sepuluh file aplikasi sebelumnya diperiksa terhadap SOURCE_SNAPSHOT dan tetap identik. Manifest, navigasi/sidebar, fitur hapus dan formula lama tidak diubah. Dua file pratinjau ditambahkan ke snapshot sumber. Pengujian lokal ini belum membuktikan otorisasi, tampilnya dialog HTMLService atau pembacaan pada layanan Google sebenarnya.
+Pada versi pratinjau awal, sepuluh file aplikasi sebelumnya tetap identik. Pada revisi pembukaan panel ini, **hanya fungsi onOpen pada Code.gs** yang disesuaikan untuk menu; sembilan file aplikasi lama lainnya tetap identik. Manifest, navigasi/sidebar, fitur hapus, backend pembaca dan formula lama tidak diubah. Hash Code.gs/PemetaanJenjang.gs diperbarui pada snapshot. Pengujian lokal ini belum membuktikan otorisasi, tampilnya dialog HTMLService atau pembacaan pada layanan Google sebenarnya.
 
 ## Uji pada salinan Google oleh pengelola
 

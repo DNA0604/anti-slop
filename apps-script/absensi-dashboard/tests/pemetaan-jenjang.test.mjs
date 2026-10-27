@@ -9,6 +9,8 @@ const original = fs.readFileSync(new URL('../Code.gs', import.meta.url), 'utf8')
 const plain = value => JSON.parse(JSON.stringify(value));
 function harness(options={}) {
   let reads=0, locks=0, released=0, html=0;
+  const menuItems=[];
+  const menu={addItem(label,callback){menuItems.push({label,callback});return this;},addSeparator(){return this;},addToUi(){return this;}};
   const sheets = {}, failWrite = () => { throw Error('FORBIDDEN WRITE'); };
   const sheet = name => {
     if (!sheets[name]) return null;
@@ -21,15 +23,17 @@ function harness(options={}) {
     insertSheet:failWrite,deleteSheet:failWrite,
     getUi:failWrite};
   const c = vm.createContext({Date,
-    SpreadsheetApp:{getActiveSpreadsheet:()=>ss,getUi:()=>({showModalDialog:()=>{html++;}}),flush:failWrite},
+    SpreadsheetApp:{getActiveSpreadsheet:()=>ss,getUi:()=>{if(options.noUi)throw Error('Cannot call SpreadsheetApp.getUi() from this context.');return {createMenu:()=>menu,showModalDialog:()=>{html++;}};},flush:failWrite},
     Session:{getActiveUser:()=>({getEmail:()=>options.denied?'other@example.test':'owner@example.test'})},
     LockService:{getScriptLock:()=>({tryLock:()=>{locks++;return !options.locked;},releaseLock:()=>{released++;}})},
     PropertiesService:{getScriptProperties:failWrite},DriveApp:new Proxy({},{get:()=>failWrite}),
     HtmlService:{createHtmlOutputFromFile:()=>({setWidth(){return this;},setHeight(){return this;}})},
     Utilities:{DigestAlgorithm:{SHA_256:'sha256'},Charset:{UTF_8:'utf8'},computeDigest:(alg,text)=>Array.from(crypto.createHash('sha256').update(text).digest()),formatDate:()=> '2026-10-27 14:00:00'}
   });
-  vm.runInContext(original,c);vm.runInContext(source,c);
-  const spec=plain(c.skemaPratinjauJenjang_());
+  vm.runInContext(original,c);if(!options.withoutPreview)vm.runInContext(source,c);
+  // Load schema privately for baseline-only onOpen checks without registering a preview callback.
+  const schemaContext=vm.createContext({});vm.runInContext(source,schemaContext);
+  const spec=plain(schemaContext.skemaPratinjauJenjang_());
   function set(name, records=[],extra=[]) {
     const header=[...spec[name],...extra], values=[header,...records.map(r=>Array.isArray(r)?r:header.map(k=>r[k]??''))];
     sheets[name]={values,formulas:values.map(r=>r.map(()=>''))};
@@ -46,7 +50,7 @@ function harness(options={}) {
     set('Jeda_Sesi',[{id_jeda:'JDA001',id_sesi:'SES001'}]);
     set('Log_Absensi',[{id_log:'LOG001',id_sesi:'SES001',id_keikutsertaan:'KST001',id_token_qr:'TQR001',status_scan:'diterima'}]);
   }
-  return {c,sheets,set,baseline,run:()=>plain(c.muatPratinjauPemetaanJenjang()),stats:()=>({reads,locks,released,html})};
+  return {c,sheets,set,baseline,menuItems,run:()=>plain(c.muatPratinjauPemetaanJenjang()),stats:()=>({reads,locks,released,html})};
 }
 const setup=()=>{const h=harness();h.baseline();return h;};
 const program=r=>r.program.find(p=>p.id==='PRG001');
@@ -70,6 +74,13 @@ test('owner authorization protects both entry points before any data reads or lo
 });
 test('dialog entry opens the additive panel without reading or writing data',()=>{
   const h=harness();h.c.bukaPratinjauPemetaanJenjang();assert.deepEqual(h.stats(),{reads:0,locks:0,released:0,html:1});
+});
+test('missing UI context reproduces the reported error and returns spreadsheet-menu instructions',()=>{
+  const h=harness({noUi:true});assert.throws(()=>h.c.bukaPratinjauPemetaanJenjang(),/Manajemen Pelatihan → Pratinjau Pemetaan Jenjang.*Tidak perlu mengisi ID Spreadsheet/);assert.deepEqual(h.stats(),{reads:0,locks:0,released:0,html:0});
+});
+test('spreadsheet onOpen exposes preview only when its optional file exists and preserves previous actions',()=>{
+  const withPreview=harness();withPreview.c.onOpen();const item=withPreview.menuItems.find(i=>i.label==='Pratinjau Pemetaan Jenjang');assert.equal(item.callback,'bukaPratinjauPemetaanJenjang');withPreview.c[item.callback]();assert.equal(withPreview.stats().html,1);
+  const baseline=harness({withoutPreview:true});baseline.c.onOpen();assert.ok(!baseline.menuItems.some(i=>i.label==='Pratinjau Pemetaan Jenjang'));assert.deepEqual(withPreview.menuItems.filter(i=>i.label!=='Pratinjau Pemetaan Jenjang'),baseline.menuItems);assert.ok(baseline.menuItems.some(i=>i.label==='Buka Beranda'));assert.ok(baseline.menuItems.some(i=>i.label==='Generator QR Absensi'));
 });
 test('lock contention returns an error without reading a partial snapshot',()=>{
   const h=harness({locked:true});assert.throws(()=>h.run(),/sedang digunakan/);assert.equal(h.stats().reads,0);assert.equal(h.stats().released,0);

@@ -2,7 +2,7 @@
 
 Tanggal: 27 Oktober 2026, Asia/Jakarta.
 
-Status: pemeriksaan kode dan rancangan awal selesai; alat pratinjau baca saja telah dibuat dan diuji lokal sebagai dua file tambahan. Isi spreadsheet sebenarnya belum tersedia di lingkungan ini; pemetaan per program belum dijalankan. Migrasi dan login belum dibuat/terpasang. Sepuluh file aplikasi sebelumnya tetap memakai versi yang diterima pengguna, ae1622a.
+Status: pemeriksaan kode dan rancangan awal selesai; alat pratinjau baca saja telah dibuat dan diuji lokal sebagai dua file tambahan. Setelah pengguna melaporkan konteks getUi tidak tersedia dari editor, Code.gs hanya disesuaikan pada fungsi onOpen untuk menambahkan menu pembuka dari spreadsheet. Isi spreadsheet sebenarnya belum tersedia di lingkungan ini; pemetaan per program belum dijalankan. Migrasi dan login belum dibuat/terpasang. Sembilan file aplikasi sebelumnya dan bagian Code.gs di luar onOpen tetap memakai versi yang diterima pengguna, ae1622a.
 
 ## Gambaran untuk pengelola
 
@@ -141,6 +141,6 @@ Protokol login belum ditentukan. Lakukan pembuktian login Gmail pribadi dan veri
 
 ## Hasil tahap ini dan langkah terdekat
 
-Yang telah selesai: pemeriksaan struktur pada kode, pencatatan keputusan pengguna, skema sasaran dan aturan pemetaan/validasi di atas, serta alat pratinjau **PemetaanJenjang.gs + PratinjauJenjang.html** dengan pengujian lokal. Belum ada perubahan sepuluh file aplikasi lama, login, spreadsheet akses, kolom baru atau migrasi.
+Yang telah selesai: pemeriksaan struktur pada kode, pencatatan keputusan pengguna, skema sasaran dan aturan pemetaan/validasi di atas, alat pratinjau **PemetaanJenjang.gs + PratinjauJenjang.html** dengan pengujian lokal, serta menu pembuka dalam **Code.gs**. Belum ada login, spreadsheet akses, kolom baru atau migrasi.
 
-Langkah berikutnya: pasang dua file pratinjau pada salinan proyek dan buka panel dari fungsi editor **bukaPratinjauPemetaanJenjang**. Pengelola dapat melihat daftar program dan usulan penempatannya tanpa menulis data. Lihat [panduan pemasangan/validasi](../tests/PEMETAAN_JENJANG_VALIDATION.md). Hasil peninjauan salinan menjadi dasar penyusunan rencana pemetaan berikutnya; panel belum menyimpan keputusan atau menerapkan migrasi. Deployment website tidak diperlukan untuk pratinjau ini.
+Langkah berikutnya: pasang file pratinjau dan revisi **Code.gs** pada salinan proyek, simpan lalu refresh spreadsheet; pilih **Manajemen Pelatihan → Pratinjau Pemetaan Jenjang**. Pengelola dapat melihat daftar program dan usulan penempatannya tanpa menulis data. Lihat [panduan pemasangan/validasi](../tests/PEMETAAN_JENJANG_VALIDATION.md). Hasil peninjauan salinan menjadi dasar penyusunan rencana pemetaan berikutnya; panel belum menyimpan keputusan atau menerapkan migrasi. ID Spreadsheet dan deployment website tidak diperlukan untuk pratinjau ini.

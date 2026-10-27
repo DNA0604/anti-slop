@@ -2663,7 +2663,7 @@ function ujiAmbilDataProgramSesiQR() {
 }
 
 function onOpen() {
-  SpreadsheetApp.getUi()
+  const menu = SpreadsheetApp.getUi()
     .createMenu("Manajemen Pelatihan")
     .addItem(
       "Generator QR Absensi",
@@ -2684,8 +2684,11 @@ function onOpen() {
     .addItem(
       "Terbitkan QR Asli (Uji)",
       "terbitkanDanTampilkanQR_"
-    )
-    .addToUi();
+    );
+  if (typeof bukaPratinjauPemetaanJenjang === 'function') {
+    menu.addSeparator().addItem('Pratinjau Pemetaan Jenjang', 'bukaPratinjauPemetaanJenjang');
+  }
+  menu.addToUi();
 }
 
 function bukaAdminQR() {
