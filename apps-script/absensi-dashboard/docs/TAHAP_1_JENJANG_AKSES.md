@@ -2,7 +2,7 @@
 
 Tanggal: 27 Oktober 2026, Asia/Jakarta.
 
-Lanjutan implementasi tahap 2 tersedia pada branch **feat/struktur-jenjang-pelatihan**; lihat [panduan struktur/migrasi](../tests/JENJANG_VALIDATION.md). Bagian berikut mempertahankan rancangan awal sebagai acuan. Pengguna telah mengonfirmasi panel pratinjau terbuka; implementasi migrasi belum diuji pada Google dari lingkungan ini.
+Lanjutan implementasi tahap 2 tersedia pada branch **refactor/paket-jenjang-satu-file**, dengan runtime/migrasi/tampilan digabung pada Jenjang.gs; lihat [panduan struktur/migrasi](../tests/JENJANG_VALIDATION.md). Bagian berikut mempertahankan rancangan awal sebagai acuan. Pengguna telah mengonfirmasi panel pratinjau terbuka; implementasi migrasi belum diuji pada Google dari lingkungan ini.
 
 Status: pemeriksaan kode dan rancangan awal selesai; alat pratinjau baca saja telah dibuat dan diuji lokal sebagai dua file tambahan. Setelah pengguna melaporkan konteks getUi tidak tersedia dari editor, Code.gs hanya disesuaikan pada fungsi onOpen untuk menambahkan menu pembuka dari spreadsheet. Isi spreadsheet sebenarnya belum tersedia di lingkungan ini; pemetaan per program belum dijalankan. Migrasi dan login belum dibuat/terpasang. Sembilan file aplikasi sebelumnya dan bagian Code.gs di luar onOpen tetap memakai versi yang diterima pengguna, ae1622a.
 

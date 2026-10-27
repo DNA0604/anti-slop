@@ -22,13 +22,11 @@ Itu konfirmasi pembacaan pratinjau, bukan konfirmasi migrasi atau kebenaran seti
 
 ## File yang diperlukan
 
-Gunakan seluruh file dari satu branch **feat/struktur-jenjang-pelatihan**.
+Gunakan seluruh file dari satu branch **refactor/paket-jenjang-satu-file**. Paket ini memuat fitur tahap 2 yang sama; tiga file baru sebelumnya telah digabung menjadi satu.
 
 Tambahkan:
 
-- Script **Jenjang** → Jenjang.gs.
-- Script **MigrasiJenjang** → MigrasiJenjang.gs.
-- HTML **MigrasiJenjang** → MigrasiJenjang.html.
+- Script **Jenjang** → **Jenjang.gs**. File ini memuat pengelolaan Jenjang, backend migrasi dan HTML panel tertanam. Tidak perlu file Script/HTML MigrasiJenjang terpisah.
 
 Ganti isi lengkap delapan file yang sudah ada:
 
@@ -37,7 +35,11 @@ Ganti isi lengkap delapan file yang sudah ada:
 
 Pertahankan Absensi.html, AdminQR.html, Beranda.html dan PratinjauJenjang.html yang sudah dipasang. Manifest/scopes/deployment asli tidak diganti. Tests, support, preview, markdown dan SOURCE_SNAPSHOT.json bukan file editor Apps Script.
 
-Semua modul harus dipasang bersama. Dukungan kompatibilitas data lama dimaksudkan untuk pengujian sebelum migrasi, bukan izin mencampur kode versi lama dengan database yang sudah dimigrasikan. Jangan menghapus Jenjang.gs/properti migrasi atau memasang ulang kode lama pada struktur baru.
+Jika sudah memasang paket tahap 2 sebelumnya: cukup ganti isi lengkap **Jenjang.gs**. Setelah tersimpan, hapus file kode **MigrasiJenjang.gs** lama jika sempat dibuat, agar tidak ada fungsi ganda. HTML migrasi terpisah tidak dipakai lagi dan dapat dihapus jika sebelumnya dibuat dengan nama lain. Delapan file aplikasi di atas tidak berubah dari commit 8f15cba, sehingga tidak perlu disalin ulang jika versi itu sudah terpasang. Jangan menghapus sheet, audit atau properti migrasi saat merapikan file kode.
+
+Jika tahap 2 belum dipasang: tambahkan satu Script Jenjang dan ganti delapan file lama di atas; file lengkap tersedia pada branch yang sama.
+
+Seluruh sumber yang diperlukan harus dipasang bersama. Dukungan kompatibilitas data lama dimaksudkan untuk pengujian sebelum migrasi, bukan izin mencampur kode versi lama dengan database yang sudah dimigrasikan. Jangan menghapus Jenjang.gs/properti migrasi atau memasang ulang kode lama pada struktur baru.
 
 ## Urutan uji Google
 
@@ -73,8 +75,8 @@ python apps-script/absensi-dashboard/tests/browser/hapus_browser.py
 python apps-script/absensi-dashboard/tests/browser/pemetaan_jenjang_browser.py
 ```
 
-112 tes backend = 83 sebelumnya + 29 integrasi struktur/migrasi. Menggunakan sumber Code/Jenjang/Migrasi/Hapus/Laporan/Pemetaan sebenarnya dalam VM dengan spreadsheet/lock/properti tiruan. Cakupan: source stale, owner, konfirmasi, mapping lengkap, backup rusak/terputus, lost response, resume/cancel, tipe tanggal/formula/header, ID tetap dan ID pensiun, satu peserta per program, tambah/rename Jenjang, program baru, impor/retry tujuan, Monitoring/QR, JP/profil, penyebut laporan dan cascade hapus.
+113 tes backend = 83 sebelumnya + 29 integrasi struktur/migrasi + 1 pemeriksaan pembukaan panel tertanam tanpa file HTML eksternal. Akses bukan pemilik juga diperiksa sebelum panel dirender. Menggunakan sumber Code/Jenjang/Migrasi/Hapus/Laporan/Pemetaan sebenarnya dalam VM dengan spreadsheet/lock/properti tiruan. Cakupan: source stale, owner, konfirmasi, mapping lengkap, backup rusak/terputus, lost response, resume/cancel, tipe tanggal/formula/header, ID tetap dan ID pensiun, satu peserta per program, tambah/rename Jenjang, program baru, impor/retry tujuan, Monitoring/QR, JP/profil, penyebut laporan dan cascade hapus.
 
-Chromium memakai fixture yang dihitung oleh backend VM serta bridge Google tiruan. Mencakup modal sesi/Jenjang, filter peserta, Monitoring multi-Jenjang, tautan sesi langsung, navigasi antarhalaman dengan konteks Jenjang, sidebar hover/collapse, konfirmasi migrasi tanpa RPC saat batal, kegagalan/resume dan desktop/mobile. Browser regresi hapus/pratinjau lama tetap dijalankan. Gambar preview adalah **data simulasi**, bukan bukti migrasi pengguna.
+Chromium memakai fixture yang dihitung oleh backend VM serta bridge Google tiruan. Mencakup modal sesi/Jenjang, filter peserta, Monitoring multi-Jenjang, tautan sesi langsung, navigasi antarhalaman dengan konteks Jenjang, sidebar hover/collapse, konfirmasi migrasi tanpa RPC saat batal, kegagalan/resume dan desktop/mobile. Browser regresi hapus/pratinjau lama tetap dijalankan. Tampilan tertanam dibandingkan byte demi byte dengan HTML versi sebelumnya dan tetap identik. Browser mengambil HTML langsung dari fungsi pada Jenjang.gs agar tidak mengandalkan file yang sudah dihapus. Gambar preview adalah **data simulasi**, bukan bukti migrasi pengguna.
 
 Belum terbukti lokal: otorisasi Google, dialog/menu pada pemasangan baru, kuota/durasi/serialisasi Sheets sebenarnya, penyimpanan/scan QR/evidence dan tata letak PDF native setelah migrasi. Uji salinan di atas diperlukan sebelum pembahasan pemakaian utama.

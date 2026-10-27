@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-10-27 — one-file Jenjang installation
+- Combined Jenjang runtime, migration backend and embedded migration HTML into one Script Jenjang.gs. Removed MigrasiJenjang.gs/MigrasiJenjang.html from the active bundle, resolving the separate same-name file installation issue and reducing three new files to one.
+- Preserved menu/RPC names, panel HTML byte-for-byte, schema, backups/guards and behavior. All other retained application sources remain identical to structural baseline 8f15cba; no Google operations/deployment performed.
+- Added owner/embedded-opener checks (113 backend tests) and changed the modern browser suite to render the actual HTML returned from GS. Updated installation/cleanup guidance and snapshot to 13 files.
+
 ## 2026-10-27 — Jenjang structure and reviewed migration on a copy
 - User confirmed the preview opens and shared dummy inventory (3 programs, 4 sessions, 41 memberships, no detected relationship issues). Recorded Dasar / Umum / Jenjang 1 as the working mapping.
 - Added Jenjang.gs and a spreadsheet-menu migration panel with reviewed mapping, source fingerprints, verified chunked audit backups, schema-state guards and resumable writes that preserve old IDs/values/formulas/history. Initial migration supports one Jenjang per old program on a separate copy; no Google migration/deployment performed here.

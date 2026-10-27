@@ -4,20 +4,22 @@ Current accepted application source for Pusat Pengembangan Aparatur Komdigi.
 Read ../../PROJECT_CONTEXT.md and ../../AGENTS.md first. These supersede the earlier flat UI package notes and old preview/test reports.
 
 ## Files to use in Google Apps Script
-Code.gs, Laporan.gs, Hapus.gs, Jenjang.gs, MigrasiJenjang.gs, PemetaanJenjang.gs, Beranda.html, Index.html, Pengelolaan.html, Peserta.html, Profil.html, Absensi.html, AdminQR.html, PratinjauJenjang.html, MigrasiJenjang.html.
+Code.gs, Laporan.gs, Hapus.gs, Jenjang.gs, PemetaanJenjang.gs, Beranda.html, Index.html, Pengelolaan.html, Peserta.html, Profil.html, Absensi.html, AdminQR.html, PratinjauJenjang.html.
 The project must remain bound to its existing Google Sheet. Retain the deployed manifest/scopes and deployment configuration.
 
 Replace complete contents of files changed for a task. Keep exact file names. Save, and for /exec publish a new version of the existing deployment. Keep the deployment URL so QR links remain valid.
 
 Preview files and Hasil-Pengujian.txt inherited from the older UI branch are historical and do not depict or validate this current snapshot. Do not install preview files as Apps Script application code.
 
-See SOURCE_SNAPSHOT.json for SHA-256 hashes of all 15 current HTML/GS source files, including the Jenjang preparation tools.
+See SOURCE_SNAPSHOT.json for SHA-256 hashes of all 13 current HTML/GS source files, including the Jenjang preparation tools.
 
 ## Struktur Jenjang dan migrasi data dummy
 
-Paket terbaru pada branch **feat/struktur-jenjang-pelatihan** mendukung beberapa Jenjang per program, sesi/pendaftaran pada satu Jenjang, acuan JP/kehadiran sesuai peserta, serta laporan dan hapus yang memahami relasi baru. Login dan pembagian akses panitia belum termasuk paket ini.
+Paket terbaru pada branch **refactor/paket-jenjang-satu-file** mendukung beberapa Jenjang per program, sesi/pendaftaran pada satu Jenjang, acuan JP/kehadiran sesuai peserta, serta laporan dan hapus yang memahami relasi baru. Login dan pembagian akses panitia belum termasuk paket ini.
 
-**Pasang/uji pada salinan spreadsheet dan proyek Apps Script.** Tambahkan Jenjang.gs, MigrasiJenjang.gs dan MigrasiJenjang.html; ganti Code.gs, Hapus.gs, Laporan.gs, PemetaanJenjang.gs, Index.html, Pengelolaan.html, Peserta.html dan Profil.html dari branch yang sama. Simpan, refresh spreadsheet, lalu buka **Manajemen Pelatihan → Persiapan Struktur Jenjang**. Periksa pemetaan sebelum menekan tindakan yang mengubah struktur. Jangan menambah kolom manual atau mencampur sumber versi lama dengan struktur baru.
+**Pasang/uji pada salinan spreadsheet dan proyek Apps Script.** Tambahkan satu file Script **Jenjang.gs** yang memuat pengelolaan Jenjang, migrasi dan tampilan panel; ganti Code.gs, Hapus.gs, Laporan.gs, PemetaanJenjang.gs, Index.html, Pengelolaan.html, Peserta.html dan Profil.html dari branch yang sama. Simpan, refresh spreadsheet, lalu buka **Manajemen Pelatihan → Persiapan Struktur Jenjang**. Periksa pemetaan sebelum menekan tindakan yang mengubah struktur. Jangan menambah kolom manual atau mencampur sumber versi lama dengan struktur baru.
+
+Jika paket tahap 2 sebelumnya sudah terpasang, cukup ganti **Jenjang.gs** lalu hapus file kode **MigrasiJenjang.gs** lama jika sempat dibuat. HTML migrasi terpisah tidak dipakai lagi. Delapan file aplikasi lainnya tetap sama dengan versi 8f15cba.
 
 [Panduan pemasangan, migrasi, pemulihan dan pengujian Google lengkap](tests/JENJANG_VALIDATION.md). Migrasi lewat menu tidak memerlukan ID Spreadsheet/deployment; pengujian web app dan QR menggunakan deployment milik salinan proyek. Tidak ada migrasi/deployment utama yang dilakukan dari lingkungan ini.
 

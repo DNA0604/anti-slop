@@ -6,7 +6,7 @@ from playwright.sync_api import sync_playwright,expect
 ROOT=Path(__file__).resolve().parents[2]
 REPO=ROOT.parents[1]
 # Generate service fixture from the same actual backend used in the integration tests.
-script="""import fs from 'node:fs';import {harness,plain} from './apps-script/absensi-dashboard/tests/support/jenjang-harness.mjs';const h=harness(),pre=h.prepare();h.migrate();const j=h.c.tambahJenjangProgramIndex({id_program:'PRG001',nama:'Lanjutan',id_permintaan:'browser_add_jenjang_001'});const s=h.c.tambahSesiIndex({id_program:'PRG001',id_jenjang:j.id_jenjang,nama:'Materi Lanjutan',tanggal:'2026-10-20',mulai:'10:00',selesai:'12:15',status_jp:'dihitung',jeda:[],id_permintaan:'browser_add_session_001'});h.c.tambahKeikutsertaan({id_program:'PRG001',id_jenjang:j.id_jenjang,id_peserta:'PST003'});process.stdout.write(JSON.stringify(plain({pre,awal:h.c.muatAwalIndex(),manage:h.c.muatKelolaProgramIndex('PRG001'),peserta:h.c.muatPesertaProgramIndex('PRG001','',0),attendance:{SES001:h.c.muatKehadiranIndex('SES001'),[s.id_sesi]:h.c.muatKehadiranIndex(s.id_sesi)},recap:h.c.muatRekapJPProgramIndex('PRG001')})));"""
+script="""import fs from 'node:fs';import {harness,plain} from './apps-script/absensi-dashboard/tests/support/jenjang-harness.mjs';const h=harness(),pre=h.prepare();h.migrate();const j=h.c.tambahJenjangProgramIndex({id_program:'PRG001',nama:'Lanjutan',id_permintaan:'browser_add_jenjang_001'});const s=h.c.tambahSesiIndex({id_program:'PRG001',id_jenjang:j.id_jenjang,nama:'Materi Lanjutan',tanggal:'2026-10-20',mulai:'10:00',selesai:'12:15',status_jp:'dihitung',jeda:[],id_permintaan:'browser_add_session_001'});h.c.tambahKeikutsertaan({id_program:'PRG001',id_jenjang:j.id_jenjang,id_peserta:'PST003'});process.stdout.write(JSON.stringify(plain({pre,migrationHtml:h.c.halamanMigrasiJenjang_(),awal:h.c.muatAwalIndex(),manage:h.c.muatKelolaProgramIndex('PRG001'),peserta:h.c.muatPesertaProgramIndex('PRG001','',0),attendance:{SES001:h.c.muatKehadiranIndex('SES001'),[s.id_sesi]:h.c.muatKehadiranIndex(s.id_sesi)},recap:h.c.muatRekapJPProgramIndex('PRG001')})));"""
 fixture=json.loads(subprocess.check_output(['node','--input-type=module','-e',script],cwd=REPO,text=True))
 tree=ast.parse((ROOT/'tests/browser/hapus_browser.py').read_text())
 BASE=next(ast.literal_eval(n.value) for n in tree.body if isinstance(n,ast.Assign) and any(isinstance(t,ast.Name) and t.id=='MOCK' for t in n.targets))
@@ -38,8 +38,8 @@ with sync_playwright() as p:
   def route(r):
    if r.request.resource_type!='document':r.abort();return
    page_name=parse_qs(urlparse(r.request.url).query).get('page',[''])[0]
-   target=file if file=='MigrasiJenjang.html' else {'pengelolaan':'Pengelolaan.html','peserta':'Peserta.html','monitoring':'Index.html'}.get(page_name,file)
-   r.fulfill(status=200,content_type='text/html',body=(ROOT/target).read_text())
+   target=file if file=='__migration__' else {'pengelolaan':'Pengelolaan.html','peserta':'Peserta.html','monitoring':'Index.html'}.get(page_name,file)
+   r.fulfill(status=200,content_type='text/html',body=fixture['migrationHtml'] if target=='__migration__' else (ROOT/target).read_text())
   page.route('**/*',route)
   page.goto('https://script.google.com/macros/s/TEST/exec?'+query);return page,errors
  # Management: explicit Jenjang field and a separate creation dialog; program context is preserved.
@@ -66,9 +66,9 @@ with sync_playwright() as p:
  monitoring.locator('#dashSidebar').hover();monitoring.wait_for_timeout(350);assert monitoring.locator('#dashSidebar').bounding_box()['width']>narrow;assert monitoring.locator('#dashContent').bounding_box()['x']>left
  monitoring.locator('#dashMenu').click();monitoring.locator('#dashMenu').click();monitoring.wait_for_timeout(350);assert monitoring.locator('#dashSidebar').bounding_box()['width']<=narrow+1
  # Migration: confirmation can be cancelled without mutation, failure exposes resumable stored state.
- migration,xe=open_page('MigrasiJenjang.html',query='page=migration-test');expect(migration.locator('#mapping')).to_be_visible();expect(migration.locator('#start')).to_be_disabled();expect(migration.locator('#rows input').nth(1)).to_have_value('Umum');migration.locator('#copy').check();migration.locator('#reviewed').check();migration.locator('#start').click();expect(migration.locator('#confirm')).to_be_visible();migration.locator('#cancel').click();assert migration.evaluate("window.__calls.filter(c=>c.name==='mulaiMigrasiJenjang').length")==0
+ migration,xe=open_page('__migration__',query='page=migration-test');expect(migration.locator('#mapping')).to_be_visible();expect(migration.locator('#start')).to_be_disabled();expect(migration.locator('#rows input').nth(1)).to_have_value('Umum');migration.locator('#copy').check();migration.locator('#reviewed').check();migration.locator('#start').click();expect(migration.locator('#confirm')).to_be_visible();migration.locator('#cancel').click();assert migration.evaluate("window.__calls.filter(c=>c.name==='mulaiMigrasiJenjang').length")==0
  migration.screenshot(path=str(out/'Migrasi-Jenjang-Desktop.png'));migration.evaluate('window.__migrationFail=true');migration.locator('#start').click();migration.locator('#approve').click();expect(migration.locator('#error')).to_contain_text('Klik Muat Ulang');migration.locator('#reload').click();expect(migration.locator('#recovery')).to_be_visible();migration.locator('#resume').click();migration.locator('#approve').click();expect(migration.locator('#status')).to_contain_text('selesai');assert not xe,xe
- for file in ['Pengelolaan.html','Peserta.html','MigrasiJenjang.html']:
+ for file in ['Pengelolaan.html','Peserta.html','__migration__']:
   small,se=open_page(file,390,query='page=pengelolaan&program=PRG001');small.wait_for_timeout(100);assert small.evaluate('document.documentElement.scrollWidth<=innerWidth'),file;assert not se,se;small.close()
  browser.close()
 print('PASS: management, destination/filter, monitoring scope and direct session navigation, migration confirmation/failure/recovery, desktop/mobile; Google services mocked')
