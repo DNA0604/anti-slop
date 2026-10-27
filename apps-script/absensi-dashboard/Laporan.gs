@@ -8,29 +8,33 @@ function programLaporanSelesai_(id) {
 }
 function dataLaporanProgram_(id) {
   wajibPemilikIndex_();
-  const program = programLaporanSelesai_(id), txt = v => String(v == null ? '' : v).trim();
-  const zona = SpreadsheetApp.getActiveSpreadsheet().getSpreadsheetTimeZone();
-  function scoped(sheet, fields, key) {
-    const all=tabelIndex_(sheet,fields).records, selected=all.filter(r=>txt(r.id_program)===txt(id));
-    const selectedIds=new Set(selected.map(r=>txt(r[key]))),counts=new Map();
-    all.forEach(r=>{const value=txt(r[key]);if(selectedIds.has(value))counts.set(value,(counts.get(value)||0)+1);});
-    if(Array.from(counts.values()).some(n=>n!==1))throw Error('ID lintas program duplikat pada '+sheet+'. Periksa Data.');
-    return selected;
-  }
-  const data = {
-    program: program, sesi: scoped('Sesi',['id_sesi','id_program','nama_sesi','tanggal_sesi','jam_mulai','jam_selesai'],'id_sesi'),
-    ikut: scoped('Keikutsertaan',['id_keikutsertaan','id_program','id_peserta','status_keikutsertaan','unit_kerja_saat_pelatihan'],'id_keikutsertaan'),
-    peserta: tabelIndex_('Peserta',['id_peserta','nama_pegawai']).records,
-    hadir: tabelIndex_('Kehadiran',['id_kehadiran','id_sesi','id_keikutsertaan','waktu_datang','waktu_pulang','waktu_datang_terverifikasi','waktu_pulang_terverifikasi']).records,
-    catatan: tabelIndex_('Catatan_Perilaku',['id_catatan','id_keikutsertaan','id_sesi','id_indikator','status_validasi','keterangan','waktu_kejadian']).records,
-    indikator: tabelIndex_('Indikator_Perilaku',['id_indikator','kode_indikator','jenis_indikator','definisi_indikator']).records
-  };
-  const r = ringkasLaporanProgram_(data, Date.now(), zona);
-  try { r.jadwal = muatKelolaProgramIndex(id).sesi; } catch(e) { r.jadwal=[];r.peringatan.push('Rincian jeda/durasi tidak tersedia: '+e.message); }
-  try { r.jp = muatRekapJPProgramIndex(id); } catch(e) { r.peringatan.push('Rekap JP tidak tersedia: '+e.message); }
-  try { r.nilai = muatNilaiPerilakuProgramIndex(id); if (!r.nilai.aturan) r.peringatan.push('Aturan nilai perilaku belum tersedia.'); } catch(e) { r.peringatan.push('Nilai perilaku tidak tersedia: '+e.message); }
-  programLaporanSelesai_(id);
-  return r;
+  const lock=LockService.getScriptLock();lock.waitLock(30000);
+  try {
+    pastikanTidakAdaHapusTertunda_();
+    const program = programLaporanSelesai_(id), txt = v => String(v == null ? '' : v).trim();
+    const zona = SpreadsheetApp.getActiveSpreadsheet().getSpreadsheetTimeZone();
+    function scoped(sheet, fields, key) {
+      const all=tabelIndex_(sheet,fields).records, selected=all.filter(r=>txt(r.id_program)===txt(id));
+      const selectedIds=new Set(selected.map(r=>txt(r[key]))),counts=new Map();
+      all.forEach(r=>{const value=txt(r[key]);if(selectedIds.has(value))counts.set(value,(counts.get(value)||0)+1);});
+      if(Array.from(counts.values()).some(n=>n!==1))throw Error('ID lintas program duplikat pada '+sheet+'. Periksa Data.');
+      return selected;
+    }
+    const data = {
+      program: program, sesi: scoped('Sesi',['id_sesi','id_program','nama_sesi','tanggal_sesi','jam_mulai','jam_selesai'],'id_sesi'),
+      ikut: scoped('Keikutsertaan',['id_keikutsertaan','id_program','id_peserta','status_keikutsertaan','unit_kerja_saat_pelatihan'],'id_keikutsertaan'),
+      peserta: tabelIndex_('Peserta',['id_peserta','nama_pegawai']).records,
+      hadir: tabelIndex_('Kehadiran',['id_kehadiran','id_sesi','id_keikutsertaan','waktu_datang','waktu_pulang','waktu_datang_terverifikasi','waktu_pulang_terverifikasi']).records,
+      catatan: tabelIndex_('Catatan_Perilaku',['id_catatan','id_keikutsertaan','id_sesi','id_indikator','status_validasi','keterangan','waktu_kejadian']).records,
+      indikator: tabelIndex_('Indikator_Perilaku',['id_indikator','kode_indikator','jenis_indikator','definisi_indikator']).records
+    };
+    const r = ringkasLaporanProgram_(data, Date.now(), zona);
+    try { r.jadwal = muatKelolaProgramIndex(id).sesi; } catch(e) { r.jadwal=[];r.peringatan.push('Rincian jeda/durasi tidak tersedia: '+e.message); }
+    try { r.jp = muatRekapJPProgramIndex(id); } catch(e) { r.peringatan.push('Rekap JP tidak tersedia: '+e.message); }
+    try { r.nilai = muatNilaiPerilakuProgramIndex(id); if (!r.nilai.aturan) r.peringatan.push('Aturan nilai perilaku belum tersedia.'); } catch(e) { r.peringatan.push('Nilai perilaku tidak tersedia: '+e.message); }
+    programLaporanSelesai_(id);
+    return r;
+  } finally {lock.releaseLock();}
 }
 function ringkasLaporanProgram_(d, now, zona) {
   const txt = v => String(v == null ? '' : v).trim(), norm = v => txt(v).toLowerCase();

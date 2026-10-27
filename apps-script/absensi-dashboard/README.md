@@ -4,14 +4,14 @@ Current accepted application source for Pusat Pengembangan Aparatur Komdigi.
 Read ../../PROJECT_CONTEXT.md and ../../AGENTS.md first. These supersede the earlier flat UI package notes and old preview/test reports.
 
 ## Files to use in Google Apps Script
-Code.gs, Laporan.gs, Beranda.html, Index.html, Pengelolaan.html, Peserta.html, Profil.html, Absensi.html, AdminQR.html.
+Code.gs, Laporan.gs, Hapus.gs, Beranda.html, Index.html, Pengelolaan.html, Peserta.html, Profil.html, Absensi.html, AdminQR.html.
 The project must remain bound to its existing Google Sheet. Retain the deployed manifest/scopes and deployment configuration.
 
 Replace complete contents of files changed for a task. Keep exact file names. Save, and for /exec publish a new version of the existing deployment. Keep the deployment URL so QR links remain valid.
 
 Preview files and Hasil-Pengujian.txt inherited from the older UI branch are historical and do not depict or validate this current snapshot. Do not install preview files as Apps Script application code.
 
-See SOURCE_SNAPSHOT.json for SHA-256 hashes of the nine current HTML/GS source files.
+See SOURCE_SNAPSHOT.json for SHA-256 hashes of the ten current HTML/GS source files.
 
 ## Memasang halaman Beranda
 
@@ -56,3 +56,26 @@ Persentase kelengkapan menggunakan peserta yang saat ini berstatus terdaftar × 
 Dokumen Google sementara dibuat untuk menyusun PDF beserta grafik dan dipindahkan ke Sampah setelah ekspor; fitur tidak membuat tautan berbagi publik. Jika pembersihan gagal, peringatan akan meminta pengelola menghapus dokumen TEMP Laporan Pelatihan secara manual. File hasil diunduh dari browser dengan klik eksplisit. Ukuran PDF dibatasi 8 MB, maksimal 1.000 peserta/300 sesi/3.000 catatan per program; batas ini bukan jaminan quota/waktu eksekusi Google cukup untuk seluruh data sebesar itu. Kesalahan quota/izin ditampilkan dan dokumen sementara dibersihkan sejauh diizinkan layanan.
 
 Format awal adalah PDF, belum DOCX. Baca **tests/LAPORAN_VALIDATION.md** untuk batas pengujian lokal dan checklist ekspor Google yang sebenarnya. Jangan menyalin folder tests/preview ke editor Apps Script.
+
+## Penghapusan program, sesi, dan peserta
+
+Branch **feat/hapus-data-pelatihan** melanjutkan seluruh pembaruan sebelumnya. Tambahkan file **Script** baru bernama **Hapus** dengan seluruh isi Hapus.gs. Ganti seluruh isi **Code.gs**, **Laporan.gs**, **Pengelolaan.html**, dan **Peserta.html** dari branch yang sama. Kelima file harus dipasang bersama: backend lama memakai penjagaan transaksi/ID dari Hapus.gs. File HTML/GS lain tersedia lengkap pada folder ini jika pembaruan sebelumnya belum dipasang. Jangan menyalin tests/preview ke Apps Script.
+
+Tidak menambah sheet atau kolom. Pertahankan spreadsheet terikat, manifest/scopes yang sebenarnya, dan URL deployment. Untuk /exec, simpan lalu perbarui versi deployment yang sudah ada. Izin baru tidak diperlukan untuk penghapusan; laporan PDF tetap memerlukan izin Docs/Drive yang sudah dijelaskan di atas.
+
+- **Pengelolaan → Program & Sesi → Hapus program:** menghapus program, pendaftaran, sesi/jeda, kehadiran, catatan perilaku/izin, token QR, serta log absensi terkait. Identitas peserta tetap ada, termasuk peserta yang juga mengikuti program lain.
+- **Pengelolaan → Sesi Program → Hapus sesi:** menghapus sesi/jedanya, kehadiran/catatan, token dan log terkait. Pendaftaran peserta serta sesi/program lain dipertahankan. Rekap/laporan berikutnya mengikuti sesi yang tersisa.
+- **Peserta Program → Hapus dari program:** menghapus satu keikutsertaan beserta kehadiran, catatan/izin, dan log terkait. Identitas dan riwayat program lain tetap ada.
+- **Peserta Program → Identitas Peserta di Database → Cari Identitas:** daftar seluruh database, termasuk peserta tanpa program. **Hapus identitas** hanya tersedia jika tidak ada keikutsertaan pada program mana pun. Gunakan pencarian kosong untuk menampilkan semua, maksimal 50 per halaman. Penghapusan identitas tidak dijalankan otomatis setelah menghapus pendaftaran/program.
+
+Setiap tindakan diawali pratinjau jumlah baris per sheet, alasan wajib, pengetikan ID target dan persetujuan dampak. Berlaku untuk draft/aktif/selesai; tidak perlu mengganti status untuk menghapus program yang dibatalkan. Belum ada status baru dibatalkan. Unduh laporan yang masih diperlukan sebelum menghapus program selesai. Perubahan data sejak pratinjau mewajibkan pemeriksaan baru.
+
+**Ini penghapusan fisik dari sheet operasional, bukan penghapusan seluruh salinan data.** Sebelum menghapus, server menyimpan dan membaca ulang cadangan bertahap di **Riwayat_Validasi**, termasuk nilai, tipe tanggal, formula, header, alasan dan petugas. Riwayat audit/cadangan, katalog indikator, versi aturan penilaian, serta file bukti di Drive tetap disimpan. Cadangan bisa berisi identitas/NIP dan harus mengikuti hak akses/retensi spreadsheet. Belum ada pemulihan otomatis untuk data yang sudah selesai dihapus; cadangan memerlukan pemeriksaan manual jika perlu rekonstruksi. Penghapusan ini bukan fitur pemusnahan data pribadi secara menyeluruh.
+
+Penghapusan hanya untuk akun pemilik dan memakai ScriptLock yang sama dengan penulisan data. Saat transaksi hapus tertunda, penambahan/perubahan lewat aplikasi dan pengambilan snapshot laporan PDF ditolak sampai transaksi ditutup. Buka **Pengelolaan** atau **Peserta**: kartu **Penghapusan tertunda** otomatis muncul. Pilih **Periksa / lanjutkan**, periksa dampak, ketik ID dan setujui lagi. Server melanjutkan baris yang tersisa, tanpa mengulang baris yang sudah dihapus. Jika persiapan cadangan terputus sebelum lengkap, proses persiapan ditutup tanpa menghapus baris operasional; buat pratinjau baru. Bila isi data/cadangan berubah di luar transaksi, proses berhenti agar data baru tidak dihapus. Jangan mengedit sheet/audit langsung ketika proses berjalan; ScriptLock mengoordinasikan aplikasi, bukan edit manual Google Sheets.
+
+ID berurutan yang sudah dihapus dicadangkan melalui ScriptProperties per spreadsheet agar PRG/SES/KST/PST/JDA tidak digunakan ulang oleh generator lama maupun baru. Pertahankan properti `BATAS_ID_HAPUS|<spreadsheet-id>` serta Riwayat_Validasi. Perubahan ini juga menambahkan pemeriksaan pemilik pada lima fungsi penulisan lama untuk peserta/keikutsertaan/sesi/jeda/konfirmasi JP. Tidak mengubah formula JP/perilaku atau menghapus file bukti di Drive.
+
+Penghapusan diblokir jika ada transaksi lama belum selesai, ID kosong/duplikat, relasi lintas program yang bertentangan, sheet wajib hilang, atau referensi pada sheet tambahan yang belum didukung. Perbaiki/pulihkan sumber masalah terlebih dahulu. Batas per tindakan: 3.000 baris operasional terkait dan 2 juta karakter rencana cadangan; hapus per sesi/pendaftaran untuk program lebih besar. Kuota dan durasi Google dapat membatasi lebih awal. Waktu tunggu lock 30 detik; proses panjang/terputus dapat dilanjutkan lewat kartu transaksi.
+
+Sebelum memakai pada data penting, uji pada **salinan spreadsheet dan proyek Apps Script terpisah**. Pengujian lokal belum menjalankan penghapusan pada layanan Google. Ikuti tests/HAPUS_VALIDATION.md untuk pemeriksaan pemasangan.

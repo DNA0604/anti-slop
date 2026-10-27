@@ -4,7 +4,7 @@ Snapshot: 24 October 2026, Asia/Jakarta. This snapshot is the latest source acce
 
 ## Current status
 The user confirmed the latest sidebar/navigation fix with: "nah, sudah normal ini".
-The creation-modal update is committed on ui/modal-penambahan-pelatihan. Beranda is committed on feat/beranda-pelatihan; the public QR page update is on ui/absensi-komdigi. Current work on feat/laporan-program-pdf adds completed-program evaluation reports. These updates are locally validated and await deployment/user verification, including native Google Docs export.
+The creation-modal update is committed on ui/modal-penambahan-pelatihan. Beranda is committed on feat/beranda-pelatihan; the public QR page update is on ui/absensi-komdigi. Completed-program reports are committed on feat/laporan-program-pdf. Current branch feat/hapus-data-pelatihan adds physical deletion with dependency previews and audit backups. These updates are locally validated and await deployment/user verification, including native Google Docs export.
 Continue from this source rather than rebuilding the project from scratch.
 
 ## Source of truth and files
@@ -18,10 +18,11 @@ Directory: apps-script/absensi-dashboard/.
 - Absensi.html: participant attendance reached using an absen token; optimize for phones.
 - AdminQR.html: original administrative QR page.
 - Laporan.gs: owner-only, completed-program PDF report preview, aggregation and native Google Docs/Charts export.
+- Hapus.gs: owner-only program/session/membership/unused-identity deletion, read-only previews, chunked audit backups, resumable transactions and retired-ID reservation.
 Files named with (1) in uploads were normalized for Apps Script. Use the exact names above.
 
 The app is bound to a spreadsheet with its existing sheets. This handoff contains source, not the live spreadsheet or its data. No fresh schema migration is needed for these UI changes.
-The existing appsscript.json from the original branch is a reference. Keep the deployed project's real manifest, OAuth scopes, permissions and deployment settings. SOURCE_SNAPSHOT.json records SHA-256 hashes for the current nine HTML/GS application files. Report export requires Docs and Drive authorization; preserve existing explicit scopes when adding those permissions.
+The existing appsscript.json from the original branch is a reference. Keep the deployed project's real manifest, OAuth scopes, permissions and deployment settings. SOURCE_SNAPSHOT.json records SHA-256 hashes for the current ten HTML/GS application files. Report export requires Docs and Drive authorization; preserve existing explicit scopes when adding those permissions.
 
 ## Functional scope already built
 - Categories: Manajerial, Sosial Kultural, Teknis; programs can have jenjang and multiple sessions.
@@ -93,6 +94,16 @@ DOM tests used all original inline scripts with a mocked Google bridge, desktop/
 - Uses DocumentApp and Charts in a temporary document; exported PDF bytes are returned for explicit browser Blob download, and temporary Docs are moved to Trash. No public file sharing or Sheets writes. Cleanup failure warns the owner. Limits: 1,000 participants, 300 sessions, 3,000 notes, 8 MB PDF; Google service quotas may impose lower effective limits.
 - Run otorisasiLaporanProgram in the editor as owner once to authorize Docs/Drive. Actual Google PDF layout/export and production data are not validated locally. See tests/LAPORAN_VALIDATION.md and README installation instructions.
 - 26 Node tests (9 report + 17 existing) pass. Chromium mocked-service checks cover eligibility, preview/errors/retry, busy modal guards, explicit download, cleanup/focus and mobile layout. They do not prove native Google Docs export or live OAuth works.
+
+## Program/session/participant deletion — 27 October 2026
+- Branch feat/hapus-data-pelatihan continues all previous changes. Install new Script Hapus.gs and replace Code.gs, Laporan.gs, Pengelolaan.html and Peserta.html together. No new sheets/columns or deletion-specific scopes.
+- Physical cascade deletion for Program and Sesi; remove one Keikutsertaan with attendance/notes/logs without removing the person or another program. Peserta identity can only be removed with zero memberships, through the new whole-database identity search card (including orphan/unregistered people).
+- Only owner can preview/delete/continue. Preview counts + reason + typed exact ID + explicit acknowledgement; hash checked again under ScriptLock. Completed status does not prevent deletion. No automatic status cancellation/finalization is introduced.
+- Full header/value/date/formula plan is saved as JSON string chunks in existing Riwayat_Validasi and verified before source deletion. Audit, rule versions, indicator catalog, person masters during program/membership deletion and Drive evidence files remain. This is not personal-data erasure and there is no automatic restore UI.
+- Child-first deletion with repeat-safe recovery; incomplete staging closes without source deletion. Pending deletion locks all existing ScriptLock mutation paths and report snapshot reads. Recovery card auto-loads in Pengelolaan/Peserta; typed ID/acknowledgement required again. Existing unfinished transactions, duplicate IDs, conflicting cross-program relations and references in unknown sheets block deletion. External changes to remaining data or backups stop continuation.
+- Numeric IDs PRG/SES/KST/PST/JDA retired by deletion are reserved in ScriptProperties BATAS_ID_HAPUS|<spreadsheet-id>; legacy/current generators honor these maxima. Preserve this property and audit history. Five legacy admin mutations now also check owner.
+- Limits 3,000 operational rows and 2 million serialized-plan characters per deletion; Google limits may be lower. Use per-session/membership deletion for large programs. Direct manual Sheets edits are not coordinated by ScriptLock and must be avoided while running.
+- 44 Node tests (18 deletion + 26 previous) and desktop/mobile mocked browser checks pass. Production deletion, quotas, Google serialization/formulas and deployed auth require verification on a separate spreadsheet/project copy; no real deletions/deployment performed here.
 
 ## Remaining candidate work (not automatically authorized)
 - Real authentication and roles for the user account/settings/logout placeholders.

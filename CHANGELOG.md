@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-10-27 — program/session/participant deletion
+- Added owner-only Hapus.gs: dependency preview, confirmation/reason, child-first physical cascade, verified chunked backups in existing audit sheet, request idempotency and resumable pending deletion.
+- Pengelolaan exposes Hapus program/Hapus sesi; Peserta exposes Hapus dari program and a separate whole-database identity search including participants without memberships. Identity deletion requires zero memberships; shared people/other programs are protected.
+- Retained audit backups, scoring rules, indicator catalog and Drive evidence. No new sheet/columns and no automatic restore UI. Unknown-sheet references, duplicates, conflicting links, stale preview and unfinished transactions block deletion.
+- Added pending guards under existing mutation locks, owner checks to five legacy mutations, retired numeric-ID maxima in ScriptProperties, and a coordinated/guarded report snapshot read. Existing sidebar/navigation and JP/behavior formulas remain unchanged.
+- Added 18 meaningful deletion tests (44 total passing), browser checks at desktop/mobile, installation/recovery instructions and previews. Validation uses service mocks; live Google deletion/auth/quotas still require testing on a separate project/spreadsheet copy. No production data changes or deployment performed.
+
 ## 2026-10-25 — completed-program evaluation PDF
 - Added owner-protected Laporan.gs with preview and PDF endpoints, strict completed-program checks before/after generation, read-only aggregation, existing JP/behavior snapshots and native Google Docs/Charts rendering.
 - Formal PDF contains program identity, executive summary, schedule/breaks, per-session/participant attendance, validation/indicator charts, activity/leave history, JP/behavior status, limitations and follow-up. Pending/rejected notes and unavailable values remain explicit; no new grading formula or Sheets writes.
