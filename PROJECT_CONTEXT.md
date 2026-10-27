@@ -8,7 +8,18 @@ The creation-modal update is committed on ui/modal-penambahan-pelatihan. Beranda
 Continue from this source rather than rebuilding the project from scratch.
 
 User acceptance: "sudah saya implementasikan dan deploy yang terbaru. uji coba sudah dilaksanakan dan hasilnya sesuai yang diharapkan. untuk itu kita nyatakan update fitur hapus sudah selesai."
-This turn only records acceptance in documentation; no application changes or new deployment are required.
+The acceptance commit only records verification in documentation; no application changes or new deployment were required.
+
+## Next development — Jenjang and organizer access (planning)
+On 27 October the user agreed to progress slowly through the previously discussed access work and begin stage 1 while learning the structure. The source review and initial design are documented in [TAHAP_1_JENJANG_AKSES.md](apps-script/absensi-dashboard/docs/TAHAP_1_JENJANG_AKSES.md). This is a design artifact, not an implemented schema or auth feature; all ten accepted application files remain unchanged.
+
+Agreed decisions: Program → Jenjang → Sesi (use Jenjang as the entity name); each participant belongs to one Jenjang per program and attends its sessions, with independent memberships in other programs. Admin Pelatihan manages all features; Petugas Kelas Pelatihan is scoped to assigned Jenjang, issues QR, monitors participants/attendance/JP, records leave/behavior/evidence and submits corrections. Admin approves corrections/validations and retains creation/import/settings/finalization/report/deletion/access management. Staff can have multiple Jenjang assignments. Account/assignment data belongs in a separate spreadsheet file with Pengguna, Penugasan_Jenjang and Riwayat_Akses, referencing stable operational IDs.
+
+Current code stores only Program.jenjang text; Sesi and Keikutsertaan have program relationships without id_jenjang. Migration must preserve IDs/history/formulas, retain program–participant uniqueness and adjust every scope/denominator, including QR saves, profiles, reports and accepted deletion. Unknown-sheet checks in Hapus.gs mean simply adding Jenjang would block program deletion until officially supported. Propose a Jenjang sheet plus id_jenjang on sessions/memberships; retain the old Program.jenjang as legacy during transition. Ambiguous/blank/mixed live data must be reviewed, not silently inferred. Shared sessions across Jenjang and historical transfers remain unresolved, not approved assumptions.
+
+Most organizers use personal Gmail. Authentication requires server-verified Google identity; Session.getActiveUser email in execute-as-owner deployments and a whitelist alone are insufficient. No auth protocol/client/setup has been implemented. Prove login in a test HTMLService deployment before broad access refactoring; scope reads/writes/exports/uploads/recovery in the server and reject unavailable access configuration. Public QR remains a distinct flow.
+
+Stage 1 source review/design is complete; live-data inventory and mapping remain pending because spreadsheet data is unavailable here. Next implementation unit: read-only mapping preview with local tests, intended for a separate spreadsheet/project copy. No production edits/deployment/migration or new Google spreadsheet have occurred.
 
 ## Source of truth and files
 Directory: apps-script/absensi-dashboard/.

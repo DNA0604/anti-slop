@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-10-27 — stage 1 Jenjang and organizer access design
+- Reviewed the current program/session/membership, QR, recap/report and deletion relationships; recorded the approved Program → Jenjang → Sesi and two-role direction, personal Gmail constraint and separate access spreadsheet.
+- Added Indonesian stage-1 design with a minimal target schema, legacy-data mapping cases, ambiguity/transaction safeguards, staged migration/recovery, affected flows, access matrix and acceptance checks.
+- Source review/design only: no application/schema changes, live-data mapping, migration, authentication implementation or deployment. Next unit is a read-only mapping preview for a separate test copy; ten accepted application files and source hashes remain unchanged.
+
 ## 2026-10-27 — deletion feature accepted and completed
 - User confirmed implementing/deploying the latest update, running tests with the expected results, and declaring the deletion feature complete.
 - Accepted application source: ae1622a on fix/transaksi-penghapusan, including trash icons, final confirmation without typed IDs and the transaction-blocker fix.

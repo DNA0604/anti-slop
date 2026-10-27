@@ -13,6 +13,10 @@ Preview files and Hasil-Pengujian.txt inherited from the older UI branch are his
 
 See SOURCE_SNAPSHOT.json for SHA-256 hashes of the ten current HTML/GS source files.
 
+## Pengembangan bertahap: Jenjang dan akses panitia
+
+Lihat [rancangan tahap 1](docs/TAHAP_1_JENJANG_AKSES.md) untuk struktur Program → Jenjang → Sesi, pemetaan data lama dan pembagian akses panitia. Ini dokumen rancangan berdasarkan pemeriksaan kode; migrasi/login belum dibuat dan data spreadsheet sebenarnya belum dipetakan. Tidak ada file Apps Script yang perlu diganti atau deployment baru untuk tahap dokumentasi ini.
+
 ## Memasang halaman Beranda
 
 1. Tambahkan file HTML baru bernama **Beranda** di editor Apps Script, lalu salin seluruh isi Beranda.html.
