@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026-10-28 — move Monitoring verification below the data
+- Moved Verifikasi Sesi from the top of Monitoring to the bottom, immediately before Pengajuan Koreksi Lama, so filters and monitoring data appear first. Only Akses.gs application source changes; existing login, actions, permissions and sidebar are preserved.
+- Checked desktop/mobile DOM order and the existing Chromium app regression suite with mocked Google. Replace Akses.gs and update the same deployment; no schema/data changes or agent Google deployment.
+
 ## 2026-10-28 — one app URL and one Google login action
 - Ordinary login automatically prepares a user-clicked Google link; the authenticated callback opens protected Beranda in-place after the existing server verification/session check. Removes normal prepare/continue/open-app stages without automatic top-frame navigation. Existing sessions bypass the login card.
 - Added a copyable app-entry URL in access management and separated optional owner identity diagnostics from staff login. Account/assignment forms and storage, auth/session/permission checks, accepted verification and sidebar stay unchanged.

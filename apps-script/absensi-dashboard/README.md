@@ -13,6 +13,10 @@ Preview files and Hasil-Pengujian.txt inherited from the older UI branch are his
 
 See SOURCE_SNAPSHOT.json for SHA-256 hashes of all 14 current HTML/GS source files, including the Jenjang preparation tools.
 
+## Posisi Verifikasi Sesi di Monitoring
+
+Paket **ui/verifikasi-sesi-di-bawah** melanjutkan login satu alur. Ganti **Akses.gs saja**, simpan dan perbarui versi deployment yang sama. Verifikasi Sesi kini berada di bawah data Monitoring, sebelum Pengajuan Koreksi Lama. Tombol dan alur verifikasi tetap sama; tidak perlu mengubah file HTML atau pendataan.
+
 ## Login satu alur (28 Oktober 2026)
 
 Paket terbaru **ui/login-satu-alur**, melanjutkan versi verifikasi sesi yang sudah dikonfirmasi pengguna. Ganti **Akses.gs saja**, simpan, lalu Manage deployments → Edit deployment yang sama → New version → Deploy. Akun, penugasan, spreadsheet akses, OAuth dan aktivasi tetap dipakai; tidak perlu menyalin file lain atau membuat tab baru.
