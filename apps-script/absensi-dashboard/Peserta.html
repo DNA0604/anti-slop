@@ -2378,7 +2378,7 @@ body.flat-dashboard {font-family:'Avenir Next',Avenir,'Segoe UI',Arial,sans-seri
     document.querySelectorAll('[data-sidebar-placeholder]').forEach(button => button.addEventListener('click', () => toast(button.dataset.sidebarPlaceholder)));
     body.classList.remove('dash-compact');
     function navigationURL(page) {
-      const base = window.resolveDatabaseBase(typeof navigationBase === 'string' ? navigationBase : '') + window.jenjangNavigationParam();
+      const base = window.resolveDatabaseBase(typeof navigationBase === 'string' ? navigationBase : '');
       if (!base) return '';
       const selected = document.getElementById('program');
       return base + '?page=' + encodeURIComponent(page) + (selected && selected.value ? '&program=' + encodeURIComponent(selected.value) : '') + window.jenjangNavigationParam();

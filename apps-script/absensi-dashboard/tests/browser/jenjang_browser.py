@@ -37,7 +37,10 @@ with sync_playwright() as p:
   page=browser.new_page(viewport={'width':width,'height':1000});errors=[];page.on('pageerror',lambda e:errors.append(str(e)));page.add_init_script(BASE+EXTRA+init)
   def route(r):
    if r.request.resource_type!='document':r.abort();return
-   page_name=parse_qs(urlparse(r.request.url).query).get('page',[''])[0]
+   url=urlparse(r.request.url)
+   if url.path!='/macros/s/TEST/exec':
+    r.fulfill(status=404,content_type='text/html',body='<h1>Page not found</h1>');return
+   page_name=parse_qs(url.query).get('page',[''])[0]
    target=file if file=='__migration__' else {'pengelolaan':'Pengelolaan.html','peserta':'Peserta.html','monitoring':'Index.html'}.get(page_name,file)
    r.fulfill(status=200,content_type='text/html',body=fixture['migrationHtml'] if target=='__migration__' else (ROOT/target).read_text())
   page.route('**/*',route)

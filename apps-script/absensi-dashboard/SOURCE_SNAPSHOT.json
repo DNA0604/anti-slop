@@ -1,5 +1,5 @@
 {
-  "snapshot_date": "2026-10-27",
+  "snapshot_date": "2026-10-28",
   "timezone": "Asia/Jakarta",
   "files": {
     "Absensi.html": "496053b5dd8ca245d75c0db314d015e8e25d27ccf9a2d7b9f7e9416509280092",
@@ -8,13 +8,13 @@
     "Beranda.html": "35d26eb54ac7812b05003922146d99bb7d7c6144904d9565e522c0278e60225f",
     "Code.gs": "9ee377eddc5d34d8ca9c0bcb84924a03abb48e5b18671aaa6e51b96ffb5f2113",
     "Hapus.gs": "cd6051d37eb0d54996dfe4c0cf24ba7f890483fc89265c78b1c890e12ab04cc5",
-    "Index.html": "e5d13cd09983f65e7b1c0da5aaed2c9a6298f3510d7cd20217fe48b7b81e86c4",
+    "Index.html": "8d241c1fa38192cac63e410427443eee96d49e1c024d986b4958f54b3b16263d",
     "Jenjang.gs": "e2b5637b960ac1bb056f09871ff27013194c3a2d7bd68e441a210184d8287d01",
     "Laporan.gs": "b7efac46feb6472a89dd85f54fdbcf5f013b1704db5db5d3adb84498822c064d",
     "PemetaanJenjang.gs": "8a68b67c199ff7fecf71e83eedeaa96d7bed42a06ea9dd4884dd7cd41bacd027",
-    "Pengelolaan.html": "e1ebce2f56c40876599aee0449cae8a7a9745fc4ba6b194b7bb2ff237159c3c5",
-    "Peserta.html": "1c3044fb812f96d0d2ba27f2960367f0d7d98a19005a6eb38bee0110d5a66430",
+    "Pengelolaan.html": "b94f068dc610eb0b78bfb2fcc7a4ed3d8342d919f306fdfd8e0ff3c77745cea4",
+    "Peserta.html": "ab23db65852876ac38dd6660ada3942deead3c01cbfe66b4e237cbbf1ee510d9",
     "PratinjauJenjang.html": "d849c1678abaa32090161c3a72ee5f847eeb7dd329f787385cd922da3d297f67",
-    "Profil.html": "44c3dc769dc10d19173d1750ef8053236efa9f70ed5fbbb64f7305f6644abdb5"
+    "Profil.html": "8155f55db25a840427f5dc298eb4149e0405300f9bcb7fa8811eda464f99dd12"
   }
 }

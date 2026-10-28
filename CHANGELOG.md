@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-10-28 — fix selected-Jenjang page-not-found navigation
+- Reproduced a 404 after selecting a Jenjang: four sidebar builders appended `&jenjang=...` to `/exec` before `?page`, corrupting the deployment path. Keep the base path separate and append the Jenjang once in the query. Profile navigation also stops mixing Jenjang into the program ID and preserves it on content back links.
+- Replace Index.html, Pengelolaan.html, Peserta.html and Profil.html together on the existing deployment. No backend/auth/data/schema/sidebar animation changes; retain the prior Akses.gs transition update.
+- Tightened Chromium mock routing to return 404 for malformed deployment paths (previous mocks accepted any path). New test failed before the fix with Page not found, passed after; added staff desktop/mobile profile round trips, Admin management round trips and /dev preservation. Existing 196 backend tests and Jenjang browser suite pass. Actual Google deployment remains for user validation.
+
 ## 2026-10-27 — neutral loading transition with sidebar animation preserved
 - User Admin video shows existing-session navigation and logout display. Startup checks had shown a login button while pending; replaced that display with a page-specific spinner/skeleton and short fade, with reduced-motion support. Login appears for missing/expired sessions, retry for temporary failures/held access, and a Beranda link for a denied page.
 - Only Akses.gs application source changes. Sidebar/navigation HTML and all server session/permission functions remain identical to ed7d655; no SPA or cached-identity shortcut. Retry preserves page context without copying token/code parameters, and expiry cancels an in-progress fade so protected data stays covered.

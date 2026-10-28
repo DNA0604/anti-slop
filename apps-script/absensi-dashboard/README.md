@@ -13,6 +13,12 @@ Preview files and Hasil-Pengujian.txt inherited from the older UI branch are his
 
 See SOURCE_SNAPSHOT.json for SHA-256 hashes of all 14 current HTML/GS source files, including the Jenjang preparation tools.
 
+## Perbaikan navigasi Jenjang (28 Oktober 2026)
+
+Paket **fix/navigasi-jenjang-panitia** melanjutkan perapian transisi. Ganti seluruh isi **Index.html, Pengelolaan.html, Peserta.html, Profil.html**, simpan dan perbarui deployment yang sama ke **New version**. Akses.gs dari pembaruan sebelumnya tetap dipakai. Tidak perlu membuat file baru, mengubah akun, aktivasi atau migrasi.
+
+Memperbaiki alamat sidebar yang menjadi `/exec&jenjang=…?page=…` setelah Jenjang dipilih. Tautan kini memakai `/exec?page=…&program=…&jenjang=…`; tautan kembali dari profil mempertahankan Jenjang. Animasi sidebar dan hak akses tetap. Uji setelah deploy: petugas memilih Jenjang, buka Monitoring → Peserta → Profil → kembali; Admin membuka Pengelolaan → Peserta → Monitoring. Pemeriksaan browser lokal menggunakan layanan Google tiruan; deployment Google perlu diuji pengguna.
+
 ## Perapian transisi halaman
 
 Paket terbaru: **ui/transisi-halaman-panitia**, melanjutkan paket tahap 4. Jika tahap 4 sudah dipasang, cukup ganti **Akses.gs**, simpan, lalu perbarui deployment yang sama ke **New version** dan muat ulang web app. Akun, penugasan, OAuth, aktivasi login dan migrasi Jenjang tetap dipakai.
