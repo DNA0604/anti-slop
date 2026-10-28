@@ -1,4 +1,4 @@
-/** Tahap 3: direktori panitia terpisah + uji identitas Google. Belum mengganti akses aplikasi utama. */
+/** Direktori panitia terpisah, identitas Google, sesi aplikasi dan verifikasi sesi. */
 function skemaDirektoriAkses_(){return {
   Pengguna:['id_pengguna','nama','email_google','google_sub','peran','status','created_at','updated_at'],
   Penugasan_Jenjang:['id_penugasan','id_pengguna','id_program','id_jenjang','status','created_at','updated_at'],
@@ -368,13 +368,14 @@ function fungsiAplikasiPanitia_(){return {
  pulihkanPembuatanSesiIndex,pratinjauImporPesertaIndex,cariPesertaLamaIndex,imporPesertaProgramIndex,pulihkanImporPesertaIndex,periksaDataIndex,muatEditDataIndex,simpanEditDataIndex,pulihkanEditDataIndex,tambahIndikatorIndex,muatRingkasanPesertaIndex,
  pratinjauHapusDataIndex,hapusDataIndex,muatPenghapusanTertundaIndex,lanjutkanPenghapusanIndex,muatMasterPesertaHapusIndex,muatPratinjauLaporanProgram,buatPDFLaporanProgram,otorisasiLaporanProgram,
  muatManajemenAksesPanitia,simpanPenggunaPanitia,simpanPenugasanPanitia,pulihkanTransaksiAksesPanitia,
+ muatDaftarVerifikasiSesiPanitia:muatDaftarVerifikasiSesiPanitia_,muatVerifikasiSesiPanitia:muatVerifikasiSesiPanitia_,ajukanVerifikasiSesiPanitia:ajukanVerifikasiSesiPanitia_,putuskanVerifikasiSesiPanitia:putuskanVerifikasiSesiPanitia_,
  muatPengajuanKoreksiPanitia:muatPengajuanKoreksiPanitia_,putuskanPengajuanKoreksiPanitia:putuskanPengajuanKoreksiPanitia_
 };}
 function periksaIzinFungsiPanitia_(name,args){
   if(!petugasDalamKonteksAkses_())return;
-  const sessionMethods=['muatKehadiranIndex','muatCatatanPerilakuIndex','muatDaftarIzinIndex','terbitkanQRAbsensiDariGenerator'];
+  const sessionMethods=['muatVerifikasiSesiPanitia','muatKehadiranIndex','muatCatatanPerilakuIndex','muatDaftarIzinIndex','terbitkanQRAbsensiDariGenerator'];
   const programMethods=['muatRekapJPProgramIndex','muatNilaiPerilakuProgramIndex','muatPesertaProgramIndex','muatJenjangProgramIndex'];
-  if(['muatAwalIndex','muatBerandaIndex','muatPengajuanKoreksiPanitia'].includes(name))return;
+  if(['muatAwalIndex','muatBerandaIndex','muatDaftarVerifikasiSesiPanitia','muatPengajuanKoreksiPanitia'].includes(name))return;
   if(sessionMethods.includes(name)){wajibSesiTargetAkses_(args[0]);return;}
   if(programMethods.includes(name)){
     if(!programDalamAkses_(args[0]))throw Error('AKSES_DITOLAK: Program tidak termasuk penugasan Anda.');
@@ -386,6 +387,7 @@ function periksaIzinFungsiPanitia_(name,args){
     const matches=memberships.filter(k=>dalamJenjangAkses_(k)&&(!d.id_keikutsertaan||teksAkses_(k.id_keikutsertaan)===teksAkses_(d.id_keikutsertaan))&&(!d.id_peserta||teksAkses_(k.id_peserta)===teksAkses_(d.id_peserta))&&(!d.id_program||teksAkses_(k.id_program)===teksAkses_(d.id_program)));
     if((!d.id_peserta&&!d.id_keikutsertaan)||!matches.length)throw Error('AKSES_DITOLAK: Peserta tidak termasuk penugasan Anda.');return;
   }
+  if(name==='ajukanVerifikasiSesiPanitia'){wajibSesiTargetAkses_(d.id_sesi);return;}
   if(['simpanIzinIndex','simpanKoreksiIndex'].includes(name)){wajibHadirTargetAkses_(d.id_kehadiran);return;}
   if(name==='unggahBuktiIndex'&&d.jenis==='izin'){wajibHadirTargetAkses_(d.id_kehadiran);return;}
   if(name==='simpanCatatanPerilakuIndex'||name==='unggahBuktiIndex'&&d.jenis==='perilaku'){
@@ -398,9 +400,9 @@ function panggilAplikasiPanitia(d){
   if(!Object.prototype.hasOwnProperty.call(functions,name)||!Array.isArray(d.args)||d.args.length>8)throw Error('Fungsi aplikasi tidak tersedia.');
   if(konteksSesiPanitia_)throw Error('Permintaan aplikasi bertingkat tidak diizinkan.');
   const context=bacaSesiPanitia_(d.token);context.token=d.token;context.method=name;context.args=d.args;konteksSesiPanitia_=context;
-  try{periksaIzinFungsiPanitia_(name,d.args);if(name==='simpanKoreksiIndex'&&petugasDalamKonteksAkses_())return ajukanKoreksiPanitia_(d.args[0]);return functions[name].apply(null,d.args);}finally{konteksSesiPanitia_=null;}
+  try{periksaIzinFungsiPanitia_(name,d.args);return functions[name].apply(null,d.args);}finally{konteksSesiPanitia_=null;}
 }
-function periksaUlangSesiPanitia_(){if(!konteksSesiPanitia_)return;const old=konteksSesiPanitia_,current=bacaSesiPanitia_(old.token,true);konteksSesiPanitia_=Object.assign(current,{token:old.token,method:old.method,args:old.args});periksaIzinFungsiPanitia_(old.method,old.args);}
+function periksaUlangSesiPanitia_(){if(!konteksSesiPanitia_)return;const old=konteksSesiPanitia_,current=bacaSesiPanitia_(old.token,true);konteksSesiPanitia_=Object.assign(current,{token:old.token,method:old.method,args:old.args,verifikasi_id:old.verifikasi_id});periksaIzinFungsiPanitia_(old.method,old.args);}
 function saringAwalPanitia_(r){if(!petugasDalamKonteksAkses_())return r;const data=r.data;data.program=data.program.filter(p=>programDalamAkses_(p.id_program));data.sesi=data.sesi.filter(dalamJenjangAkses_);data.jenjang=(data.jenjang||[]).filter(j=>dalamJenjangAkses_({id_jenjang:j.id,id_program:j.id_program}));data.program.forEach(p=>p.jenjang=data.jenjang.filter(j=>j.id_program===p.id_program).map(j=>j.nama).join(', '));return r;}
 function saringBerandaPanitia_(d){
  if(!petugasDalamKonteksAkses_())return d;
@@ -464,6 +466,109 @@ function putuskanPengajuanKoreksiPanitia_(d){
  }finally{lock.releaseLock();}
 }
 
+/** Paket verifikasi per sesi/Jenjang. Jurnal tetap di spreadsheet akses terpisah. */
+function daftarVerifikasiSesi_(book){
+ const map=new Map();tabelAkses_(book,'Riwayat_Akses').records.filter(r=>r.data.jenis_data==='Verifikasi_Sesi').forEach(r=>{const p=JSON.parse(r.data.sesudah);if(p.schema!==1||p.id!==r.data.id_target)throw Error('Jurnal verifikasi sesi tidak valid.');map.set(p.id,p);});return map;
+}
+function catatVerifikasiSesi_(book,p,aksi,jenis){
+ const t=tabelAkses_(book,'Riwayat_Akses');if(t.records.length>=9997)throw Error('Kapasitas riwayat akses hampir penuh.');
+ const row={id_riwayat:'AKR-'+Utilities.getUuid(),jenis_data:jenis||'Verifikasi_Sesi',id_target:p.id,aksi,sebelum:'',sesudah:JSON.stringify(p),oleh:konteksSesiPanitia_.email,waktu:new Date(),id_permintaan:'VFS-'+Utilities.getUuid(),status_transaksi:'SELESAI'};
+ if(row.sesudah.length>40000)throw Error('Bagian verifikasi terlalu panjang.');t.sheet.appendRow(t.header.map(k=>row[k]===undefined?'':row[k]));SpreadsheetApp.flush();
+ const found=tabelAkses_(book,'Riwayat_Akses').records.filter(r=>r.data.id_riwayat===row.id_riwayat);if(found.length!==1||serialAkses_(found[0].data)!==serialAkses_(row))throw Error('Tanda terima verifikasi belum terkonfirmasi. Muat ulang sebelum mencoba lagi.');
+}
+function pastikanTidakAdaVerifikasiTertunda_(){
+ const cfg=konfigurasiAkses_();if(!cfg||cfg.status!=='SIAP')return;
+ const allow=konteksSesiPanitia_&&konteksSesiPanitia_.verifikasi_id;
+ if([...daftarVerifikasiSesi_(bukuAkses_()).values()].some(p=>p.status==='diproses'&&p.id!==allow))throw Error('Ada verifikasi sesi belum selesai. Admin perlu membuka Monitoring → Verifikasi Sesi → Lanjutkan Verifikasi.');
+}
+function kolomValidasiSesi_(sheet){return sheet==='Kehadiran'?['status_validasi','diverifikasi_oleh','diverifikasi_pada','updated_at']:['status_validasi','alasan_validasi','divalidasi_oleh','divalidasi_pada','updated_at'];}
+function sumberValidasiSesi_(sheet,r){const omit=new Set(kolomValidasiSesi_(sheet));return Object.fromEntries(Object.entries(r).filter(([k])=>!omit.has(k)));}
+function snapshotVerifikasiSesi_(id,planned){
+ const s=wajibSesiTargetAkses_(id),program=barisTargetAkses_('Program','id_program',s.id_program),jenjang=barisTargetAkses_('Jenjang','id_jenjang',s.id_jenjang);
+ if(teksAkses_(jenjang.id_program)!==teksAkses_(s.id_program))throw Error('Relasi sesi/Jenjang tidak sesuai.');
+ const memberships=tabelIndex_('Keikutsertaan',['id_keikutsertaan','id_peserta','id_program','id_jenjang','status_keikutsertaan']).records.filter(k=>sesuaiJenjang_(s,k)),ids=new Set(),people=tabelIndex_('Peserta',['id_peserta','nama_pegawai']).records;
+ memberships.forEach(k=>{if(ids.has(teksAkses_(k.id_keikutsertaan)))throw Error('Keikutsertaan duplikat.');ids.add(teksAkses_(k.id_keikutsertaan));});
+ const hadir=tabelIndex_('Kehadiran',['id_kehadiran','id_sesi','id_keikutsertaan','waktu_datang','waktu_pulang','status_validasi']).records.filter(r=>teksAkses_(r.id_sesi)===teksAkses_(id));
+ const catatan=tabelIndex_('Catatan_Perilaku',['id_catatan','id_sesi','id_keikutsertaan','id_indikator','status_validasi']).records.filter(r=>teksAkses_(r.id_sesi)===teksAkses_(id));
+ const seen=new Set(),pairs=new Set();[...hadir,...catatan].forEach(r=>{const key=r.id_kehadiran&&!r.id_catatan?'H|'+r.id_kehadiran:'C|'+r.id_catatan;if(seen.has(key)||!ids.has(teksAkses_(r.id_keikutsertaan)))throw Error('Data sesi duplikat atau peserta berada di luar Jenjang.');seen.add(key);});
+ hadir.forEach(r=>{if(pairs.has(teksAkses_(r.id_keikutsertaan)))throw Error('Kehadiran peserta duplikat.');pairs.add(teksAkses_(r.id_keikutsertaan));});
+ const sort=(a,key)=>a.slice().sort((x,y)=>teksAkses_(x[key]).localeCompare(teksAkses_(y[key]))),indikator=tabelIndex_('Indikator_Perilaku',['id_indikator','kode_indikator','definisi_indikator']).records;
+ if(memberships.length>500||hadir.length+catatan.length>1500)throw Error('Paket dibatasi 500 peserta dan 1.500 baris kehadiran/catatan per sesi.');
+ const raw={s,program,jenjang,memberships:sort(memberships,'id_keikutsertaan'),hadir:sort(hadir,'id_kehadiran'),catatan:sort(catatan,'id_catatan'),people:people.filter(p=>memberships.some(k=>teksAkses_(k.id_peserta)===teksAkses_(p.id_peserta))),indikator:indikator.filter(i=>catatan.some(c=>c.id_indikator===i.id_indikator))};
+ // JP outputs are derived after verification and do not alter the reviewed attendance facts.
+ const derived=new Set(['durasi_aktual_menit','durasi_diakui_menit','menit_terlambat','menit_pengurang_jp','jp_diakui_presisi','usulan_durasi_diakui_menit','usulan_jp_diakui_presisi','status_perhitungan_ulang','alasan_perhitungan_ulang','updated_at']);
+ const versioned=Object.assign({},raw,{hadir:raw.hadir.map(r=>Object.fromEntries(Object.entries(r).filter(([k])=>!derived.has(k))))});
+ const immutable=Object.assign({},versioned,{hadir:versioned.hadir.map(r=>sumberValidasiSesi_('Kehadiran',r)),catatan:raw.catatan.map(r=>(planned?planned.some(w=>w.sheet==='Catatan_Perilaku'&&w.id===teksAkses_(r.id_catatan)):!r.status_validasi||r.status_validasi==='belum_divalidasi')?sumberValidasiSesi_('Catatan_Perilaku',r):r)});
+ const fmt=v=>v instanceof Date?v.toISOString():teksAkses_(v),details=raw.memberships.map(k=>{const p=people.filter(p=>teksAkses_(p.id_peserta)===teksAkses_(k.id_peserta));if(p.length!==1)throw Error('Identitas peserta hilang/duplikat.');const h=hadir.find(h=>h.id_keikutsertaan===k.id_keikutsertaan),a=h&&(h.waktu_datang_terverifikasi||h.waktu_datang),b=h&&(h.waktu_pulang_terverifikasi||h.waktu_pulang);if(a&&!(a instanceof Date)||b&&!(b instanceof Date)||a&&b&&b<=a)throw Error('Waktu kehadiran tidak valid. Koreksi sebelum pengajuan.');return {nama:teksAkses_(p[0].nama_pegawai),status_pendaftaran:teksAkses_(k.status_keikutsertaan),datang:fmt(a),pulang:fmt(b),status:h?teksAkses_(h.status_validasi):'belum_tercatat',lengkap:!!(a&&b)};});
+ const notes=catatan.map(c=>{const k=memberships.find(k=>k.id_keikutsertaan===c.id_keikutsertaan),p=people.find(p=>p.id_peserta===k.id_peserta),i=indikator.filter(i=>i.id_indikator===c.id_indikator);if(i.length!==1)throw Error('Indikator catatan hilang/duplikat.');return {nama:teksAkses_(p.nama_pegawai),jenis:i[0].kode_indikator==='IZIN_SESI'?'izin':'perilaku',indikator:teksAkses_(i[0].definisi_indikator),keterangan:teksAkses_(c.keterangan),bukti:teksAkses_(c.bukti_pendukung),status:teksAkses_(c.status_validasi),waktu:fmt(c.waktu_kejadian),mulai_izin:fmt(c.waktu_mulai_izin),selesai_izin:fmt(c.waktu_selesai_izin),durasi:teksAkses_(c.durasi_kejadian_menit),tugas:teksAkses_(c.id_tugas)};});
+ const ringkasan={peserta:memberships.length,lengkap:details.filter(d=>d.lengkap).length,belum_lengkap:details.filter(d=>!d.lengkap).length,izin:notes.filter(n=>n.jenis==='izin').length,perilaku:notes.filter(n=>n.jenis==='perilaku').length,catatan_menunggu:catatan.filter(c=>!c.status_validasi||c.status_validasi==='belum_divalidasi').length};
+ return {raw,versi:hashAkses_(serialAkses_(versioned)),sumber:hashAkses_(serialAkses_(immutable)),ringkasan,details,notes};
+}
+function muatDaftarVerifikasiSesiPanitia_(){
+ const sessions=tabelIndex_('Sesi',['id_sesi','nama_sesi']).records,programs=tabelIndex_('Program',['id_program','nama_program']).records,levels=tabelIndex_('Jenjang',['id_jenjang','nama_jenjang']).records;
+ return {sukses:true,pengajuan:[...daftarVerifikasiSesi_(bukuAkses_()).values()].filter(p=>dalamJenjangAkses_(p)).sort((a,b)=>b.created_at.localeCompare(a.created_at)).slice(0,100).map(p=>({id:p.id,id_sesi:p.id_sesi,status:p.status,email:p.email,created_at:p.created_at,nama_sesi:teksAkses_((sessions.find(s=>s.id_sesi===p.id_sesi)||{}).nama_sesi)||p.id_sesi,nama_program:teksAkses_((programs.find(s=>s.id_program===p.id_program)||{}).nama_program)||p.id_program,nama_jenjang:teksAkses_((levels.find(s=>s.id_jenjang===p.id_jenjang)||{}).nama_jenjang)||p.id_jenjang}))};
+}
+function muatVerifikasiSesiPanitia_(id){
+ const lock=LockService.getScriptLock();lock.waitLock(30000);try{periksaUlangSesiPanitia_();const snap=snapshotVerifikasiSesi_(id),items=[...daftarVerifikasiSesi_(bukuAkses_()).values()].filter(p=>p.id_sesi===id&&dalamJenjangAkses_(p));return {sukses:true,id_sesi:id,nama_sesi:teksAkses_(snap.raw.s.nama_sesi),program:teksAkses_(snap.raw.program.nama_program),jenjang:teksAkses_(snap.raw.jenjang.nama_jenjang),versi:snap.versi,ringkasan:snap.ringkasan,kehadiran:snap.details,catatan:snap.notes,pengajuan:items.sort((a,b)=>b.created_at.localeCompare(a.created_at)).map(p=>Object.assign({},p,{berubah:p.status==='disetujui'?p.versi_hasil!==snap.versi:p.status!=='diproses'&&p.versi!==snap.versi,bagian:undefined}))};}finally{lock.releaseLock();}
+}
+function ajukanVerifikasiSesiPanitia_(d){
+ if(!petugasDalamKonteksAkses_())throw Error('Pengajuan dilakukan oleh Petugas Kelas.');
+ const lock=LockService.getScriptLock();lock.waitLock(30000);try{
+  pastikanTidakAdaHapusTertunda_();const snap=snapshotVerifikasiSesi_(d&&d.id_sesi);if(snap.versi!==d.versi)throw Error('Data berubah. Muat ulang ringkasan sebelum mengajukan.');
+  const alasan=teksAkses_(d.catatan);if(!alasan||alasan.length>2000)throw Error('Catatan pengajuan wajib diisi, maksimal 2.000 karakter.');
+  const book=bukuAkses_(),rows=[...daftarVerifikasiSesi_(book).values()].filter(p=>p.id_sesi===d.id_sesi);
+  const old=rows.find(p=>(p.status==='menunggu'&&p.versi===snap.versi||p.status==='disetujui'&&p.versi_hasil===snap.versi));if(old)return {sukses:true,id:old.id,pesan:'Paket versi ini sudah '+old.status+'.'};
+  const p={schema:1,id:'VFS-'+Utilities.getUuid(),id_sesi:teksAkses_(d.id_sesi),id_program:teksAkses_(snap.raw.s.id_program),id_jenjang:teksAkses_(snap.raw.s.id_jenjang),versi:snap.versi,ringkasan:snap.ringkasan,status:'menunggu',pengaju:konteksSesiPanitia_.id,email:konteksSesiPanitia_.email,catatan:alasan,created_at:new Date().toISOString()};
+  catatVerifikasiSesi_(book,p,'ajukan_verifikasi');return {sukses:true,id:p.id,pesan:'Paket kehadiran, izin dan perilaku dikirim untuk verifikasi Admin.'};
+ }finally{lock.releaseLock();}
+}
+function rencanaVerifikasiSesi_(snap,alasan){
+ const now=new Date().toISOString(),writes=[];
+ for(const [sheet,key,records] of [['Kehadiran','id_kehadiran',snap.raw.hadir],['Catatan_Perilaku','id_catatan',snap.raw.catatan]]){
+  const table=tabelIndex_(sheet,[key].concat(kolomValidasiSesi_(sheet))),formulas=databaseAkses_().getSheetByName(sheet).getDataRange().getFormulas();
+  const values=databaseAkses_().getSheetByName(sheet).getDataRange().getValues();records.forEach(r=>{const at=values.findIndex((row,i)=>i&&teksAkses_(row[table.header.indexOf(key)])===teksAkses_(r[key]));if(kolomValidasiSesi_(sheet).some(k=>formulas[at]&&formulas[at][table.header.indexOf(k)]))throw Error('Kolom validasi berisi rumus. Periksa struktur sebelum menyetujui.');});
+  records.forEach(r=>{if(sheet==='Catatan_Perilaku'&&r.status_validasi&&r.status_validasi!=='belum_divalidasi')return;
+   const a=r.waktu_datang_terverifikasi||r.waktu_datang,b=r.waktu_pulang_terverifikasi||r.waktu_pulang;
+   const after=sheet==='Kehadiran'?{status_validasi:a&&b?'terverifikasi':'belum_lengkap',diverifikasi_oleh:konteksSesiPanitia_.email,diverifikasi_pada:now,updated_at:now}:{status_validasi:'disetujui',alasan_validasi:alasan,divalidasi_oleh:konteksSesiPanitia_.email,divalidasi_pada:now,updated_at:now};
+   writes.push({sheet,key,id:teksAkses_(r[key]),before:Object.fromEntries(Object.keys(after).map(k=>[k,r[k]])),after});
+  });
+ }
+ return {sumber:snap.sumber,writes};
+}
+function bacaRencanaVerifikasiSesi_(book,p){
+ const chunks=tabelAkses_(book,'Riwayat_Akses').records.filter(r=>r.data.jenis_data==='Rencana_Verifikasi'&&r.data.id_target===p.id).map(r=>JSON.parse(r.data.sesudah));
+ const parts=p.bagian.map(id=>{const c=chunks.filter(c=>c.chunk_id===id);if(c.length!==1)throw Error('Rencana verifikasi tidak lengkap/duplikat.');return c[0].teks;});const raw=parts.join('');if(hashAkses_(raw)!==p.hash_rencana)throw Error('Rencana verifikasi tidak cocok.');return JSON.parse(raw);
+}
+function putuskanVerifikasiSesiPanitia_(d){
+ if(petugasDalamKonteksAkses_())throw Error('Hanya Admin Pelatihan dapat memutuskan verifikasi.');
+ const lock=LockService.getScriptLock();lock.waitLock(30000);try{
+  periksaUlangSesiPanitia_();const book=bukuAkses_(),p=daftarVerifikasiSesi_(book).get(teksAkses_(d&&d.id));if(!p)throw Error('Pengajuan tidak ditemukan.');
+  if(!['setujui','tolak','lanjutkan'].includes(d.keputusan))throw Error('Keputusan tidak valid.');
+  if(['disetujui','ditolak'].includes(p.status)){if((d.keputusan==='tolak')!==(p.status==='ditolak')&&d.keputusan!=='lanjutkan')throw Error('Pengajuan sudah diputuskan berbeda.');return {sukses:true,pesan:'Pengajuan sudah '+p.status+'.'};}
+  konteksSesiPanitia_.verifikasi_id=p.id;pastikanTidakAdaHapusTertunda_();
+  if(p.status==='menunggu'){
+   const alasan=teksAkses_(d.alasan);if(!alasan||alasan.length>2000)throw Error('Alasan keputusan wajib diisi, maksimal 2.000 karakter.');if(d.keputusan==='lanjutkan')throw Error('Pengajuan belum diputuskan.');
+   if(d.keputusan==='tolak'){p.status='ditolak';p.alasan_keputusan=alasan;p.diputuskan_oleh=konteksSesiPanitia_.email;p.diputuskan_pada=new Date().toISOString();catatVerifikasiSesi_(book,p,'tolak_verifikasi');return {sukses:true,pesan:'Pengajuan ditolak. Koreksi dan catatan petugas tetap tersimpan untuk diperbaiki.'};}
+   const snap=snapshotVerifikasiSesi_(p.id_sesi);if(snap.versi!==p.versi)throw Error('Data berubah setelah diajukan. Tolak pengajuan ini dan minta pengajuan ulang.');
+   const plan=rencanaVerifikasiSesi_(snap,alasan),raw=JSON.stringify(plan);if(raw.length>2000000)throw Error('Rencana melebihi batas 2 juta karakter.');const parts=raw.match(/[\s\S]{1,24000}/g)||[],needed=parts.length+3;
+   if(tabelAkses_(book,'Riwayat_Akses').records.length+needed>=9997)throw Error('Ruang jurnal tidak cukup untuk keputusan.');
+   const bagian=[];parts.forEach(teks=>{const chunk_id=Utilities.getUuid();catatVerifikasiSesi_(book,{id:p.id,chunk_id,teks},'rencana_verifikasi','Rencana_Verifikasi');bagian.push(chunk_id);});
+   Object.assign(p,{status:'diproses',bagian,hash_rencana:hashAkses_(raw),alasan_keputusan:alasan,diputuskan_oleh:konteksSesiPanitia_.email,diputuskan_pada:new Date().toISOString()});catatVerifikasiSesi_(book,p,'mulai_verifikasi');
+  }else if(p.status!=='diproses'||d.keputusan==='tolak')throw Error('Verifikasi sedang diproses. Gunakan Lanjutkan Verifikasi.');
+  const plan=bacaRencanaVerifikasiSesi_(book,p),snap=snapshotVerifikasiSesi_(p.id_sesi,plan.writes);if(plan.sumber!==snap.sumber)throw Error('Isi sesi berubah di luar rencana. Transaksi perlu diperiksa; data tidak ditimpa.');
+  const tables={};plan.writes.forEach(w=>{if(!tables[w.sheet]){const table=tabelIndex_(w.sheet,[w.key]);tables[w.sheet]={table,sheet:databaseAkses_().getSheetByName(w.sheet),values:databaseAkses_().getSheetByName(w.sheet).getDataRange().getValues()};}const t=tables[w.sheet],matches=[];t.values.slice(1).forEach((r,i)=>{if(teksAkses_(r[t.table.header.indexOf(w.key)])===w.id)matches.push({row:r,n:i+2});});if(matches.length!==1)throw Error('Target verifikasi hilang/duplikat.');w.target=matches[0];Object.keys(w.after).forEach(k=>{const v=w.target.row[t.table.header.indexOf(k)],norm=x=>x instanceof Date?x.toISOString():x;if(serialAkses_(norm(v))!==serialAkses_(w.before[k])&&serialAkses_(norm(v))!==serialAkses_(w.after[k]))throw Error('Keputusan target berubah di luar rencana.');});});
+  // Write contiguous target rows per validation column; leave other rows/columns and formulas intact.
+  Object.keys(tables).forEach(name=>{const t=tables[name],targets=plan.writes.filter(w=>w.sheet===name).sort((a,b)=>a.target.n-b.target.n),formulas=t.sheet.getDataRange().getFormulas();
+   kolomValidasiSesi_(name).forEach(k=>{const col=t.table.header.indexOf(k);if(col<0)throw Error('Kolom verifikasi hilang.');let group=[];
+    function flush(){if(!group.length)return;t.sheet.getRange(group[0].target.n,col+1,group.length,1).setValues(group.map(w=>[/_pada$|^updated_at$/.test(k)?new Date(w.after[k]):w.after[k]]));group=[];}
+    targets.forEach(w=>{if(formulas[w.target.n-1][col])throw Error('Rumus pada kolom validasi berubah. Data tidak ditimpa.');const current=w.target.row[col],norm=current instanceof Date?current.toISOString():current;if(serialAkses_(norm)===serialAkses_(w.after[k])){flush();return;}if(group.length&&group[group.length-1].target.n+1!==w.target.n)flush();group.push(w);});flush();
+   });
+  });SpreadsheetApp.flush();
+  plan.writes.forEach(w=>{const sheet=databaseAkses_().getSheetByName(w.sheet),row=sheet.getRange(w.target.n,1,1,tables[w.sheet].table.header.length).getValues()[0];Object.entries(w.after).forEach(([k,v])=>{const actual=row[tables[w.sheet].table.header.indexOf(k)];if(serialAkses_(actual instanceof Date?actual.toISOString():actual)!==serialAkses_(v))throw Error('Hasil verifikasi belum terkonfirmasi. Gunakan Lanjutkan Verifikasi.');});});
+  p.status='disetujui';p.versi_hasil=snapshotVerifikasiSesi_(p.id_sesi).versi;catatVerifikasiSesi_(book,p,'selesai_verifikasi');return {sukses:true,pesan:'Paket sesi disetujui. Kehadiran belum lengkap tetap ditandai; catatan yang sebelumnya ditolak tetap ditolak. Perhitungan JP tetap melalui Admin.'};
+ }finally{if(konteksSesiPanitia_)delete konteksSesiPanitia_.verifikasi_id;lock.releaseLock();}
+}
+
 /** Satu bridge disisipkan server pada halaman lama, sehingga tidak menggandakan HTML aplikasi. */
 function keluaranAplikasiPanitia_(name,title){
  if(!aplikasiPanitiaAktif_())return null;
@@ -479,6 +584,8 @@ html[data-panitia-locked] body>:not(#panitiaAuth):not(script):not(style){display
 html.panitia-app :is(#googleConfigCard,#appModeCard,#setupCard){display:none!important}
 html.role-petugas :is([data-sidebar-placeholder^="Pengaturan"],[data-dash-page="pengelolaan"],#openPengelolaan,#calculate,#indicatorDetails,#ruleDetails,#newIndicatorForm,#masterParticipantsCard,#deleteRecovery,#recoverEdits,#participantPreviewCard,#participantsPanel>.panel:first-child,#participantsBody td:last-child button,#behaviorBody td:last-child button){display:none!important}
 #panitiaRequests{padding:24px;margin:24px 0;background:white;border:1px solid #dce3ef;border-radius:24px}#panitiaRequests .request-head{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}#panitiaRequests h2{margin:0;font-size:20px}#panitiaRequests p{line-height:1.7}#panitiaRequests .request-row{padding:18px 0;border-bottom:1px solid #dce3ef;overflow-wrap:anywhere}#panitiaRequests .request-row:last-child{border:0}#panitiaRequests button,#panitiaReview button{font:inherit;padding:10px 15px;border-radius:11px;border:1px solid #d6dfec;background:white;color:#203960;cursor:pointer;margin-right:8px}#panitiaRequests button:disabled,#panitiaReview button:disabled{opacity:.5;cursor:wait}#panitiaReview{max-width:620px;width:90vw;box-sizing:border-box;border:1px solid #dce3ef;border-radius:22px;padding:26px;color:#192e50;background:white}#panitiaReview::backdrop{background:#192e5080}#panitiaReview textarea{font:inherit;box-sizing:border-box;width:100%;min-height:100px;padding:12px;border:1px solid #d6dfec;border-radius:11px;margin:12px 0}#panitiaReview .primary{background:#203960;color:white}#panitiaReview p{line-height:1.65}
+
+.panitia-verification{padding:24px;margin:24px 0;background:white;border:1px solid #dce3ef;border-radius:24px;color:#192e50}.verification-head{display:flex;align-items:center;justify-content:space-between;gap:20px}.panitia-verification h2{margin:0;font-size:20px}.panitia-verification p{line-height:1.6}.panitia-verification button{font:inherit;min-height:44px;border:1px solid #d6dfec;border-radius:11px;padding:10px 16px;background:white;color:#203960;cursor:pointer}.panitia-verification button.primary{background:#203960;color:white}.panitia-verification button:disabled{opacity:.5;cursor:wait}.panitia-verification [hidden]{display:none!important}#panitiaVerificationList{max-height:340px;overflow:auto}.verification-row{border-top:1px solid #dce3ef;padding:16px 0}.verification-row p{margin:8px 0}.panitia-verification dialog{box-sizing:border-box;width:94vw;max-width:960px;max-height:90vh;overflow:auto;border:1px solid #dce3ef;border-radius:24px;padding:28px;color:#192e50;background:white}.panitia-verification dialog::backdrop{background:#192e5080}.verification-notice{padding:14px;border-radius:12px;background:#edf2f9}.verification-scroll{overflow:auto;max-width:100%;border:1px solid #dce3ef;border-radius:12px}.verification-scroll table{border-collapse:collapse;width:100%;min-width:600px;text-align:left;font-size:13px}.verification-scroll th,.verification-scroll td{padding:12px;border-bottom:1px solid #dce3ef;white-space:pre-wrap;overflow-wrap:anywhere;max-width:300px}.verification-scroll th{background:#f0f3f8}.panitia-verification label{display:block;margin:18px 0 8px}.panitia-verification textarea{box-sizing:border-box;width:100%;min-height:90px;font:inherit;padding:12px;border:1px solid #d6dfec;border-radius:11px}.verification-actions{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:10px;margin-top:18px}.panitia-verification :is(button,textarea):focus-visible{outline:3px solid #d99616;outline-offset:2px}@media(max-width:600px){.verification-head{align-items:stretch;flex-direction:column}.panitia-verification{padding:18px}.panitia-verification dialog{padding:18px}.verification-actions button{flex:1}}
 </style><script id="panitia-access-bridge">
 (function(){'use strict';const cfg=__CONFIG__;document.documentElement.setAttribute('data-panitia-locked','');let identity=null,generation=0,resolveReady,rejectReady,idleTimer,absoluteTimer,fadeTimer;const pageLabel={Beranda:'Beranda',Index:'Monitoring',Pengelolaan:'Pengelolaan',Peserta:'Peserta Program',Profil:'Profil Peserta',ManajemenAkses:'Manajemen Akses'}[cfg.page]||'Halaman';const ready=new Promise((ok,bad)=>{resolveReady=ok;rejectReady=bad;});ready.catch(()=>{});
 function native(name,arg){return new Promise((ok,bad)=>google.script.run.withSuccessHandler(ok).withFailureHandler(bad)[name](arg));}
@@ -507,15 +614,41 @@ function refreshIdentity(){
 }
 async function requests(){
  if(!['Beranda','Index'].includes(cfg.page))return;
- const target=document.getElementById('app')||document.querySelector('main')||document.body,card=el('section');card.id='panitiaRequests';const head=el('div');head.className='request-head';head.append(el('h2',identity.peran==='admin_pelatihan'?'Pengajuan Koreksi Waktu':'Pengajuan Koreksi Saya'));const refresh=el('button','Muat Ulang');refresh.type='button';head.append(refresh);const msg=el('p','Memuat pengajuan…'),list=el('div');msg.setAttribute('role','status');card.append(head,msg,list);target.append(card);
+ const target=document.getElementById('app')||document.querySelector('main')||document.body,card=el('section');card.id='panitiaRequests';const head=el('div');head.className='request-head';head.append(el('h2',identity.peran==='admin_pelatihan'?'Pengajuan Koreksi Lama':'Riwayat Pengajuan Koreksi Lama'));const refresh=el('button','Muat Ulang');refresh.type='button';head.append(refresh);const msg=el('p','Memuat pengajuan…'),list=el('div');msg.setAttribute('role','status');card.append(head,msg,list);target.append(card);
  const dialog=el('dialog');dialog.id='panitiaReview';const form=el('form'),title=el('h2','Tinjau Pengajuan Koreksi'),detail=el('p'),label=el('label','Alasan keputusan'),reason=el('textarea');reason.required=true;reason.maxLength=2000;reason.id='panitiaDecisionReason';label.htmlFor=reason.id;const result=el('p');result.setAttribute('role','status');const approve=el('button','Setujui Koreksi'),reject=el('button','Tolak'),close=el('button','Tutup');approve.className='primary';[approve,reject,close].forEach(b=>b.type='button');form.append(title,detail,label,reason,result,approve,reject,close);dialog.append(form);card.append(dialog);let selected=null,busy=false;
  function buttons(){[approve,reject,close,refresh].forEach(b=>b.disabled=busy);reason.disabled=busy;}
- async function load(){if(busy)return;busy=true;buttons();try{const r=await send('muatPengajuanKoreksiPanitia',[]);list.replaceChildren();msg.textContent=r.pengajuan.length?'Menampilkan '+r.pengajuan.length+' pengajuan terbaru. Persetujuan Admin mengubah waktu terverifikasi; scan asli dipertahankan.':'Belum ada pengajuan koreksi.';
+ async function load(){if(busy)return;busy=true;buttons();try{const r=await send('muatPengajuanKoreksiPanitia',[]);list.replaceChildren();card.hidden=!r.pengajuan.length;msg.textContent=r.pengajuan.length?'Menampilkan '+r.pengajuan.length+' pengajuan terbaru. Persetujuan Admin mengubah waktu terverifikasi; scan asli dipertahankan.':'Belum ada pengajuan koreksi.';
   r.pengajuan.forEach(p=>{const row=el('div');row.className='request-row';row.append(el('strong',(p.nama_peserta||p.id_keikutsertaan)+' · '+(p.nama_sesi||p.id_sesi)),el('p','Status: '+p.status.replace(/_/g,' ')+' · Pengaju: '+p.email),el('p','Usulan datang: '+(p.data.datang||'tetap')+' · pulang: '+(p.data.pulang||'tetap')),el('p','Alasan: '+p.data.alasan),el('p','Dasar: '+p.data.dasar));if(p.alasan_keputusan)row.append(el('p','Keputusan: '+p.alasan_keputusan));if(identity.peran==='admin_pelatihan'&&!['disetujui','ditolak'].includes(p.status)){const b=el('button',p.status==='menunggu'?'Tinjau':'Periksa Hasil');b.type='button';b.addEventListener('click',async()=>{if(p.status!=='menunggu'){try{const r=await send('putuskanPengajuanKoreksiPanitia',[{id:p.id,keputusan:'periksa'}]);msg.textContent=r.pesan;}catch(e){msg.textContent=e.message;}return;}selected=p;detail.textContent=(p.nama_peserta||p.id_keikutsertaan)+' — '+(p.nama_sesi||p.id_sesi)+'. Datang: '+(p.data.datang||'tetap')+'; pulang: '+(p.data.pulang||'tetap')+'. '+p.data.alasan;reason.value='';result.textContent='';dialog.showModal();reason.focus();});row.append(b);}list.append(row);});
  }catch(e){msg.textContent=e.message||'Pengajuan tidak dapat dimuat.';}finally{busy=false;buttons();}}
  async function decide(keputusan){if(busy||!selected||!form.reportValidity())return;if(keputusan==='setujui'&&!confirm('Setujui pengajuan ini dan perbarui waktu kehadiran terverifikasi? Scan asli tetap tersimpan.'))return;busy=true;buttons();try{const r=await send('putuskanPengajuanKoreksiPanitia',[{id:selected.id,keputusan,alasan:reason.value}]);dialog.close();msg.textContent=r.pesan;busy=false;await load();}catch(e){result.textContent=e.message;}finally{busy=false;buttons();}}
  approve.addEventListener('click',()=>decide('setujui'));reject.addEventListener('click',()=>decide('tolak'));close.addEventListener('click',()=>{if(!busy)dialog.close();});dialog.addEventListener('cancel',e=>{if(busy)e.preventDefault();});form.addEventListener('submit',e=>e.preventDefault());refresh.addEventListener('click',load);load();
 }
+async function verification(){
+ if(cfg.page!=='Index')return;
+ const app=document.getElementById('app'),session=document.getElementById('sesi');if(!app||!session)return;
+ const admin=identity.peran==='admin_pelatihan',card=el('section');card.id='panitiaVerification';card.className='panitia-verification';
+ const head=el('div');head.className='verification-head';const title=el('div');title.append(el('h2','Verifikasi Sesi'),el('p','Kehadiran, izin dan catatan sikap/perilaku diajukan bersama untuk satu sesi dalam satu Jenjang.'));const preview=el('button',admin?'Tinjau Sesi':'Ajukan Verifikasi');preview.id='panitiaVerificationOpen';preview.type='button';preview.className='primary';const tools=el('div');tools.className='verification-actions';const reload=el('button','Muat Ulang Pengajuan');reload.type='button';reload.id='panitiaVerificationReload';tools.append(reload,preview);head.append(title,tools);
+ const msg=el('p','Pilih sesi untuk memeriksa paket verifikasi.');msg.id='panitiaVerificationMessage';msg.setAttribute('role','status');const pending=el('div');pending.id='panitiaVerificationList';card.append(head,msg,pending);app.prepend(card);
+ const dialog=el('dialog');dialog.id='panitiaVerificationDialog';const form=el('form'),heading=el('h2'),context=el('p'),summary=el('p'),warning=el('p','Persetujuan tidak membuat kehadiran kosong menjadi hadir. Catatan yang sudah ditolak tetap ditolak. Perhitungan JP tetap dilakukan Admin.');warning.className='verification-notice';const details=el('div');details.className='verification-details';const label=el('label',admin?'Alasan keputusan':'Catatan pengajuan'),reason=el('textarea');reason.id='panitiaVerificationReason';reason.maxLength=2000;label.htmlFor=reason.id;const result=el('p');result.id='panitiaVerificationResult';result.setAttribute('role','status');const actions=el('div');actions.className='verification-actions';const submit=el('button',admin?'Setujui Verifikasi':'Kirim Pengajuan'),reject=el('button','Tolak Pengajuan'),resume=el('button','Lanjutkan Verifikasi'),close=el('button','Tutup');submit.id='panitiaVerificationSubmit';reject.id='panitiaVerificationReject';resume.id='panitiaVerificationResume';submit.className='primary';[submit,reject,resume,close].forEach(b=>b.type='button');actions.append(submit,reject,resume,close);form.append(heading,context,summary,warning,details,label,reason,result,actions);dialog.append(form);card.append(dialog);let busy=false,selected=null,snapshot=null;
+ function controls(){preview.disabled=busy||!session.value;[submit,reject,resume,close,reason].forEach(b=>b.disabled=busy);}
+ function table(headers,rows){const wrap=el('div');wrap.className='verification-scroll';const t=el('table'),thead=el('thead'),tr=el('tr');headers.forEach(h=>tr.append(el('th',h)));thead.append(tr);const body=el('tbody');rows.forEach(row=>{const r=el('tr');row.forEach(v=>r.append(el('td',v||'—')));body.append(r);});t.append(thead,body);wrap.append(t);return wrap;}
+ function stamp(value){if(!value)return '—';const d=new Date(value);return Number.isNaN(d.getTime())?value:new Intl.DateTimeFormat('id-ID',{dateStyle:'short',timeStyle:'short',timeZone:'Asia/Jakarta'}).format(d);}
+ function draw(){
+  heading.textContent=admin?'Tinjau Verifikasi Sesi':'Ajukan Verifikasi Sesi';context.textContent=snapshot.program+' · '+snapshot.jenjang+' · '+snapshot.nama_sesi;
+  const r=snapshot.ringkasan;summary.textContent=r.peserta+' peserta · '+r.lengkap+' kehadiran lengkap · '+r.belum_lengkap+' belum lengkap/belum tercatat · '+r.izin+' izin · '+r.perilaku+' catatan perilaku';details.replaceChildren(el('h3','Kehadiran'),table(['Peserta','Pendaftaran','Datang','Pulang','Validasi'],snapshot.kehadiran.map(k=>[k.nama,k.status_pendaftaran,stamp(k.datang),stamp(k.pulang),k.status])),el('h3','Izin dan Sikap/Perilaku'),table(['Peserta','Jenis / Indikator','Waktu','Keterangan / Bukti','Validasi'],snapshot.catatan.map(c=>[c.nama,c.jenis+' / '+c.indikator,c.jenis==='izin'?stamp(c.mulai_izin)+' – '+stamp(c.selesai_izin):stamp(c.waktu),c.keterangan+(c.tugas?' · Tugas: '+c.tugas:'')+(c.durasi?' · Durasi: '+c.durasi+' menit':'')+(c.bukti?'\nBukti: '+c.bukti:''),c.status])));
+  if(!snapshot.catatan.length)details.append(el('p','Tidak ada izin atau catatan sikap/perilaku pada sesi ini.'));
+  if(selected){details.append(el('p','Pengaju: '+selected.email+' · '+stamp(selected.created_at)),el('p','Catatan pengajuan: '+selected.catatan),el('p','Status: '+selected.status+(selected.berubah?' — Data telah berubah; perlu pengajuan baru.':'')));if(selected.alasan_keputusan)details.append(el('p','Keputusan: '+selected.alasan_keputusan));}
+  submit.hidden=admin?(!selected||selected.status!=='menunggu'||selected.berubah):!!selected&&['menunggu','disetujui','diproses'].includes(selected.status)&&!selected.berubah;
+  reject.hidden=!admin||!selected||selected.status!=='menunggu';resume.hidden=!admin||!selected||selected.status!=='diproses';label.hidden=reason.hidden=admin?submit.hidden&&reject.hidden:submit.hidden;
+ }
+ async function open(id,requestId){if(busy)return;busy=true;controls();selected=null;snapshot=null;reason.value='';result.textContent='Memuat ringkasan…';details.replaceChildren();submit.hidden=reject.hidden=resume.hidden=true;heading.textContent='Verifikasi Sesi';context.textContent='';summary.textContent='';dialog.showModal();try{snapshot=await send('muatVerifikasiSesiPanitia',[id]);selected=requestId?snapshot.pengajuan.find(p=>p.id===requestId):snapshot.pengajuan[0];draw();result.textContent='';}catch(e){result.textContent=e.message;}finally{busy=false;controls();}}
+ async function list(){reload.disabled=true;try{const r=await send('muatDaftarVerifikasiSesiPanitia',[]);pending.replaceChildren();r.pengajuan.forEach(p=>{const row=el('div');row.className='verification-row';row.append(el('strong',p.nama_program+' · '+p.nama_jenjang+' · '+p.nama_sesi),el('p',p.status+' · '+p.email));const button=el('button',p.status==='diproses'?'Periksa / Lanjutkan':'Lihat Pengajuan');button.type='button';button.addEventListener('click',()=>open(p.id_sesi,p.id));row.append(button);pending.append(row);});msg.textContent=r.pengajuan.length?'Pengajuan terbaru ditampilkan di bawah. Buka untuk memeriksa status dan perubahan data.':'Belum ada pengajuan verifikasi sesi.';}catch(e){msg.textContent=e.message;}finally{reload.disabled=false;}}
+ async function act(decision){if(busy||!snapshot)return;if(decision!=='lanjutkan'&&!reason.value.trim()){result.textContent=admin?'Isi alasan keputusan.':'Isi catatan pengajuan.';reason.focus();return;}
+  if(admin&&!confirm(decision==='tolak'?'Tolak paket verifikasi ini? Data dan koreksi petugas tetap tersimpan.':'Setujui atau lanjutkan verifikasi paket sesi ini sesuai ringkasan?'))return;
+  busy=true;controls();result.textContent='Menyimpan…';try{const r=admin?await send('putuskanVerifikasiSesiPanitia',[{id:selected.id,keputusan:decision,alasan:reason.value}]):await send('ajukanVerifikasiSesiPanitia',[{id_sesi:snapshot.id_sesi,versi:snapshot.versi,catatan:reason.value}]);result.textContent=r.pesan;snapshot=await send('muatVerifikasiSesiPanitia',[snapshot.id_sesi]);selected=snapshot.pengajuan.find(p=>p.id===(admin?selected.id:r.id))||snapshot.pengajuan[0];draw();await list();}catch(e){result.textContent=e.message+' Jika penyimpanan terputus, tutup dan buka kembali pengajuan untuk memeriksa status.';}finally{busy=false;controls();}}
+ reload.addEventListener('click',list);preview.addEventListener('click',()=>open(session.value));submit.addEventListener('click',()=>act(admin?'setujui':'ajukan'));reject.addEventListener('click',()=>act('tolak'));resume.addEventListener('click',()=>act('lanjutkan'));close.addEventListener('click',()=>{if(!busy)dialog.close();});dialog.addEventListener('cancel',e=>{if(busy)e.preventDefault();});form.addEventListener('submit',e=>e.preventDefault());session.addEventListener('change',controls);new MutationObserver(controls).observe(session,{childList:true});controls();list();
+}
+
 function authView(state,message){
  const a=document.getElementById('panitiaAuth');if(!a)return;
  a.hidden=false;a.dataset.authState=state;a.removeAttribute('aria-hidden');
@@ -547,7 +680,7 @@ async function boot(){
  try{
   const t=token();identity=await native('muatSesiAplikasiPanitia',t);
   if(identity.peran==='petugas_kelas'&&['Pengelolaan','ManajemenAkses'].includes(cfg.page)){const error=Error('Halaman ini hanya tersedia untuk Admin Pelatihan.');lock(error.message,false,'denied');rejectReady(error);return;}
-  document.documentElement.classList.add('panitia-app');refreshIdentity();document.documentElement.removeAttribute('data-panitia-locked');finishAuth();touch();absoluteTimer=setTimeout(()=>lock('Batas sesi 4 jam tercapai. Silakan masuk kembali.',true),Math.max(0,identity.expires-Date.now()));resolveReady();requests();
+  document.documentElement.classList.add('panitia-app');refreshIdentity();document.documentElement.removeAttribute('data-panitia-locked');finishAuth();touch();absoluteTimer=setTimeout(()=>lock('Batas sesi 4 jam tercapai. Silakan masuk kembali.',true),Math.max(0,identity.expires-Date.now()));resolveReady();requests();verification();
  }catch(e){const expired=/SESI_BERAKHIR|SESI_DIPERLUKAN/.test(e.message||'');lock(expired?'Silakan masuk dengan akun Google panitia untuk melanjutkan.':e.message||'Halaman belum dapat disiapkan. Silakan coba lagi.',expired,expired?'login':/AKSES_DITAHAN/.test(e.message||'')?'held':'error');rejectReady(e);}
 }
 window.addEventListener('pagehide',()=>document.documentElement.setAttribute('data-panitia-locked',''));

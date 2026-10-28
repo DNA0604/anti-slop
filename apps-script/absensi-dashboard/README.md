@@ -13,6 +13,14 @@ Preview files and Hasil-Pengujian.txt inherited from the older UI branch are his
 
 See SOURCE_SNAPSHOT.json for SHA-256 hashes of all 14 current HTML/GS source files, including the Jenjang preparation tools.
 
+## Verifikasi sesi dan koreksi petugas (28 Oktober 2026)
+
+Paket terbaru **feat/verifikasi-sesi-panitia** melanjutkan perbaikan navigasi. Ganti lengkap **Akses.gs, Code.gs, Hapus.gs dan Index.html secara bersamaan**, simpan lalu perbarui deployment yang sama ke **New version**. Tiga HTML navigasi lainnya dari pembaruan sebelumnya tetap digunakan. Tidak perlu file/tab/kolom baru, migrasi ulang atau mengubah akun/OAuth/aktivasi.
+
+Petugas dapat langsung menyimpan koreksi kehadiran dengan alasan dan riwayat; scan asli tetap. Pada Monitoring, pilih sesi lalu gunakan **Ajukan Verifikasi** untuk paket kehadiran, izin dan sikap/perilaku. Admin meninjau ringkasan/rincian lalu menyetujui atau menolak dengan alasan. Koreksi baru setelah keputusan memerlukan pengajuan baru. Hasil perhitungan JP tidak dianggap perubahan sumber kehadiran. Pengajuan koreksi lama tetap dapat diselesaikan pada card riwayat lama.
+
+Jika persetujuan terputus, Admin membuka pengajuan berstatus diproses dan memilih **Lanjutkan Verifikasi**. Selama proses parsial, penulisan operasional ditahan; jangan mengedit sumber langsung di spreadsheet. Lihat [panduan pemasangan dan uji](docs/VERIFIKASI_SESI.md). Pengujian lokal memakai Google tiruan; agent tidak melakukan deployment atau perubahan data Google.
+
 ## Perbaikan navigasi Jenjang (28 Oktober 2026)
 
 Paket **fix/navigasi-jenjang-panitia** melanjutkan perapian transisi. Ganti seluruh isi **Index.html, Pengelolaan.html, Peserta.html, Profil.html**, simpan dan perbarui deployment yang sama ke **New version**. Akses.gs dari pembaruan sebelumnya tetap dipakai. Tidak perlu membuat file baru, mengubah akun, aktivasi atau migrasi.

@@ -2,6 +2,10 @@
 
 Paket: **feat/login-dan-cakupan-panitia**, 27 Oktober 2026, Asia/Jakarta. Melanjutkan perbaikan URL dan hasil uji identitas Admin/Petugas yang sudah ditunjukkan pengguna. Fitur baru **belum diaktifkan pada Google oleh agent**.
 
+## Pembaruan alur verifikasi sesi (28 Oktober 2026)
+
+Ketentuan koreksi petugas pada tahap 4 di bawah adalah riwayat versi sebelumnya. Paket **feat/verifikasi-sesi-panitia** menggantinya dengan koreksi langsung dalam cakupan penugasan dan pengajuan bersama kehadiran/izin/perilaku per sesi/Jenjang. Ganti **Akses.gs, Code.gs, Hapus.gs, Index.html** bersama. Pengajuan lama tetap dapat ditinjau. Lihat [VERIFIKASI_SESI.md](../docs/VERIFIKASI_SESI.md) untuk alur, batasan, pemulihan parsial dan uji Google. 215 tes backend serta suite browser lokal lulus; alur paket baru belum diverifikasi pengguna di Google.
+
 ## Perbaikan transisi setelah tahap 4 terpasang
 
 Branch **ui/transisi-halaman-panitia**: ganti **Akses.gs saja**, simpan, perbarui deployment yang sama ke versi baru dan muat ulang. Tidak mengulangi tujuh-file pemasangan bila tahap 4 sudah lengkap, tidak mengubah OAuth/aktivasi, dan tidak mengulang migrasi/pendataan akun.

@@ -27,6 +27,7 @@ function transaksiHapus_() {
 }
 function pastikanTidakAdaHapusTertunda_() {
   if(typeof periksaUlangSesiPanitia_==='function')periksaUlangSesiPanitia_();
+  if(typeof pastikanTidakAdaVerifikasiTertunda_==='function')pastikanTidakAdaVerifikasiTertunda_();
   if(typeof pastikanMigrasiJenjangSiap_==='function')pastikanMigrasiJenjangSiap_();
   if(typeof validasiIntegritasOperasionalJenjang_==='function')validasiIntegritasOperasionalJenjang_();
   if(Array.from(transaksiHapus_().values()).some(r=>!['SELESAI','DIBATALKAN'].includes(r.status_transaksi)))

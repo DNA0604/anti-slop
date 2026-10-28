@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-10-28 — session verification packets and direct staff corrections
+- User confirmed the agreed role/Jenjang login/isolation/shared-data/revocation tests, then requested direct staff corrections and collective Admin verification covering attendance, leave and behavior per session/Jenjang.
+- Staff corrections now use the existing scoped/audited write immediately, marked pending validation. Added Monitoring packet preview/submission/review/approve/reject with reasons, stale-data detection and unchanged scan/JP rules. Legacy correction requests remain reviewable.
+- Verified chunked approval plans in the separate access journal support safe resume and lost-receipt checks; partial approval blocks coordinated operational writes. Incomplete attendance and previously rejected notes retain their appropriate status; no new tabs/columns/files or automatic points/JP calculation.
+- Replace Akses.gs, Code.gs, Hapus.gs and Index.html together. Passed 215 backend tests, generated-app desktop/mobile and prior Jenjang/directory browser checks, source/generated syntax/IDs and snapshots. Agent did not change/deploy Google data; live packet workflow needs user testing.
+
 ## 2026-10-28 — fix selected-Jenjang page-not-found navigation
 - Reproduced a 404 after selecting a Jenjang: four sidebar builders appended `&jenjang=...` to `/exec` before `?page`, corrupting the deployment path. Keep the base path separate and append the Jenjang once in the query. Profile navigation also stops mixing Jenjang into the program ID and preserves it on content back links.
 - Replace Index.html, Pengelolaan.html, Peserta.html and Profil.html together on the existing deployment. No backend/auth/data/schema/sidebar animation changes; retain the prior Akses.gs transition update.

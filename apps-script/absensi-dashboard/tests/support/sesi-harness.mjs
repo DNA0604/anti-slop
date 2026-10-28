@@ -6,7 +6,7 @@ export function sessionHarness(){
  function append(name,record){const cols=t.h.store[name].values[0];t.h.ss.getSheetByName(name).appendRow(cols.map(k=>record[k]??''));}
  function columns(name,cols){const values=t.h.store[name].values,head=values[0];for(const col of cols)if(!head.includes(col)){head.push(col);for(let i=1;i<values.length;i++)values[i].push('');}t.h.store[name].formulas=values.map(r=>r.map(()=>''));}
  columns('Kehadiran',['alasan_koreksi','dasar_verifikasi','diverifikasi_oleh','diverifikasi_pada']);
- columns('Catatan_Perilaku',['cakupan_kejadian','kunci_kejadian']);columns('Riwayat_Validasi',['bukti_pendukung']);
+ columns('Catatan_Perilaku',['cakupan_kejadian','kunci_kejadian','alasan_validasi','divalidasi_oleh','divalidasi_pada']);columns('Riwayat_Validasi',['bukti_pendukung']);
  columns('Token_QR',['jenis_scan','berlaku_mulai','berlaku_sampai','status_manual','alasan_penerbitan','created_at','updated_at']);
  t.h.patch('Program','PRG002','id_program',{nama_program:'SECRET-PROGRAM'});t.h.patch('Sesi','SES002','id_sesi',{nama_sesi:'SECRET-SESSION'});t.h.patch('Peserta','PST002','id_peserta',{nama_pegawai:'SECRET-PERSON'});
  append('Jenjang',{id_jenjang:'JEN003',id_program:'PRG001',nama_jenjang:'SECRET-JENJANG'});
@@ -21,8 +21,9 @@ export function sessionHarness(){
  t.provider({profile:{email:'other.staff@gmail.com',sub:'998877665544332211002',name:'Petugas Lain'}});const otherLogin=t.finishApp(t.startApp());
  t.h.c.Session={getActiveUser:()=>({getEmail:()=>''})};
  const call=(who,name,...args)=>plain(t.c.panggilAplikasiPanitia({token:who.token,nama:name,args}));
+ const legacy=(who,data)=>{const context=t.c.bacaSesiPanitia_(who.token);Object.assign(context,{token:who.token,method:'simpanKoreksiIndex',args:[data]});t.c.konteksSesiPanitia_=context;try{return plain(t.c.ajukanKoreksiPanitia_(data));}finally{t.c.konteksSesiPanitia_=null;}};
  const asOwner=()=>{t.h.c.Session={getActiveUser:()=>({getEmail:()=> 'owner@test.invalid'})};};
  const correction=(who=staff,id='SES001')=>{const r=call(who,'muatKehadiranIndex',id).peserta[0];return {id_kehadiran:r.id_kehadiran,versi:r.versi,datang:'2026-10-20T08:05',pulang:'',alasan:'Perbaikan waktu datang',dasar:'Pemeriksaan petugas'};};
  
- return {t,admin,staff,other:otherLogin,call,asOwner,append,columns,correction,u};
+ return {t,admin,staff,other:otherLogin,call,asOwner,append,columns,correction,u,legacy};
 }

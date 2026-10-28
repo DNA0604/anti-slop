@@ -3164,7 +3164,7 @@ function simpanKoreksiAbsensiManual_(data) {
     const pulang = row[ix('waktu_pulang_terverifikasi')] || row[ix('waktu_pulang')];
     const perubahan = Object.assign({}, data.perubahan, {
       status_kehadiran:datang && pulang ? 'lengkap' : 'perlu_dilengkapi',
-      status_validasi:datang && pulang ? 'terverifikasi' : 'belum_lengkap',
+      status_validasi:typeof petugasDalamKonteksAkses_==='function'&&petugasDalamKonteksAkses_()?'belum_divalidasi':datang && pulang ? 'terverifikasi' : 'belum_lengkap',
       metode_input:row[ix('waktu_datang')] || row[ix('waktu_pulang')] ? 'qr_dan_manual' : 'manual',
       alasan_koreksi:data.alasan, dasar_verifikasi:data.dasar, diverifikasi_oleh:data.petugas,
       diverifikasi_pada:now, status_perhitungan_ulang:'menunggu_perhitungan',
