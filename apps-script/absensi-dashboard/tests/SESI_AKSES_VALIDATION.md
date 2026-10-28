@@ -2,6 +2,10 @@
 
 Paket: **feat/login-dan-cakupan-panitia**, 27 Oktober 2026, Asia/Jakarta. Melanjutkan perbaikan URL dan hasil uji identitas Admin/Petugas yang sudah ditunjukkan pengguna. Fitur baru **belum diaktifkan pada Google oleh agent**.
 
+## Login satu alur (28 Oktober 2026)
+
+Paket **ui/login-satu-alur** mengganti tahapan login biasa di panduan historis di bawah: ganti Akses.gs saja lalu perbarui deployment yang sama. Tautan aplikasi menyiapkan tombol Google, callback aplikasi memverifikasi dan membuka Beranda dalam dokumen yang sama. Pendataan tetap; uji identitas hanya diagnostik pemilik. Lihat [LOGIN_SATU_ALUR.md](../docs/LOGIN_SATU_ALUR.md). 220 backend tests dan Chromium app/directory/proof lulus lokal; alur Google baru masih menunggu uji pengguna. Hasil penerimaan verifikasi sesi sebelumnya tetap berlaku.
+
 ## Pembaruan alur verifikasi sesi (28 Oktober 2026)
 
 Ketentuan koreksi petugas pada tahap 4 di bawah adalah riwayat versi sebelumnya. Paket **feat/verifikasi-sesi-panitia** menggantinya dengan koreksi langsung dalam cakupan penugasan dan pengajuan bersama kehadiran/izin/perilaku per sesi/Jenjang. Ganti **Akses.gs, Code.gs, Hapus.gs, Index.html** bersama. Pengajuan lama tetap dapat ditinjau. Lihat [VERIFIKASI_SESI.md](../docs/VERIFIKASI_SESI.md) untuk alur, batasan, pemulihan parsial dan uji Google. 215 tes backend serta suite browser lokal lulus; pengguna kemudian mengonfirmasi alur paket, penolakan/pengajuan ulang, pencegahan persetujuan versi lama dan regresi QR hingga JP/rekap/profil berhasil pada 28 Oktober 2026. Source 3064b70 diterima; skenario kegagalan parsial/beban tetap hanya terbukti lokal.

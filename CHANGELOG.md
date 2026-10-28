@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-10-28 — one app URL and one Google login action
+- Ordinary login automatically prepares a user-clicked Google link; the authenticated callback opens protected Beranda in-place after the existing server verification/session check. Removes normal prepare/continue/open-app stages without automatic top-frame navigation. Existing sessions bypass the login card.
+- Added a copyable app-entry URL in access management and separated optional owner identity diagnostics from staff login. Account/assignment forms and storage, auth/session/permission checks, accepted verification and sidebar stay unchanged.
+- Replace Akses.gs only and update the same deployment. Passed 220 backend tests, 61 source/generated script parses/IDs, source hashes and expanded actual-renderer Chromium app/directory/proof checks with mocked Google. Live OAuth/HTMLService behavior still needs user validation; no agent Google changes or guaranteed processing-time reduction.
+
 ## 2026-10-28 — session verification update accepted by user
 - User confirmed the installed update, rejection/resubmission, stale-data approval prevention, and the proposed QR → correction → leave/behavior → session verification → JP → recap/profile regression with the expected outcomes.
 - Record the session verification/direct-correction update as completed and user-accepted at application source 3064b70. This is user-reported verification of the exercised flows, not independent logs or a claim of live fault-injection/load/report tests.

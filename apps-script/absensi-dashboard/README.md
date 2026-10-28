@@ -13,6 +13,14 @@ Preview files and Hasil-Pengujian.txt inherited from the older UI branch are his
 
 See SOURCE_SNAPSHOT.json for SHA-256 hashes of all 14 current HTML/GS source files, including the Jenjang preparation tools.
 
+## Login satu alur (28 Oktober 2026)
+
+Paket terbaru **ui/login-satu-alur**, melanjutkan versi verifikasi sesi yang sudah dikonfirmasi pengguna. Ganti **Akses.gs saja**, simpan, lalu Manage deployments → Edit deployment yang sama → New version → Deploy. Akun, penugasan, spreadsheet akses, OAuth dan aktivasi tetap dipakai; tidak perlu menyalin file lain atau membuat tab baru.
+
+Bagikan tautan aplikasi `/exec` dari card **Tautan Masuk Aplikasi** di Manajemen Akses. Petugas membuka tautan tersebut → Masuk dengan Google → memilih akun → Beranda tampil setelah verifikasi. Tautan uji tidak diperlukan untuk akun yang sudah didaftarkan. Diagnostik Identitas tetap tersedia untuk pemilik saat penyiapan/pemeriksaan masalah, dan tidak memberikan sesi aplikasi. Pendataan akun/Jenjang tetap sama. [Panduan login dan uji](docs/LOGIN_SATU_ALUR.md).
+
+220 tes backend dan Chromium lokal lulus dengan Google tiruan. Perubahan login ini belum dikonfirmasi pada deployment Google; tidak mengubah waktu proses layanan Google atau kebutuhan consent/test users.
+
 ## Verifikasi sesi dan koreksi petugas (28 Oktober 2026)
 
 **Status: selesai dan dikonfirmasi pengguna pada 28 Oktober 2026.** Pengguna mengonfirmasi alur koreksi/verifikasi, penolakan dan pengajuan ulang, penolakan persetujuan versi lama setelah data berubah, serta rangkaian QR → koreksi → izin/perilaku → persetujuan → JP → rekap/profil. Source aplikasi yang diterima tetap commit **3064b70**. Pembaruan dokumentasi penerimaan tidak memerlukan penggantian kode atau deployment ulang.

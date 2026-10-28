@@ -11,6 +11,7 @@ This repository also contains the upstream anti-slop project. Keep unrelated ups
 - Describe what changed and exactly which Apps Script files must be replaced. Deliver complete changed HTML/GS files, rather than fragments, when the user needs manual installation.
 - The user cannot download chat attachments reliably. Deliver complete updated files through a dedicated GitHub branch and provide direct file links for copying with GitHub Raw; do not rely on sandbox download links. Keep main unchanged unless merging is explicitly requested.
 - Do not deploy to Google, edit real spreadsheet data, or merge branches merely to implement a UI request.
+- Keep account registration, roles, assignment forms and the separate access spreadsheet as currently implemented. The requested login simplification changes entry/presentation only; ordinary staff should use one app URL, with identity diagnostics kept separate for owner troubleshooting.
 
 ## Current accepted UI
 - Navy (#192e50/#203960), rounded white cards about 24px, pale blue-gray background.
