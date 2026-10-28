@@ -4,7 +4,7 @@ Paket: **feat/login-dan-cakupan-panitia**, 27 Oktober 2026, Asia/Jakarta. Melanj
 
 ## Pembaruan alur verifikasi sesi (28 Oktober 2026)
 
-Ketentuan koreksi petugas pada tahap 4 di bawah adalah riwayat versi sebelumnya. Paket **feat/verifikasi-sesi-panitia** menggantinya dengan koreksi langsung dalam cakupan penugasan dan pengajuan bersama kehadiran/izin/perilaku per sesi/Jenjang. Ganti **Akses.gs, Code.gs, Hapus.gs, Index.html** bersama. Pengajuan lama tetap dapat ditinjau. Lihat [VERIFIKASI_SESI.md](../docs/VERIFIKASI_SESI.md) untuk alur, batasan, pemulihan parsial dan uji Google. 215 tes backend serta suite browser lokal lulus; alur paket baru belum diverifikasi pengguna di Google.
+Ketentuan koreksi petugas pada tahap 4 di bawah adalah riwayat versi sebelumnya. Paket **feat/verifikasi-sesi-panitia** menggantinya dengan koreksi langsung dalam cakupan penugasan dan pengajuan bersama kehadiran/izin/perilaku per sesi/Jenjang. Ganti **Akses.gs, Code.gs, Hapus.gs, Index.html** bersama. Pengajuan lama tetap dapat ditinjau. Lihat [VERIFIKASI_SESI.md](../docs/VERIFIKASI_SESI.md) untuk alur, batasan, pemulihan parsial dan uji Google. 215 tes backend serta suite browser lokal lulus; pengguna kemudian mengonfirmasi alur paket, penolakan/pengajuan ulang, pencegahan persetujuan versi lama dan regresi QR hingga JP/rekap/profil berhasil pada 28 Oktober 2026. Source 3064b70 diterima; skenario kegagalan parsial/beban tetap hanya terbukti lokal.
 
 ## Perbaikan transisi setelah tahap 4 terpasang
 

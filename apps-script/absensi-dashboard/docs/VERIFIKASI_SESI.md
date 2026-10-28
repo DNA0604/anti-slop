@@ -2,6 +2,12 @@
 
 Branch feat/verifikasi-sesi-panitia, 28 Oktober 2026, Asia/Jakarta. Melanjutkan fix/navigasi-jenjang-panitia (4fd598f).
 
+## Hasil uji pengguna — 28 Oktober 2026
+
+Pengguna mengonfirmasi pembaruan berhasil, penolakan/pengajuan ulang berjalan, perubahan data saat pengajuan menunggu mencegah persetujuan versi lama, serta alur lengkap QR datang/pulang → koreksi petugas → izin/perilaku → pengajuan → persetujuan Admin → hitung JP → rekap/profil sesuai harapan. Pembaruan dinyatakan selesai dan diterima pada source aplikasi **3064b70**.
+
+Ini mencatat hasil yang dilaporkan pengguna, bukan pengamatan langsung agent atas log/data Google. Skenario transaksi terputus, kelanjutan, tanda terima hilang, rumus dan paket besar telah diuji lokal tetapi belum dikonfirmasi terpisah pada Google. Pembaruan dokumentasi ini tidak mengubah kode dan tidak membutuhkan deployment ulang. Panduan uji di bawah tetap menjadi referensi regresi, bukan daftar pekerjaan yang harus diulang setelah penerimaan.
+
 ## Pemasangan
 
 1. Gunakan salinan proyek/database untuk uji awal. Pertahankan manifest, OAuth, akun, penugasan, aktivasi, URL deployment dan struktur Jenjang yang sudah bekerja.

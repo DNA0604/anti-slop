@@ -15,6 +15,8 @@ See SOURCE_SNAPSHOT.json for SHA-256 hashes of all 14 current HTML/GS source fil
 
 ## Verifikasi sesi dan koreksi petugas (28 Oktober 2026)
 
+**Status: selesai dan dikonfirmasi pengguna pada 28 Oktober 2026.** Pengguna mengonfirmasi alur koreksi/verifikasi, penolakan dan pengajuan ulang, penolakan persetujuan versi lama setelah data berubah, serta rangkaian QR → koreksi → izin/perilaku → persetujuan → JP → rekap/profil. Source aplikasi yang diterima tetap commit **3064b70**. Pembaruan dokumentasi penerimaan tidak memerlukan penggantian kode atau deployment ulang.
+
 Paket terbaru **feat/verifikasi-sesi-panitia** melanjutkan perbaikan navigasi. Ganti lengkap **Akses.gs, Code.gs, Hapus.gs dan Index.html secara bersamaan**, simpan lalu perbarui deployment yang sama ke **New version**. Tiga HTML navigasi lainnya dari pembaruan sebelumnya tetap digunakan. Tidak perlu file/tab/kolom baru, migrasi ulang atau mengubah akun/OAuth/aktivasi.
 
 Petugas dapat langsung menyimpan koreksi kehadiran dengan alasan dan riwayat; scan asli tetap. Pada Monitoring, pilih sesi lalu gunakan **Ajukan Verifikasi** untuk paket kehadiran, izin dan sikap/perilaku. Admin meninjau ringkasan/rincian lalu menyetujui atau menolak dengan alasan. Koreksi baru setelah keputusan memerlukan pengajuan baru. Hasil perhitungan JP tidak dianggap perubahan sumber kehadiran. Pengajuan koreksi lama tetap dapat diselesaikan pada card riwayat lama.

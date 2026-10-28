@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-10-28 — session verification update accepted by user
+- User confirmed the installed update, rejection/resubmission, stale-data approval prevention, and the proposed QR → correction → leave/behavior → session verification → JP → recap/profile regression with the expected outcomes.
+- Record the session verification/direct-correction update as completed and user-accepted at application source 3064b70. This is user-reported verification of the exercised flows, not independent logs or a claim of live fault-injection/load/report tests.
+- Documentation-only acceptance record; all application sources/snapshots remain unchanged. No replacement files, migration, activation or deployment needed; agent made no Google changes.
+
 ## 2026-10-28 — session verification packets and direct staff corrections
 - User confirmed the agreed role/Jenjang login/isolation/shared-data/revocation tests, then requested direct staff corrections and collective Admin verification covering attendance, leave and behavior per session/Jenjang.
 - Staff corrections now use the existing scoped/audited write immediately, marked pending validation. Added Monitoring packet preview/submission/review/approve/reject with reasons, stale-data detection and unchanged scan/JP rules. Legacy correction requests remain reviewable.
